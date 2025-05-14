@@ -1,5 +1,6 @@
 .about {
-    background-color: #fff;
+    background-color: #0f0f0f;
+    color: var(--text-color);
     padding: 6rem 0;
 }
 
@@ -54,14 +55,13 @@
 }
 
 .about-text h3 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
     color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .about-text p {
-    margin-bottom: 1rem;
-    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .about-text p:last-child {

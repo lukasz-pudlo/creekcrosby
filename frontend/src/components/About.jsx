@@ -36,10 +36,13 @@ const About = ({ aboutData }) => {
                             <div className="about-text">
                                 <h3>Creek Crosby</h3>
                                 <p>
-                                    Lorem ipsum.
+                                    Creek Crosby is a rock and roll band performing classic tracks from the 50s era, including Pop, Rock and Roll, Rockabilly, Country, and Blues.
                                 </p>
                                 <p>
-                                    Lorem ipsum.
+                                    Based in Greenock and Gourock, the band is known for their energetic performances and authentic vintage sound. With their debut single "Ashtray's Full, Bottle's Empty", Creek Crosby has been making waves in the local music scene.
+                                </p>
+                                <p>
+                                    The band features Gene McTaggart on vocals, Jim Boyd on guitar, Colin McTaggart on keys, Johnny White on bass/vocals, and Jim Duncan on drums. Occasionally joined by Roman Bain on Les Bourbon guitar and Pam McArts on keys.
                                 </p>
                             </div>
                         </div>
