@@ -22,6 +22,8 @@
 .contact-form {
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    /* Added padding to create space from edges */
 }
 
 .contact-info h3,
@@ -29,6 +31,8 @@
     color: var(--primary-color);
     text-transform: uppercase;
     letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    /* Added space below heading */
 }
 
 .info-item {
@@ -71,35 +75,69 @@
     color: darken(var(--primary-color), 10%);
 }
 
+/* Form styling improvements */
 .form-group {
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: baseline;
+    /* Align label and input */
 }
 
 .form-group label {
     color: var(--secondary-color);
+    width: 100px;
+    /* Increased width for labels to accommodate longer text */
+    text-align: right;
+    margin-right: 10px;
+    flex-shrink: 0;
+    /* Prevent label from shrinking */
+}
+
+.form-group label::after {
+    content: ": ";
+    /* Add colon after label */
 }
 
 .form-group input,
 .form-group textarea {
+    flex: 1;
+    /* Take remaining space */
     background-color: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: var(--text-color);
+    padding: 0.5rem;
+    min-width: 0;
+    /* Prevent input fields from overflowing */
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
     border-color: var(--primary-color);
+    outline: none;
 }
 
+/* Button styling consistent with hero button */
 .btn-submit {
     background-color: var(--primary-color);
     color: #fff;
     text-transform: uppercase;
     letter-spacing: 1px;
+    padding: 0.6rem 1.5rem;
+    /* Smaller than hero button */
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 2px solid var(--primary-color);
+    border-radius: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin-left: auto;
+    /* Right align button */
 }
 
 .btn-submit:hover {
-    background-color: darken(var(--primary-color), 10%);
+    background-color: #cc0000;
+    /* Slightly darker red */
     transform: translateY(-3px);
 }
 
@@ -107,6 +145,7 @@
     background-color: #999;
     cursor: not-allowed;
     transform: none;
+    border-color: #999;
 }
 
 .success-message {
@@ -125,12 +164,38 @@
     background-color: var(--primary-color);
     color: #fff;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
     font-weight: 500;
     transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .success-message button:hover {
-    background-color: darken(var(--primary-color), 10%);
+    background-color: #cc0000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-group label {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        /* Ensure full width on mobile */
+    }
+
+    .btn-submit {
+        width: 100%;
+        margin-left: 0;
+    }
 }
