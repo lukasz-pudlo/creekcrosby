@@ -1,6 +1,6 @@
 import React from 'react';
 import './Hero.css';
-import bandImage from '../assets/images/ashtray2.jpg';
+import bandImage from '../assets/images/ashtray3.jpg';
 
 const Hero = () => {
     return (
