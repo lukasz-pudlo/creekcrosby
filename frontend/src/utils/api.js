@@ -1,19 +1,18 @@
 import axios from 'axios';
 
-// API base URL
-const API_URL = process.env.REACT_APP_API_URL || '';
-
-// Create axios instance
+// Create axios instance with dynamic base URL
 const api = axios.create({
-    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Request interceptor for adding auth token
+// Set the base URL dynamically before each request
 api.interceptors.request.use(
     (config) => {
+        // Use the current location as the base URL
+        config.baseURL = `${window.location.origin}`;
+
         // Add CSRF token to headers for POST, PUT, PATCH, DELETE requests
         const csrfToken = document.cookie
             .split('; ')

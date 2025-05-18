@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const MediaContext = createContext({
+const MediaContext = React.createContext({
     getFullMediaUrl: (url) => url,
 });
 
@@ -8,8 +8,12 @@ export const MediaProvider = ({ children }) => {
     const [mediaBaseUrl, setMediaBaseUrl] = useState('');
 
     useEffect(() => {
-        // Set the base URL for media files
-        setMediaBaseUrl('http://localhost:8000');
+        // Dynamically determine the base URL from the current location
+        const host = window.location.host;
+        const protocol = window.location.protocol;
+
+        // Set the media base URL to the current server
+        setMediaBaseUrl(`${protocol}//${host}`);
     }, []);
 
     // Create the context value object
@@ -30,7 +34,7 @@ export const MediaProvider = ({ children }) => {
 
 // Export the hook with a clear error message if used outside the provider
 export const useMedia = () => {
-    const context = useContext(MediaContext);
+    const context = React.useContext(MediaContext);
     if (context === undefined) {
         throw new Error('useMedia must be used within a MediaProvider');
     }
