@@ -20,6 +20,13 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 BASE_ALLOWED_HOSTS = os.environ.get(
     'ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
+# CSRF Configuration
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the token
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_AGE = None
+
 # Function to detect ngrok tunnels
 
 
@@ -90,7 +97,10 @@ ROOT_URLCONF = 'creek_crosby.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend/build')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'frontend/build')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

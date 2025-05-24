@@ -6,6 +6,7 @@ from .views import (
     AboutSectionViewSet,
     ContactInfoViewSet
 )
+from . import auth_views
 
 router = DefaultRouter()
 router.register(r'events', EventViewSet)
@@ -15,4 +16,8 @@ router.register(r'contact', ContactInfoViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    # Auth endpoints for checking login status
+    path('auth/status/', auth_views.auth_status, name='auth_status'),
+    path('auth/csrf/', auth_views.csrf_token, name='csrf_token'),
+    path('auth/logout/', auth_views.logout_view, name='logout'),
 ]
