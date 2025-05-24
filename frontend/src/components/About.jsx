@@ -1,12 +1,86 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useInView } from 'react-intersection-observer';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import EditableText from './EditableText';
+import EditableImage from './EditableImage';
 import './About.css';
 
-const About = ({ aboutData }) => {
+const About = ({ aboutData, onDataUpdate }) => {
+    const { isStaff } = useAuth();
     const { ref, inView } = useInView({
         triggerOnce: true,
         threshold: 0.1,
     });
+
+    const handleSaveText = async (sectionId, field, newValue) => {
+        try {
+            const response = await axios.patch(`/api/about/${sectionId}/`, {
+                [field]: newValue
+            });
+
+            // Update local state
+            if (onDataUpdate) {
+                onDataUpdate(response.data);
+            }
+        } catch (error) {
+            console.error('Error updating about section:', error);
+            throw error;
+        }
+    };
+
+    const handleSaveImage = async (sectionId, imageData) => {
+        try {
+            const response = await axios.patch(`/api/about/${sectionId}/`, imageData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            // Update local state
+            if (onDataUpdate) {
+                onDataUpdate(response.data);
+            }
+        } catch (error) {
+            console.error('Error updating image:', error);
+            throw error;
+        }
+    };
+
+    const handleAddSection = async () => {
+        try {
+            const response = await axios.post('/api/about/', {
+                title: 'New Section',
+                content: 'Click to edit this content...'
+            });
+
+            // Update local state
+            if (onDataUpdate) {
+                onDataUpdate(response.data);
+            }
+        } catch (error) {
+            console.error('Error adding section:', error);
+            alert('Failed to add new section.');
+        }
+    };
+
+    const handleDeleteSection = async (sectionId) => {
+        if (!window.confirm('Are you sure you want to delete this section?')) {
+            return;
+        }
+
+        try {
+            await axios.delete(`/api/about/${sectionId}/`);
+
+            // Update local state
+            if (onDataUpdate) {
+                onDataUpdate(null, sectionId); // Signal deletion
+            }
+        } catch (error) {
+            console.error('Error deleting section:', error);
+            alert('Failed to delete section.');
+        }
+    };
 
     return (
         <section className="about" id="about">
@@ -20,14 +94,38 @@ const About = ({ aboutData }) => {
                     {aboutData && aboutData.length > 0 ? (
                         aboutData.map((section, index) => (
                             <div key={section.id} className={`about-item ${index % 2 === 0 ? 'left' : 'right'}`}>
-                                {section.image && (
-                                    <div className="about-image">
-                                        <img src={section.image} alt={section.title} />
-                                    </div>
+                                {isStaff && (
+                                    <button
+                                        className="delete-section-btn"
+                                        onClick={() => handleDeleteSection(section.id)}
+                                        title="Delete section"
+                                    >
+                                        ×
+                                    </button>
                                 )}
+
+                                <EditableImage
+                                    src={section.image}
+                                    alt={section.title}
+                                    onSave={(imageData) => handleSaveImage(section.id, imageData)}
+                                    className="about-image"
+                                    placeholder="Add section image"
+                                />
+
                                 <div className="about-text">
-                                    <h3>{section.title}</h3>
-                                    <p>{section.content}</p>
+                                    <EditableText
+                                        text={section.title}
+                                        onSave={(newValue) => handleSaveText(section.id, 'title', newValue)}
+                                        tag="h3"
+                                        placeholder="Section title..."
+                                    />
+                                    <EditableText
+                                        text={section.content}
+                                        onSave={(newValue) => handleSaveText(section.id, 'content', newValue)}
+                                        tag="p"
+                                        placeholder="Section content..."
+                                        multiline={true}
+                                    />
                                 </div>
                             </div>
                         ))
@@ -45,6 +143,17 @@ const About = ({ aboutData }) => {
                                     The band features Gene McTaggart on vocals, Jim Boyd on guitar, Colin McTaggart on keys, Johnny White on bass/vocals, and Jim Duncan on drums. Occasionally joined by Roman Bain on Les Bourbon guitar and Pam McArts on keys.
                                 </p>
                             </div>
+                        </div>
+                    )}
+
+                    {isStaff && (
+                        <div className="staff-actions">
+                            <button
+                                className="add-section-btn"
+                                onClick={handleAddSection}
+                            >
+                                + Add New Section
+                            </button>
                         </div>
                     )}
                 </div>

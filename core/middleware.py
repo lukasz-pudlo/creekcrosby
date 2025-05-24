@@ -1,5 +1,20 @@
-from django.utils.deprecation import MiddlewareMixin
 from django.conf import settings
+from django.utils.deprecation import MiddlewareMixin
+
+
+class DisableCSRFForAPI:
+    """Temporarily disable CSRF for API endpoints during development"""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Disable CSRF for all API requests
+        if request.path.startswith("/api/"):
+            setattr(request, "_dont_enforce_csrf_checks", True)
+
+        response = self.get_response(request)
+        return response
 
 
 class SecurityHeadersMiddleware(MiddlewareMixin):
@@ -18,22 +33,24 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
                 "font-src 'self'; "
                 "connect-src 'self';"
             )
-            response['Content-Security-Policy'] = csp
+            response["Content-Security-Policy"] = csp
 
         # Prevent MIME type sniffing
-        response['X-Content-Type-Options'] = 'nosniff'
+        response["X-Content-Type-Options"] = "nosniff"
 
         # Prevent clickjacking
-        response['X-Frame-Options'] = 'DENY'
+        response["X-Frame-Options"] = "DENY"
 
         # Enable XSS filter in browser
-        response['X-XSS-Protection'] = '1; mode=block'
+        response["X-XSS-Protection"] = "1; mode=block"
 
         # Control the referrer information sent in requests
-        response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        response["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
         # Feature Policy to disable potentially dangerous features
-        response['Feature-Policy'] = "camera 'none'; microphone 'none'; geolocation 'none'"
+        response["Feature-Policy"] = (
+            "camera 'none'; microphone 'none'; geolocation 'none'"
+        )
 
         return response
 
@@ -51,21 +68,23 @@ class NgrokAllowedHostMiddleware(MiddlewareMixin):
         host = request.get_host()
 
         # Check if it's an ngrok host
-        if 'ngrok' in host and host not in request.META.get('ALLOWED_HOSTS', []):
+        if "ngrok" in host and host not in request.META.get("ALLOWED_HOSTS", []):
             # Add the host to ALLOWED_HOSTS
             from django.conf import settings
-            if hasattr(settings, 'ALLOWED_HOSTS'):
+
+            if hasattr(settings, "ALLOWED_HOSTS"):
                 if host not in settings.ALLOWED_HOSTS:
                     settings.ALLOWED_HOSTS.append(host)
                     print(f"Added {host} to ALLOWED_HOSTS dynamically")
 
                     # Also add to CSRF_TRUSTED_ORIGINS if available
-                    if hasattr(settings, 'CSRF_TRUSTED_ORIGINS'):
-                        https_host = f'https://{host}'
+                    if hasattr(settings, "CSRF_TRUSTED_ORIGINS"):
+                        https_host = f"https://{host}"
                         if https_host not in settings.CSRF_TRUSTED_ORIGINS:
                             settings.CSRF_TRUSTED_ORIGINS.append(https_host)
                             print(
-                                f"Added {https_host} to CSRF_TRUSTED_ORIGINS dynamically")
+                                f"Added {https_host} to CSRF_TRUSTED_ORIGINS dynamically"
+                            )
 
         # Continue processing the request
         return None

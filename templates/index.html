@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="{% static 'favicon.ico' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#3498db" />
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <meta
+      name="description"
+      content="Creek Crosby and The Crewcuts are a rock and roll band, originally from Greenock and Gourock."
+    />
+    <link rel="apple-touch-icon" href="{% static 'logo192.png' %}" />
+    <link rel="manifest" href="{% static 'manifest.json' %}" />
+    <title>Creek Crosby</title>
+    
+    <!-- Load CSS files -->
+    {% for css_file in css_files %}
+    <link rel="stylesheet" type="text/css" href="{% static css_file %}" />
+    {% endfor %}
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    
+    <!-- Load JS files -->
+    {% for js_file in js_files %}
+    <script src="{% static js_file %}"></script>
+    {% endfor %}
+  </body>
+</html>
