@@ -61,7 +61,23 @@ const Events = ({ events }) => {
                         ))
                     ) : (
                         <div className="no-events">
-                            <p>No upcoming events at the moment. Check back soon!</p>
+                            <p>Upcoming shows:</p>
+                            <div className="event-card">
+                                <div className="event-content">
+                                    <h3 className="event-title">Live at Blackfriars, Glasgow</h3>
+                                    <div className="event-details">
+                                        <p className="event-date">
+                                            <span className="icon">📅</span> August 6th and September 24th
+                                        </p>
+                                        <p className="event-time">
+                                            <span className="icon">🕒</span> Doors open from 21:00
+                                        </p>
+                                        <p className="event-location">
+                                            <span className="icon">📍</span> Blackfriars, Glasgow
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

@@ -1,4 +1,6 @@
 import os
+import re
+import requests
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -14,8 +16,44 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-temporary-dev-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get(
+# Base allowed hosts
+BASE_ALLOWED_HOSTS = os.environ.get(
     'ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+
+# Function to detect ngrok tunnels
+
+
+def get_ngrok_urls():
+    ngrok_urls = []
+    try:
+        # Try to get active tunnels from ngrok API
+        response = requests.get("http://localhost:4040/api/tunnels")
+        if response.status_code == 200:
+            data = response.json()
+            for tunnel in data['tunnels']:
+                url = tunnel.get('public_url', '')
+                if url and 'ngrok' in url:
+                    # Extract hostname without protocol
+                    hostname = re.sub(r'^https?://', '', url).split('/')[0]
+                    ngrok_urls.append(hostname)
+    except:
+        # If ngrok API is not available, don't fail
+        pass
+
+    return ngrok_urls
+
+
+# Add ngrok URLs to allowed hosts
+ALLOWED_HOSTS = BASE_ALLOWED_HOSTS + get_ngrok_urls()
+print(f"Using ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+
+# Trust ngrok as a proxy
+CSRF_TRUSTED_ORIGINS = []
+for host in ALLOWED_HOSTS:
+    if host.startswith('127.0.0.1') or host.startswith('localhost'):
+        CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
+    elif 'ngrok' in host:
+        CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
 
 # Application definition
 INSTALLED_APPS = [
@@ -43,6 +81,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.NgrokAllowedHostMiddleware',
     'core.middleware.SecurityHeadersMiddleware',
 ]
 
@@ -110,10 +149,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = DEBUG
-CORS_ALLOWED_ORIGINS = os.environ.get(
-    'CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+# CORS settings - allow all for ngrok development
+CORS_ALLOW_ALL_ORIGINS = True
 
 # REST Framework settings
 REST_FRAMEWORK = {

@@ -14,5 +14,5 @@ router.register(r'about', AboutSectionViewSet)
 router.register(r'contact', ContactInfoViewSet)
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]

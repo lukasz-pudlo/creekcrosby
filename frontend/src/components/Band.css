@@ -1,5 +1,6 @@
 .band {
-    background-color: #fff;
+    background-color: #000;
+    color: var(--text-color);
     padding: 6rem 0;
 }
 
@@ -18,15 +19,14 @@
 }
 
 .band-member {
-    background-color: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: transform 0.3s ease;
 }
 
 .band-member:hover {
     transform: translateY(-5px);
+    border-color: var(--primary-color);
 }
 
 .member-image {
@@ -47,11 +47,7 @@
 }
 
 .member-placeholder {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: #333;
 }
 
 .initials {
@@ -59,8 +55,10 @@
     font-weight: 700;
 }
 
-.member-info {
-    padding: 1.5rem;
+.member-info h3 {
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .member-info h3 {
@@ -70,16 +68,13 @@
 }
 
 .member-position {
-    font-size: 1rem;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-    font-weight: 500;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .member-bio {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: #555;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .no-band {

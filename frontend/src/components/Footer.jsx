@@ -10,7 +10,7 @@ const Footer = ({ contactInfo }) => {
                 <div className="footer-grid">
                     <div className="footer-logo">
                         <h3>Creek Crosby</h3>
-                        <p>Footer text placeholder</p>
+                        <p>50s Pop, Rock and Roll, Rockabilly, Country, Blues</p>
                     </div>
 
                     <div className="footer-links">

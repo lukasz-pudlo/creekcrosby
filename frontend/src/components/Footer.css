@@ -1,6 +1,6 @@
 .footer {
-    background-color: var(--dark-bg);
-    color: #fff;
+    background-color: #000;
+    color: var(--text-color);
     padding: 4rem 0 1.5rem;
 }
 
@@ -12,9 +12,9 @@
 }
 
 .footer-logo h3 {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-    color: #fff;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .footer-logo p {
@@ -24,10 +24,9 @@
 .footer-links h4,
 .footer-contact h4,
 .footer-social h4 {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-    color: #fff;
-    position: relative;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .footer-links h4::after,
@@ -60,8 +59,9 @@
 }
 
 .footer-links a:hover,
-.footer-contact a:hover {
-    color: #fff;
+.footer-contact a:hover,
+.social-icons a:hover {
+    color: var(--primary-color);
 }
 
 .footer-contact address {
