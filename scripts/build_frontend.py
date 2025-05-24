@@ -11,7 +11,7 @@ def main():
     """
     # Determine the base directory of the project
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    frontend_dir = os.path.join(base_dir, 'frontend')
+    frontend_dir = os.path.join(base_dir, "frontend")
 
     # Check if frontend directory exists
     if not os.path.exists(frontend_dir):
@@ -31,7 +31,7 @@ def main():
         subprocess.run(["npm", "run", "build"], check=True)
 
         # Create necessary Django directories if they don't exist
-        static_dir = os.path.join(base_dir, 'staticfiles')
+        static_dir = os.path.join(base_dir, "staticfiles")
         if not os.path.exists(static_dir):
             os.makedirs(static_dir)
 

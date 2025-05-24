@@ -18,6 +18,8 @@ isort = "*"
 flake8 = "*"
 pytest = "*"
 pytest-django = "*"
+autopep8 = "*"
+autoflake = "*"
 
 [requires]
 python_version = "3.12"

@@ -10,19 +10,19 @@ import time
 def run_django():
     """Run Django development server"""
     try:
-        os.system('python manage.py runserver')
+        os.system("python manage.py runserver")
     except KeyboardInterrupt:
         pass
 
 
 def run_react():
     """Run React development server"""
-    os.chdir('frontend')
+    os.chdir("frontend")
     try:
         # Set environment variable for React to proxy API requests
         env = os.environ.copy()
-        env['REACT_APP_API_URL'] = 'http://localhost:8000'
-        subprocess.run(['npm', 'start'], env=env)
+        env["REACT_APP_API_URL"] = "http://localhost:8000"
+        subprocess.run(["npm", "start"], env=env)
     except KeyboardInterrupt:
         pass
 
@@ -47,7 +47,7 @@ def main():
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
