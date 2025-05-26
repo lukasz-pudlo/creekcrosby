@@ -1,12 +1,14 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from . import auth_views
 from .views import (
     AboutSectionViewSet,
     BandMemberViewSet,
     ContactInfoViewSet,
     EventViewSet,
+    LoginView,
+    LogoutView,
+    UserView,
 )
 
 router = DefaultRouter()
@@ -17,8 +19,7 @@ router.register(r"contact", ContactInfoViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
-    # Auth endpoints for checking login status
-    path("auth/status/", auth_views.auth_status, name="auth_status"),
-    path("auth/csrf/", auth_views.csrf_token, name="csrf_token"),
-    path("auth/logout/", auth_views.logout_view, name="logout"),
+    path("auth/user/", UserView.as_view(), name="auth_user"),
+    path("auth/login/", LoginView.as_view(), name="auth_login"),
+    path("auth/logout/", LogoutView.as_view(), name="auth_logout"),
 ]

@@ -111,3 +111,17 @@
         grid-template-columns: 1fr;
     }
 }
+
+.edit-mode .event-card {
+    position: relative;
+    border: 2px dashed transparent;
+    transition: border-color 0.3s ease;
+}
+
+.edit-mode .event-card:hover {
+    border-color: #ff0000;
+}
+
+.edit-mode .event-card:hover .edit-controls {
+    opacity: 1 !important;
+}
