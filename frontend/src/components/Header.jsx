@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { user, editMode, toggleEditMode } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -41,6 +43,32 @@ const Header = () => {
                         <li><a href="#events" onClick={() => setMobileMenuOpen(false)}>Events</a></li>
                         <li><a href="#band" onClick={() => setMobileMenuOpen(false)}>Band</a></li>
                         <li><a href="#contact" onClick={() => setMobileMenuOpen(false)}>Contact</a></li>
+
+                        {user && (
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        document.body.classList.toggle('edit-mode');
+                                        const isEditMode = document.body.classList.contains('edit-mode');
+                                        const button = document.querySelector('.edit-toggle-btn');
+                                        button.textContent = isEditMode ? '✓ Edit Mode ON' : 'Edit Mode';
+                                        button.style.backgroundColor = isEditMode ? '#28a745' : 'transparent';
+                                        console.log('Edit mode:', isEditMode ? 'ON' : 'OFF');
+                                    }}
+                                    className="edit-toggle-btn"
+                                    style={{
+                                        background: 'transparent',
+                                        border: '1px solid #fff',
+                                        color: '#fff',
+                                        padding: '0.5rem 1rem',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    Edit Mode
+                                </button>
+                            </li>
+                        )}
                     </ul>
                 </nav>
             </div>

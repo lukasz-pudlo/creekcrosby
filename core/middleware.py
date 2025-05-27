@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.http import HttpResponsePermanentRedirect
 from django.utils.deprecation import MiddlewareMixin
 
 
@@ -12,6 +13,31 @@ class DisableCSRFForAPI:
         # Disable CSRF for all API requests
         if request.path.startswith("/api/"):
             setattr(request, "_dont_enforce_csrf_checks", True)
+
+        response = self.get_response(request)
+        return response
+
+
+class TrailingSlashMiddleware:
+    """Add trailing slash to URLs that need it"""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # List of paths that should have trailing slashes
+        paths_needing_slash = ["/admin"]
+
+        path = request.path_info
+
+        # Check if path needs a trailing slash and doesn't have one
+        for needed_path in paths_needing_slash:
+            if path == needed_path and not path.endswith("/"):
+                # Redirect to version with trailing slash
+                new_path = path + "/"
+                if request.GET:
+                    new_path += "?" + request.GET.urlencode()
+                return HttpResponsePermanentRedirect(new_path)
 
         response = self.get_response(request)
         return response
@@ -59,8 +85,9 @@ class NgrokAllowedHostMiddleware(MiddlewareMixin):
     """
     Middleware to dynamically add ngrok hosts to allowed hosts.
 
-    This middleware checks if the request is coming from an ngrok.io or ngrok-free.app domain
-    and if so, adds that domain to Django's ALLOWED_HOSTS setting dynamically.
+    This middleware checks if the request is coming from an ngrok.io or
+    ngrok-free.app domain and if so, adds that domain to Django's
+    ALLOWED_HOSTS setting dynamically.
     """
 
     def process_request(self, request):
@@ -82,9 +109,7 @@ class NgrokAllowedHostMiddleware(MiddlewareMixin):
                         https_host = f"https://{host}"
                         if https_host not in settings.CSRF_TRUSTED_ORIGINS:
                             settings.CSRF_TRUSTED_ORIGINS.append(https_host)
-                            print(
-                                f"Added {https_host} to CSRF_TRUSTED_ORIGINS dynamically"
-                            )
+                            print(f"Added {https_host} to CSRF_TRUSTED_ORIGINS")
 
         # Continue processing the request
         return None

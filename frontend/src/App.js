@@ -8,7 +8,6 @@ import Events from './components/Events';
 import Band from './components/Band';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import StaffIndicator from './components/StaffIndicator';
 import './App.css';
 
 function AppContent() {
@@ -18,10 +17,6 @@ function AppContent() {
     const [contact, setContact] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        fetchData();
-    }, []);
 
     const fetchData = async () => {
         try {
@@ -47,68 +42,39 @@ function AppContent() {
         }
     };
 
-    const handleAboutUpdate = (updatedSection, deletedId = null) => {
-        if (deletedId) {
-            // Remove deleted section
-            setAbout(prev => prev.filter(section => section.id !== deletedId));
-        } else if (updatedSection) {
-            // Update or add section
-            setAbout(prev => {
-                const existingIndex = prev.findIndex(section => section.id === updatedSection.id);
-                if (existingIndex >= 0) {
-                    // Update existing
-                    const newAbout = [...prev];
-                    newAbout[existingIndex] = updatedSection;
-                    return newAbout;
-                } else {
-                    // Add new
-                    return [...prev, updatedSection];
-                }
-            });
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleEventsUpdate = async () => {
+        try {
+            const response = await axios.get('/api/events/');
+            setEvents(response.data);
+        } catch (err) {
+            console.error('Error updating events:', err);
         }
     };
 
-    const handleEventsUpdate = (updatedEvent, deletedId = null) => {
-        if (deletedId) {
-            setEvents(prev => prev.filter(event => event.id !== deletedId));
-        } else if (updatedEvent) {
-            setEvents(prev => {
-                const existingIndex = prev.findIndex(event => event.id === updatedEvent.id);
-                if (existingIndex >= 0) {
-                    const newEvents = [...prev];
-                    newEvents[existingIndex] = updatedEvent;
-                    return newEvents;
-                } else {
-                    return [...prev, updatedEvent];
-                }
-            });
+    const handleBandUpdate = async () => {
+        try {
+            const response = await axios.get('/api/band/');
+            setBand(response.data);
+        } catch (err) {
+            console.error('Error updating band:', err);
         }
     };
 
-    const handleBandUpdate = (updatedMember, deletedId = null) => {
-        if (deletedId) {
-            setBand(prev => prev.filter(member => member.id !== deletedId));
-        } else if (updatedMember) {
-            setBand(prev => {
-                const existingIndex = prev.findIndex(member => member.id === updatedMember.id);
-                if (existingIndex >= 0) {
-                    const newBand = [...prev];
-                    newBand[existingIndex] = updatedMember;
-                    return newBand;
-                } else {
-                    return [...prev, updatedMember];
-                }
-            });
+    const handleAboutUpdate = async () => {
+        try {
+            const response = await axios.get('/api/about/');
+            setAbout(response.data);
+        } catch (err) {
+            console.error('Error updating about:', err);
         }
-    };
-
-    const handleContactUpdate = (updatedContact) => {
-        setContact(updatedContact);
     };
 
     return (
         <div className="app">
-            <StaffIndicator />
             <Header />
             <main>
                 <Hero />
@@ -121,20 +87,17 @@ function AppContent() {
                     <>
                         <About
                             aboutData={about}
-                            onDataUpdate={handleAboutUpdate}
+                            onAboutUpdate={handleAboutUpdate}
                         />
                         <Events
                             events={events}
-                            onDataUpdate={handleEventsUpdate}
+                            onEventsUpdate={handleEventsUpdate}
                         />
                         <Band
                             band={band}
-                            onDataUpdate={handleBandUpdate}
+                            onBandUpdate={handleBandUpdate}
                         />
-                        <Contact
-                            contactInfo={contact}
-                            onDataUpdate={handleContactUpdate}
-                        />
+                        <Contact contactInfo={contact} />
                     </>
                 )}
             </main>
