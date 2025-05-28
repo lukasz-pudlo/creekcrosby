@@ -248,12 +248,12 @@ body {
 
 /* Sections */
 section {
-    padding: 6rem 0;
+    padding: 4rem 0;
 }
 
 .section-title {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
     font-size: 2.5rem;
     font-weight: 600;
     color: var(--primary-color);
@@ -281,11 +281,224 @@ section {
 }
 
 .about-content {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.95);
+    max-width: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* Markdown Typography Enhancements */
+.about-content h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin: 2rem 0 1.5rem 0;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+}
+
+.about-content h2 {
+    font-size: 2rem;
+    color: #ff6666;
+    margin: 2rem 0 1rem 0;
+    font-weight: bold;
+    position: relative;
+}
+
+.about-content h2::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
+}
+
+.about-content h3 {
+    font-size: 1.5rem;
+    color: #ff9999;
+    margin: 1.5rem 0 0.8rem 0;
+    font-weight: 600;
+}
+
+.about-content p {
+    margin-bottom: 1.5rem;
+    text-align: justify;
+    text-justify: inter-word;
+    position: relative;
+}
+
+.about-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Enhanced Bold and Italic Styling */
+.about-content strong,
+.about-content b {
+    font-weight: bold;
+    color: var(--primary-color);
+    text-shadow: 0 0 2px rgba(255, 0, 0, 0.3);
+}
+
+.about-content em,
+.about-content i {
+    font-style: italic;
+    color: #ffcccc;
+    font-weight: 500;
+}
+
+/* Links Styling */
+.about-content a {
+    color: var(--primary-color);
+    text-decoration: underline;
+    transition: all 0.3s ease;
+}
+
+.about-content a:hover {
+    color: #ff6666;
+    text-shadow: 0 0 4px rgba(255, 0, 0, 0.5);
+}
+
+/* List Styling */
+.about-content ul,
+.about-content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.about-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.about-content ul li::marker {
+    color: var(--primary-color);
+}
+
+/* Blockquote Styling */
+.about-content blockquote {
+    border-left: 4px solid var(--primary-color);
+    margin: 2rem 0;
+    padding: 1rem 2rem;
+    background: rgba(255, 0, 0, 0.05);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    position: relative;
+}
+
+.about-content blockquote::before {
+    content: '"';
+    font-size: 4rem;
+    color: var(--primary-color);
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    opacity: 0.3;
+}
+
+/* Code Styling */
+.about-content code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    color: #ffcccc;
+}
+
+.about-content pre {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+/* Horizontal Rule */
+.about-content hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    margin: 2rem 0;
+}
+
+/* About Item Layout Improvements */
+.about-item {
+    margin-bottom: 3rem;
+    padding: 3rem;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+    border-radius: 16px;
+    border: 1px solid rgba(255, 0, 0, 0.15);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), #ff6666, var(--primary-color));
+    opacity: 0.8;
+}
+
+.about-item:hover {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+    border-color: rgba(255, 0, 0, 0.3);
+    transform: translateY(-4px);
+    box-shadow:
+        0 12px 40px rgba(255, 0, 0, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.about-item h3 {
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.about-item h3::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+}
+
+/* First Letter Styling for Story Sections */
+.about-content p:first-of-type::first-letter {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    float: left;
+    line-height: 1;
+    margin: 0.1rem 0.5rem 0 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Quote-like styling for certain paragraphs */
+.about-content p:nth-child(odd) {
+    padding-left: 1rem;
+    border-left: 2px solid rgba(255, 0, 0, 0.2);
+}
+
+/* Enhanced About Item Layout */
 .about-item {
     display: flex;
     flex-wrap: wrap;
@@ -1718,5 +1931,338 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
 
     .band-grid.sortable .band-member {
         margin-bottom: 1rem;
+    }
+}
+
+/* Rich Text Editing Styles */
+.formatting-toolbar {
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid #ff0000;
+    border-radius: 4px 4px 0 0;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+}
+
+.format-btn {
+    background: rgba(255, 0, 0, 0.2);
+    border: 1px solid rgba(255, 0, 0, 0.5);
+    color: #ff0000;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.format-btn:hover {
+    background: rgba(255, 0, 0, 0.4);
+    border-color: #ff0000;
+    transform: translateY(-1px);
+}
+
+.format-btn:active {
+    transform: translateY(0);
+}
+
+.formatting-help {
+    margin-left: auto;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+}
+
+.formatting-help small {
+    display: block;
+    line-height: 1.2;
+}
+
+/* Enhanced edit input for rich text */
+.edit-form .edit-input {
+    border-radius: 0 0 4px 4px;
+    border-top: none;
+    min-height: 120px;
+    font-family: 'Courier New', monospace;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.edit-form .formatting-toolbar+.edit-input {
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+}
+
+/* Rich text display improvements */
+.about-content,
+.member-bio {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+.about-content p,
+.member-bio p {
+    margin-bottom: 0.8rem;
+}
+
+.about-content p:last-child,
+.member-bio p:last-child {
+    margin-bottom: 0;
+}
+
+/* Markdown-style formatting in display */
+.about-content strong,
+.member-bio strong,
+.about-content b,
+.member-bio b {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.about-content em,
+.member-bio em,
+.about-content i,
+.member-bio i {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.about-content a,
+.member-bio a {
+    color: var(--primary-color);
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.about-content a:hover,
+.member-bio a:hover {
+    color: #cc0000;
+}
+
+/* Bullet points styling */
+.about-content br+•,
+.member-bio br+• {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Mobile responsive toolbar */
+@media (max-width: 768px) {
+    .formatting-toolbar {
+        padding: 6px;
+        gap: 3px;
+    }
+
+    .format-btn {
+        padding: 3px 6px;
+        font-size: 0.75rem;
+        min-width: 24px;
+        height: 24px;
+    }
+
+    .formatting-help {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 4px;
+        text-align: center;
+    }
+}
+
+/* About Sections Container */
+.about-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+    .about-sections {
+        padding: 0 1rem;
+        gap: 2rem;
+    }
+
+    .about-item {
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .about-item h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .about-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .about-content h1 {
+        font-size: 2rem;
+    }
+
+    .about-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .about-content h3 {
+        font-size: 1.3rem;
+    }
+
+    .about-content h2::before {
+        left: -15px;
+        width: 3px;
+    }
+
+    .about-content p:first-of-type::first-letter {
+        font-size: 2.5rem;
+        margin: 0.05rem 0.3rem 0 0;
+    }
+
+    .about-content p:nth-child(odd) {
+        padding-left: 0.5rem;
+    }
+}
+
+/* Special styling for the band story */
+.about-item[data-section-id] .about-content {
+    column-count: 1;
+    column-gap: 3rem;
+    column-fill: balance;
+}
+
+@media (min-width: 1200px) {
+    .about-item[data-section-id] .about-content {
+        column-count: 2;
+        column-gap: 3rem;
+        column-fill: balance;
+        text-align: justify;
+    }
+
+    .about-content h1,
+    .about-content h2 {
+        column-span: all;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Adjust first letter styling for better column flow */
+    .about-item[data-section-id] .about-content p:first-of-type::first-letter {
+        font-size: 2.8rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        float: left;
+        line-height: 0.9;
+        margin: 0.1rem 0.4rem 0 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Ensure consistent paragraph spacing in columns */
+    .about-item[data-section-id] .about-content p {
+        margin-bottom: 1rem;
+        orphans: 2;
+        widows: 2;
+    }
+
+    /* Remove alternating paragraph styling in columns for better flow */
+    .about-item[data-section-id] .about-content p:nth-child(odd) {
+        padding-left: 0;
+        border-left: none;
+    }
+}
+
+/* Enhanced column break control */
+@media (min-width: 1200px) {
+    .about-item[data-section-id] .about-content {
+        /* Prevent awkward breaks */
+        column-rule: 1px solid rgba(255, 0, 0, 0.2);
+        column-rule-style: solid;
+        column-rule-width: 1px;
+        column-rule-color: rgba(255, 0, 0, 0.15);
+    }
+
+    /* Better paragraph control */
+    .about-item[data-section-id] .about-content p {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+/* Enhanced column layout for better alignment */
+@media (min-width: 1200px) {
+    .about-item[data-section-id] {
+        /* Ensure consistent baseline */
+        display: block;
+    }
+
+    .about-item[data-section-id] .about-content {
+        /* Force columns to start at same level */
+        column-fill: auto;
+        min-height: 400px;
+        position: relative;
+    }
+
+    /* Add subtle column separator */
+    .about-item[data-section-id] .about-content::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(255, 0, 0, 0.2) 10%,
+                rgba(255, 0, 0, 0.2) 90%,
+                transparent 100%);
+        transform: translateX(-50%);
+        z-index: 1;
+    }
+
+    /* Improve text flow around drop cap */
+    .about-item[data-section-id] .about-content p:first-of-type {
+        text-indent: 0;
+        margin-top: 0;
+    }
+
+    /* Better spacing for headers in columns */
+    .about-item[data-section-id] .about-content h1 {
+        margin-top: 0;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .about-item[data-section-id] .about-content h2 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        break-after: avoid;
+    }
+
+    /* Ensure consistent line height throughout */
+    .about-item[data-section-id] .about-content {
+        line-height: 1.7;
+    }
+
+    /* Better paragraph spacing in columns */
+    .about-item[data-section-id] .about-content p {
+        margin-bottom: 1.2rem;
+        text-align: justify;
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+    }
+
+    /* Last paragraph in each column */
+    .about-item[data-section-id] .about-content p:last-child {
+        margin-bottom: 0;
     }
 }

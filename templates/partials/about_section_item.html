@@ -1,3 +1,5 @@
+{% load markdown_extras %}
+
 <div class="about-item {% cycle 'left' 'right' %}" data-section-id="{{ section.id }}">
     {% if is_staff %}
         <div class="edit-controls">
@@ -15,6 +17,7 @@
         {% if section.image %}
             <div class="about-image">
                 <img src="{{ section.image.url }}?v={{ section.image.name|default_if_none:'' }}" alt="{{ section.title }}">
+                {% comment %}
                 {% if is_staff %}
                     <div class="image-edit-overlay">
                         <form 
@@ -42,8 +45,10 @@
                         </button>
                     </div>
                 {% endif %}
+                {% endcomment %}
             </div>
         {% else %}
+            {% comment %}
             {% if is_staff %}
                 <div class="about-image image-placeholder">
                     <form 
@@ -64,6 +69,7 @@
                     </form>
                 </div>
             {% endif %}
+            {% endcomment %}
         {% endif %}
     </div>
     
@@ -77,14 +83,14 @@
             {% endif %}>
             {{ section.title }}
         </h3>
-        <p class="{% if is_staff %}editable{% endif %}"
+        <div class="about-content {% if is_staff %}editable{% endif %}"
            {% if is_staff %}
            data-field="content"
            data-value="{{ section.content }}"
            data-edit-url="{% url 'edit_about_section' section.id %}"
            onclick="makeEditable(this)"
            {% endif %}>
-            {{ section.content }}
-        </p>
+            {{ section.content|markdown }}
+        </div>
     </div>
 </div>

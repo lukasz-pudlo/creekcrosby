@@ -1,3 +1,5 @@
+{% load markdown_extras %}
+
 <div class="band-member{% if is_staff %} draggable{% endif %}" data-member-id="{{ member.id }}">
     {% if is_staff %}
         <div class="edit-controls member-controls">
@@ -17,7 +19,7 @@
     <div class="member-image-container">
         {% if member.image %}
             <div class="member-image">
-                <img src="{{ member.image.url }}" alt="{{ member.name }}, {{ member.position }}">
+                <img src="{{ member.image.url }}?v={{ member.updated|date:'U' }}" alt="{{ member.name }}, {{ member.position }}">
                 {% if is_staff %}
                     <div class="image-edit-overlay">
                         <form hx-post="{% url 'upload_band_image' member.id %}"
@@ -74,14 +76,16 @@
            {% endif %}>
             {{ member.position }}
         </p>
-        <p class="member-bio {% if is_staff %}editable{% endif %}"
-           {% if is_staff %}
-           data-field="bio"
-           data-value="{{ member.bio }}"
-           data-edit-url="{% url 'edit_band_member' member.id %}"
-           onclick="makeEditable(this)"
-           {% endif %}>
-            {{ member.bio }}
-        </p>
+        {% if member.bio %}
+            <div class="member-bio {% if is_staff %}editable{% endif %}"
+               {% if is_staff %}
+               data-field="bio"
+               data-value="{{ member.bio }}"
+               data-edit-url="{% url 'edit_band_member' member.id %}"
+               onclick="makeEditable(this)"
+               {% endif %}>
+                {{ member.bio|markdown }}
+            </div>
+        {% endif %}
     </div>
 </div>
