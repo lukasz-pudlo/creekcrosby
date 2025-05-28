@@ -6,7 +6,9 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "creek_crosby.settings")
+    # Default to development settings for local development
+    # Production will override this with environment variable
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.development")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
