@@ -65,7 +65,7 @@ urlpatterns = [
     path('edit/about/<int:section_id>/', edit_about_section, name='edit_about_section'),
     path('edit/about/<int:section_id>/image/',
          upload_about_image, name='upload_about_image'),
-    path('edit/about/<int:section_id>/image/delete/',
+    path('edit/about/<int:section_id>/delete-image/',
          delete_about_image, name='delete_about_image'),
     path('edit/about/add/', add_about_section, name='add_about_section'),
     path('edit/about/<int:section_id>/delete/',

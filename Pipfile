@@ -19,6 +19,8 @@ gunicorn = "*"
 django-redis = "*"
 # Optional: Sentry for error tracking
 sentry-sdk = "*"
+# Rich text formatting
+markdown = "*"
 
 [dev-packages]
 black = "*"

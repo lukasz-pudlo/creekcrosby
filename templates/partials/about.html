@@ -1,9 +1,9 @@
-<div class="about-content">
-    {% if user.is_staff %}
+<div class="about-sections">
+    {% if is_staff %}
         <div class="edit-controls">
             <button class="btn btn-primary btn-sm" 
                     hx-post="{% url 'add_about_section' %}"
-                    hx-target=".about-content"
+                    hx-target=".about-sections"
                     hx-swap="outerHTML">
                 + Add New Section
             </button>
@@ -11,25 +11,27 @@
     {% endif %}
     
     {% for section in about_sections %}
-        {% include 'partials/about_section_item.html' with section=section index=forloop.counter0 is_staff=user.is_staff %}
+        {% include 'partials/about_section_item.html' with section=section index=forloop.counter0 is_staff=is_staff %}
     {% empty %}
         <div class="about-item">
             <div class="about-text">
                 <h3>Creek Crosby</h3>
-                <p>
-                    Creek Crosby is a rock and roll band performing classic tracks from the 50s era, 
-                    including Pop, Rock and Roll, Rockabilly, Country, and Blues.
-                </p>
-                <p>
-                    Based in Greenock and Gourock, the band is known for their energetic performances 
-                    and authentic vintage sound. With their debut single "Ashtray's Full, Bottle's Empty", 
-                    Creek Crosby has been making waves in the local music scene.
-                </p>
-                <p>
-                    The band features Gene McTaggart on vocals, Jim Boyd on guitar, Colin McTaggart on keys, 
-                    Johnny White on bass/vocals, and Jim Duncan on drums. Occasionally joined by Roman Bain 
-                    on Les Bourbon guitar and Pam McArts on keys.
-                </p>
+                <div class="about-content">
+                    <p>
+                        Creek Crosby is a rock and roll band performing classic tracks from the 50s era, 
+                        including Pop, Rock and Roll, Rockabilly, Country, and Blues.
+                    </p>
+                    <p>
+                        Based in Greenock and Gourock, the band is known for their energetic performances 
+                        and authentic vintage sound. With their debut single "Ashtray's Full, Bottle's Empty", 
+                        Creek Crosby has been making waves in the local music scene.
+                    </p>
+                    <p>
+                        The band features Gene McTaggart on vocals, Jim Boyd on guitar, Colin McTaggart on keys, 
+                        Johnny White on bass/vocals, and Jim Duncan on drums. Occasionally joined by Roman Bain 
+                        on Les Bourbon guitar and Pam McArts on keys.
+                    </p>
+                </div>
             </div>
         </div>
     {% endfor %}

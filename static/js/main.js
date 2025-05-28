@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('Creek Crosby website loaded');
 });
 
-// Inline editing functionality - FIXED VERSION
+// Inline editing functionality - ENHANCED VERSION with Rich Text Support
 function makeEditable(element, inputType = 'text') {
     // Prevent double-editing
     if (element.classList.contains('editing')) {
@@ -118,9 +118,12 @@ function makeEditable(element, inputType = 'text') {
 
     // Create edit form
     let inputElement;
-    if (field === 'content' || field === 'bio') {
+    const isRichText = field === 'content' || field === 'bio';
+
+    if (isRichText) {
         inputElement = document.createElement('textarea');
-        inputElement.rows = 4;
+        inputElement.rows = 6;
+        inputElement.placeholder = 'Use **bold**, *italic*, and line breaks for formatting';
     } else {
         inputElement = document.createElement('input');
         inputElement.type = inputType;
@@ -129,14 +132,24 @@ function makeEditable(element, inputType = 'text') {
     inputElement.value = currentValue;
     inputElement.className = 'edit-input';
 
+    // Create formatting toolbar for rich text fields
+    let toolbar = null;
+    if (isRichText) {
+        toolbar = createFormattingToolbar(inputElement);
+    }
+
     // Create buttons
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save';
     saveBtn.className = 'save-btn';
+    saveBtn.type = 'button';
+    saveBtn.setAttribute('data-no-htmx', 'true');
 
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = 'Cancel';
     cancelBtn.className = 'cancel-btn';
+    cancelBtn.type = 'button';
+    cancelBtn.setAttribute('data-no-htmx', 'true');
 
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'edit-buttons';
@@ -145,6 +158,10 @@ function makeEditable(element, inputType = 'text') {
 
     const formContainer = document.createElement('div');
     formContainer.className = 'edit-form';
+
+    if (toolbar) {
+        formContainer.appendChild(toolbar);
+    }
     formContainer.appendChild(inputElement);
     formContainer.appendChild(buttonContainer);
 
@@ -232,13 +249,37 @@ function makeEditable(element, inputType = 'text') {
 
     // Cancel function
     function cancelEdit() {
-        element.innerHTML = originalContent;
-        element.classList.remove('editing');
+        console.log('Cancel edit called for field:', field);
+
+        // Check if element still exists and is in editing mode
+        if (!element || !element.classList.contains('editing')) {
+            console.log('Element not in editing mode or does not exist');
+            return;
+        }
+
+        try {
+            element.innerHTML = originalContent;
+            element.classList.remove('editing');
+            console.log('Cancel edit completed successfully');
+        } catch (error) {
+            console.error('Error during cancel edit:', error);
+        }
     }
 
     // Event listeners
-    saveBtn.addEventListener('click', saveEdit);
-    cancelBtn.addEventListener('click', cancelEdit);
+    saveBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        saveEdit();
+    });
+
+    cancelBtn.addEventListener('click', function (e) {
+        console.log('Cancel button clicked');
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        cancelEdit();
+    });
 
     // Save on Enter (for input fields, not textarea)
     if (inputElement.tagName === 'INPUT') {
@@ -262,6 +303,83 @@ function makeEditable(element, inputType = 'text') {
                 cancelEdit();
             }
         });
+    }
+}
+
+// Create formatting toolbar for rich text editing
+function createFormattingToolbar(textarea) {
+    const toolbar = document.createElement('div');
+    toolbar.className = 'formatting-toolbar';
+
+    const buttons = [
+        { text: 'B', title: 'Bold', action: () => wrapSelection(textarea, '**', '**') },
+        { text: 'I', title: 'Italic', action: () => wrapSelection(textarea, '*', '*') },
+        { text: '¶', title: 'New Paragraph', action: () => insertText(textarea, '\n\n') },
+        { text: '•', title: 'Bullet Point', action: () => insertText(textarea, '\n• ') },
+        { text: 'Link', title: 'Insert Link', action: () => insertLink(textarea) }
+    ];
+
+    buttons.forEach(btn => {
+        const button = document.createElement('button');
+        button.textContent = btn.text;
+        button.title = btn.title;
+        button.className = 'format-btn';
+        button.type = 'button';
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            btn.action();
+            textarea.focus();
+        });
+        toolbar.appendChild(button);
+    });
+
+    // Add formatting help
+    const help = document.createElement('div');
+    help.className = 'formatting-help';
+    help.innerHTML = `
+        <small>
+            <strong>Formatting:</strong> 
+            **bold**, *italic*, line breaks supported
+        </small>
+    `;
+    toolbar.appendChild(help);
+
+    return toolbar;
+}
+
+// Helper function to wrap selected text
+function wrapSelection(textarea, before, after) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    const replacement = before + selectedText + after;
+
+    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+
+    // Set cursor position
+    const newPos = start + before.length + selectedText.length + after.length;
+    textarea.setSelectionRange(newPos, newPos);
+}
+
+// Helper function to insert text at cursor
+function insertText(textarea, text) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
+
+    // Set cursor position after inserted text
+    const newPos = start + text.length;
+    textarea.setSelectionRange(newPos, newPos);
+}
+
+// Helper function to insert a link
+function insertLink(textarea) {
+    const url = prompt('Enter URL:');
+    if (url) {
+        const text = prompt('Enter link text (optional):') || url;
+        const linkMarkdown = `[${text}](${url})`;
+        insertText(textarea, linkMarkdown);
     }
 }
 
