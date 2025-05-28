@@ -1,0 +1,47 @@
+<!-- templates/partials/events.html -->
+<div class="events-grid">
+    {% for event in events %}
+        <div class="event-card">
+            {% if event.image %}
+                <div class="event-image">
+                    <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                </div>
+            {% endif %}
+            <div class="event-content">
+                <h3 class="event-title">{{ event.title }}</h3>
+                <div class="event-details">
+                    <p class="event-date">
+                        <span class="icon">📅</span> {{ event.date|date:"d F Y" }}
+                    </p>
+                    <p class="event-time">
+                        <span class="icon">🕒</span> {{ event.date|time:"H:i" }}
+                    </p>
+                    <p class="event-location">
+                        <span class="icon">📍</span> {{ event.location }}
+                    </p>
+                </div>
+                <p class="event-description">{{ event.description }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <div class="no-events">
+            <p>Upcoming shows:</p>
+            <div class="event-card">
+                <div class="event-content">
+                    <h3 class="event-title">Live at Blackfriars, Glasgow</h3>
+                    <div class="event-details">
+                        <p class="event-date">
+                            <span class="icon">📅</span> August 6th and September 24th
+                        </p>
+                        <p class="event-time">
+                            <span class="icon">🕒</span> Doors open from 21:00
+                        </p>
+                        <p class="event-location">
+                            <span class="icon">📍</span> Blackfriars, Glasgow
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

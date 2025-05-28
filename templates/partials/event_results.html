@@ -1,0 +1,42 @@
+<!-- templates/partials/event_results.html -->
+<div class="events-grid">
+    {% for event in events %}
+        <div class="event-card">
+            {% if event.image %}
+                <div class="event-image">
+                    <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                </div>
+            {% endif %}
+            <div class="event-content">
+                <h3 class="event-title">{{ event.title }}</h3>
+                <div class="event-details">
+                    <p class="event-date">
+                        <span class="icon">📅</span> {{ event.date|date:"d F Y" }}
+                    </p>
+                    <p class="event-time">
+                        <span class="icon">🕒</span> {{ event.date|time:"H:i" }}
+                    </p>
+                    <p class="event-location">
+                        <span class="icon">📍</span> {{ event.location }}
+                    </p>
+                </div>
+                <p class="event-description">{{ event.description }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <div class="no-events">
+            <p>No events found for "{{ search_text }}"</p>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Infinite scroll loading trigger -->
+{% if has_more %}
+    <div hx-get="{% url 'search_events' %}?page={{ next_page }}&search_text={{ search_text }}"
+         hx-trigger="revealed"
+         hx-swap="outerHTML">
+        <div class="loading-more">
+            <i>Loading more events...</i>
+        </div>
+    </div>
+{% endif %}

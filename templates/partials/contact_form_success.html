@@ -1,0 +1,11 @@
+<div class="success-message">
+    <p>Thank you, {{ name }}! Your message has been sent successfully.</p>
+    <p>We'll get back to you as soon as possible.</p>
+    
+    <button hx-get="{% url 'contact_partial' %}"
+            hx-target="#contact-form-container"
+            hx-swap="innerHTML"
+            class="btn btn-primary">
+        Send Another Message
+    </button>
+</div>

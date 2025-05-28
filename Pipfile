@@ -11,6 +11,7 @@ psycopg2-binary = "*"
 pillow = "*"
 python-dotenv = "*"
 requests = "*"
+django-htmx = "*"
 
 [dev-packages]
 black = "*"

@@ -1,32 +1,89 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="{% static 'favicon.ico' %}" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#3498db" />
-    <meta name="csrf-token" content="{{ csrf_token }}" />
-    <meta
-      name="description"
-      content="Creek Crosby and The Crewcuts are a rock and roll band, originally from Greenock and Gourock."
-    />
-    <link rel="apple-touch-icon" href="{% static 'logo192.png' %}" />
-    <link rel="manifest" href="{% static 'manifest.json' %}" />
-    <title>Creek Crosby</title>
-    
-    <!-- Load CSS files -->
-    {% for css_file in css_files %}
-    <link rel="stylesheet" type="text/css" href="{% static css_file %}" />
-    {% endfor %}
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    
-    <!-- Load JS files -->
-    {% for js_file in js_files %}
-    <script src="{% static js_file %}"></script>
-    {% endfor %}
-  </body>
-</html>
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" id="hero">
+    <div class="hero-content">
+        <h1>Creek Crosby</h1>
+        <p>50s Pop, Rock and Roll, Rockabilly, Country, Blues</p>
+        <div class="hero-buttons">
+            <a href="#events" class="btn btn-primary">Upcoming Shows</a>
+            <a href="#contact" class="btn btn-outline">Book Us</a>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about" id="about">
+    <div class="container">
+        <h2 class="section-title">About Us</h2>
+        <div class="about-content" 
+             hx-get="{% url 'about_partial' %}"
+             hx-trigger="revealed"
+             hx-swap="innerHTML">
+            <div class="loading">
+                <i>Loading about information...</i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Events Section -->
+<section class="events" id="events">
+    <div class="container">
+        <h2 class="section-title">Upcoming Events</h2>
+        
+        <!-- Search Box -->
+        <div class="search-container">
+            <input name="search_text"
+                   placeholder="Search events..."
+                   type="text"
+                   class="search-input"
+                   hx-get="{% url 'search_events' %}"
+                   hx-trigger="keyup changed delay:500ms"
+                   hx-target="#events-results"
+                   hx-push-url="true">
+        </div>
+        
+        <div class="events-content" id="events-results"
+             hx-get="{% url 'search_events' %}"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+            <div class="loading">
+                <i>Loading events...</i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Band Section -->
+<section class="band" id="band">
+    <div class="container">
+        <h2 class="section-title">Our Band</h2>
+        <div class="band-content"
+             hx-get="{% url 'band_partial' %}"
+             hx-trigger="revealed"
+             hx-swap="innerHTML">
+            <div class="loading">
+                <i>Loading band members...</i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact" id="contact">
+    <div class="container">
+        <h2 class="section-title">Contact Us</h2>
+        <div class="contact-content"
+             hx-get="{% url 'contact_partial' %}"
+             hx-trigger="revealed"
+             hx-swap="innerHTML">
+            <div class="loading">
+                <i>Loading contact information...</i>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
