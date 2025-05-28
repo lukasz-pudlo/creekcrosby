@@ -1,0 +1,10 @@
+<div class="error-message">
+    <p class="error">{{ error }}</p>
+    
+    <button hx-get="{% url 'contact_partial' %}"
+            hx-target="#contact-form-container"
+            hx-swap="innerHTML"
+            class="btn btn-outline">
+        Try Again
+    </button>
+</div>
