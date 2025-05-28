@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -10,15 +10,20 @@ from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from django.db import models
 from datetime import timedelta
+from django.core.mail import send_mail, BadHeaderError
+from django.conf import settings
+from django.contrib import messages
+from django.template.loader import render_to_string
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
-from .models import Event, BandMember, AboutSection, ContactInfo
+from .models import Event, BandMember, AboutSection, ContactInfo, ContactMessage
 from .serializers import (
     EventSerializer,
     BandMemberSerializer,
     AboutSectionSerializer,
     ContactInfoSerializer
 )
+from .forms import ContactMessageForm
 
 
 # Main page view
@@ -90,49 +95,134 @@ def about_partial(request):
 
 
 def contact_partial(request):
-    """HTMX view for loading contact info"""
+    """Render contact section"""
     try:
         contact_info = ContactInfo.objects.first()
     except ContactInfo.DoesNotExist:
         contact_info = None
 
-    if request.htmx:
-        return render(request, 'partials/contact.html', {
-            'contact_info': contact_info,
-            'is_staff': request.user.is_staff
-        })
+    # Create a new form instance
+    form = ContactMessageForm()
 
-    return render(request, 'contact.html', {
+    context = {
         'contact_info': contact_info,
-        'is_staff': request.user.is_staff
-    })
+        'is_staff': request.user.is_staff,
+        'form': form
+    }
 
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def contact_form(request):
-    """HTMX view for handling contact form submissions"""
     if request.htmx:
-        # Get form data
-        name = request.POST.get('name', '')
-        email = request.POST.get('email', '')
-        subject = request.POST.get('subject', '')
-        message = request.POST.get('message', '')
+        return render(request, 'partials/contact.html', context)
 
-        # Basic validation
-        if not all([name, email, subject, message]):
-            return render(request, 'partials/contact_form_error.html', {
-                'error': 'All fields are required.'
-            })
+    return render(request, 'contact.html', context)
 
-        # Here you would typically save to database or send email
-        # For now, we'll just return a success message
 
-        return render(request, 'partials/contact_form_success.html', {
-            'name': name
-        })
+@csrf_protect
+@require_http_methods(["GET", "POST"])
+def contact_form(request):
+    """Handle contact form submissions"""
+    
+    if request.method == 'POST':
+        form = ContactMessageForm(request.POST)
+        
+        if form.is_valid():
+            # Save to database
+            contact_message = form.save(commit=False)
+            
+            # Add metadata
+            contact_message.ip_address = get_client_ip(request)
+            contact_message.user_agent = request.META.get('HTTP_USER_AGENT', '')
+            contact_message.save()
+            
+            # Send email notification
+            try:
+                send_contact_email(contact_message)
+                
+                if request.htmx:
+                    return render(request, 'partials/contact_success.html', {
+                        'message': 'Thank you for your message! We\'ll get back to you soon.'
+                    })
+                else:
+                    messages.success(request, 'Thank you for your message! We\'ll get back to you soon.')
+                    return redirect('contact_form')
+                    
+            except Exception as e:
+                # Log the error but still save the message
+                print(f"Email sending failed: {e}")
+                
+                if request.htmx:
+                    return render(request, 'partials/contact_success.html', {
+                        'message': 'Your message has been saved. We\'ll get back to you soon!'
+                    })
+                else:
+                    messages.success(request, 'Your message has been saved. We\'ll get back to you soon!')
+                    return redirect('contact_form')
+        else:
+            # Form has errors
+            if request.htmx:
+                return render(request, 'partials/contact_form.html', {
+                    'form': form,
+                    'errors': form.errors
+                })
+    else:
+        form = ContactMessageForm()
+    
+    if request.htmx:
+        return render(request, 'partials/contact_form.html', {'form': form})
+    
+    return render(request, 'contact_form.html', {'form': form})
 
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def get_client_ip(request):
+    """Get client IP address"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def send_contact_email(contact_message):
+    """Send email notification for new contact message"""
+    
+    # Email to admin/band
+    admin_subject = f"New Contact Message: {contact_message.subject}"
+    admin_message = render_to_string('emails/contact_admin.html', {
+        'contact_message': contact_message
+    })
+    
+    # Email to sender (confirmation)
+    sender_subject = "Thank you for contacting Creek Crosby"
+    sender_message = render_to_string('emails/contact_confirmation.html', {
+        'contact_message': contact_message
+    })
+    
+    try:
+        # Send to admin
+        admin_email = getattr(settings, 'CONTACT_EMAIL', 'admin@creekcrosby.com')
+        send_mail(
+            admin_subject,
+            admin_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [admin_email],
+            fail_silently=False,
+            html_message=admin_message
+        )
+        
+        # Send confirmation to sender
+        send_mail(
+            sender_subject,
+            sender_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [contact_message.email],
+            fail_silently=False,
+            html_message=sender_message
+        )
+        
+    except BadHeaderError:
+        raise Exception("Invalid header found in email.")
+    except Exception as e:
+        raise Exception(f"Email sending failed: {str(e)}")
 
 
 def search_events(request):
