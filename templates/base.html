@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="theme-color" content="#ff0000" />
     <meta name="description" content="Creek Crosby - 50s Pop, Rock and Roll, Rockabilly, Country, Blues band from Greenock and Gourock, Scotland." />
     
@@ -20,6 +21,23 @@
 <body>
     <!-- Skip to main content for accessibility -->
     <a href="#main" class="skip-link">Skip to main content</a>
+    
+    <!-- Staff Edit Mode Indicator -->
+    {% if user.is_staff %}
+        <div class="staff-controls">
+            <div class="edit-mode-indicator">
+                <span class="edit-icon">✏️</span>
+                <span>EDIT MODE ACTIVE</span>
+                <div class="staff-buttons">
+                    <a href="/admin/" class="btn btn-outline" target="_blank">Admin Panel</a>
+                    <form method="post" action="{% url 'admin:logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
     
     <!-- Header -->
     <header class="header" id="header">
@@ -70,19 +88,26 @@
                     </ul>
                 </div>
                 
-                <div class="footer-contact" 
-                     hx-get="{% url 'contact_partial' %}"
-                     hx-trigger="load"
-                     hx-swap="innerHTML">
+                <div class="footer-contact" id="footer-contact-info">
                     <h4>Contact Us</h4>
-                    <div class="loading">
-                        <i>Loading contact info...</i>
+                    <div hx-get="{% url 'footer_contact_partial' %}" 
+                         hx-trigger="load" 
+                         hx-target="this" 
+                         hx-swap="innerHTML">
+                        <div class="loading">
+                            <i>Loading contact info...</i>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="footer-social">
                     <h4>Follow Us</h4>
-                    <div class="social-icons" id="footer-social-icons">
+                    <div class="social-icons" 
+                         hx-get="{% url 'footer_social_partial' %}" 
+                         hx-trigger="load" 
+                         hx-target="this" 
+                         hx-swap="innerHTML"
+                         id="footer-social-icons">
                         <!-- Will be populated by HTMX -->
                     </div>
                 </div>

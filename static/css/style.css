@@ -307,10 +307,62 @@ section {
     min-width: 300px;
 }
 
+.about-image {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
 .about-image img {
     width: 100%;
     height: auto;
     border-radius: 8px;
+}
+
+.about-image.image-placeholder {
+    background-color: #333;
+    padding: 2rem;
+    text-align: center;
+}
+
+.about-image .image-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.about-image:hover .image-edit-overlay {
+    opacity: 1;
+}
+
+.about-image .image-edit-btn,
+.about-image .image-placeholder-btn {
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.about-image .image-edit-btn:hover,
+.about-image .image-placeholder-btn:hover {
+    background: rgba(255, 0, 0, 1);
+    transform: translateY(-2px);
 }
 
 .about-text h3 {
@@ -902,5 +954,769 @@ section {
 
     .footer-legal {
         justify-content: center;
+    }
+}
+
+/* Staff Controls */
+.staff-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1001;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 215, 0, 0.6);
+    backdrop-filter: blur(10px);
+    max-width: 280px;
+    min-width: 240px;
+}
+
+.edit-mode-indicator {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-weight: normal;
+    opacity: 1;
+}
+
+.edit-mode-indicator>span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #ffd700;
+}
+
+.edit-icon {
+    font-size: 1.1rem;
+    animation: pulse 2s infinite;
+    color: #ffd700;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.staff-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.staff-buttons .btn,
+.staff-buttons button {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    text-decoration: none;
+    background: rgba(255, 215, 0, 0.2);
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    border-radius: 4px;
+    color: #ffd700;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 90px;
+    min-height: 32px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.staff-buttons .btn:hover,
+.staff-buttons button:hover {
+    background: rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.staff-buttons form {
+    display: inline;
+}
+
+/* Inline Editing Styles - More Visible */
+.editable {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: -4px -8px;
+}
+
+.editable:hover {
+    background-color: rgba(255, 255, 0, 0.2);
+    border-color: #ffff00;
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+}
+
+.editable::after {
+    content: "✏️ Click to edit";
+    position: absolute;
+    top: -25px;
+    right: -10px;
+    background: #ff0000;
+    color: white;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+}
+
+.editable:hover::after {
+    opacity: 1;
+}
+
+.editing {
+    background-color: rgba(255, 255, 0, 0.3);
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+/* Edit Controls - More Visible */
+.edit-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.about-item:hover .edit-controls,
+.band-member:hover .edit-controls,
+.about-content:hover>.edit-controls {
+    opacity: 1;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary.btn-sm {
+    background: #ff0000;
+    color: white;
+}
+
+.btn-primary.btn-sm:hover {
+    background: #cc0000;
+    transform: translateY(-1px);
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+    border: 1px solid #dc3545;
+    margin-left: 5px;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+    border-color: #bd2130;
+    transform: translateY(-1px);
+}
+
+/* Image Upload Styles - More Visible */
+.image-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 8px;
+}
+
+.member-image:hover .image-edit-overlay,
+.about-image:hover .image-edit-overlay {
+    opacity: 1;
+}
+
+.image-edit-btn,
+.image-placeholder-btn {
+    background: #ff0000;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 2px solid white;
+}
+
+.image-edit-btn:hover,
+.image-placeholder-btn:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 3px dashed rgba(255, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    min-height: 200px;
+}
+
+.image-placeholder:hover {
+    border-color: #ff0000;
+    background: rgba(255, 0, 0, 0.1);
+}
+
+/* Loading States */
+.uploading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.upload-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: #ff0000;
+    transition: width 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .staff-controls {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        font-size: 0.8rem;
+        padding: 10px 12px;
+        max-width: none;
+        min-width: auto;
+    }
+
+    .edit-mode-indicator {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+
+    .edit-mode-indicator>span {
+        justify-content: center;
+    }
+
+    .staff-buttons {
+        margin-top: 8px;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .staff-buttons .btn,
+    .staff-buttons button {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    .edit-controls {
+        position: relative;
+        opacity: 1;
+        margin-bottom: 10px;
+        background: rgba(0, 0, 0, 0.9);
+        text-align: center;
+        padding: 8px;
+    }
+}
+
+.edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #ff0000;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-family: inherit;
+    font-size: inherit;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: flex-end;
+}
+
+.save-btn,
+.cancel-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.save-btn {
+    background: #28a745;
+    color: white;
+}
+
+.save-btn:hover {
+    background: #218838;
+}
+
+.save-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.cancel-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #5a6268;
+}
+
+/* Event Card Editing Styles */
+.event-card {
+    position: relative;
+}
+
+.event-card .edit-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.event-card:hover .edit-controls {
+    opacity: 1;
+}
+
+.event-image-container {
+    position: relative;
+}
+
+.event-image-container .image-edit-overlay,
+.event-image-container .image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.event-image-container:hover .image-edit-overlay,
+.event-image-container:hover .image-placeholder {
+    opacity: 1;
+}
+
+/* Improved editable indicators */
+.editable:hover::before {
+    content: "✏️";
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff0000;
+    color: white;
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 50%;
+    z-index: 5;
+}
+
+/* Location editable styling */
+.event-location.editable {
+    display: inline-block;
+    width: auto;
+}
+
+.event-location.editable span:last-child {
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+}
+
+/* Upload progress styling */
+.uploading {
+    position: relative;
+    overflow: hidden;
+}
+
+.uploading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            transparent 100%);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Form validation styles */
+.edit-input:invalid {
+    border-color: #dc3545;
+}
+
+.edit-input:valid {
+    border-color: #28a745;
+}
+
+/* Mobile responsive editing */
+@media (max-width: 768px) {
+    .edit-controls {
+        position: relative !important;
+        opacity: 1 !important;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .event-card .edit-controls {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        margin-bottom: 10px;
+    }
+
+    .image-edit-overlay,
+    .image-placeholder {
+        opacity: 1 !important;
+        position: relative !important;
+        background: rgba(255, 0, 0, 0.1) !important;
+        border: 2px dashed #ff0000;
+        min-height: 100px;
+    }
+
+    .edit-buttons {
+        justify-content: center;
+    }
+}
+
+
+/* Add this CSS to your style.css file */
+
+/* HTMX Indicators */
+.htmx-indicator {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    z-index: 1000;
+}
+
+.htmx-indicator.htmx-request {
+    display: block;
+}
+
+/* Alternative: Show indicator when parent has htmx-request class */
+.htmx-request .htmx-indicator {
+    display: block;
+}
+
+/* Upload form debugging */
+form[hx-encoding="multipart/form-data"] {
+    position: relative;
+}
+
+form[hx-encoding="multipart/form-data"].htmx-request {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+form[hx-encoding="multipart/form-data"].htmx-request::after {
+    content: "Uploading...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+/* Band Controls */
+.band-controls {
+    margin-bottom: 2rem;
+    text-align: center;
+    opacity: 1 !important;
+    position: static !important;
+    background: transparent !important;
+    /* Ensure always visible for staff */
+}
+
+.band-controls .btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: 2px solid var(--primary-color);
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    opacity: 1 !important;
+    /* Ensure button is always visible */
+}
+
+.band-controls .btn:hover {
+    background-color: #cc0000;
+    border-color: #cc0000;
+    transform: translateY(-2px);
+}
+
+/* Drag and Drop Styles */
+.band-grid.sortable {
+    position: relative;
+    min-height: 200px;
+    /* Ensure there's space for dropping */
+}
+
+.band-member.draggable {
+    cursor: move;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.band-member.draggable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.3);
+}
+
+.band-member.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg) scale(1.05);
+    z-index: 1000;
+    box-shadow: 0 15px 35px rgba(255, 0, 0, 0.5);
+}
+
+.band-member.drag-over {
+    border: 2px dashed var(--primary-color);
+    background-color: rgba(255, 0, 0, 0.1);
+    transform: scale(1.02);
+}
+
+.band-member.drop-zone {
+    border: 2px solid rgba(255, 0, 0, 0.3);
+    background-color: rgba(255, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.band-member.drop-zone::before {
+    content: "Drop here";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 0, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 1001;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.band-member.drop-zone.drag-over::before {
+    opacity: 1;
+}
+
+.band-grid.drag-over {
+    background-color: rgba(255, 0, 0, 0.05);
+    border: 2px dashed var(--primary-color);
+    border-radius: 8px;
+}
+
+.band-grid.drag-over::after {
+    content: "Drop here to move to end";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 0, 0.9);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 1001;
+    pointer-events: none;
+}
+
+/* Member Controls */
+.member-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.band-member:hover .member-controls {
+    opacity: 1;
+}
+
+.drag-handle {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--primary-color);
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: grab;
+    font-size: 1.2rem;
+    line-height: 1;
+    user-select: none;
+    transition: all 0.3s ease;
+}
+
+.drag-handle:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+.member-controls .delete-btn {
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: 1px solid #dc3545;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.member-controls .delete-btn:hover {
+    background-color: #dc3545;
+    transform: scale(1.05);
+}
+
+/* Sortable placeholder */
+.sortable-placeholder {
+    background-color: rgba(255, 0, 0, 0.1);
+    border: 2px dashed var(--primary-color);
+    border-radius: 8px;
+    margin: 1rem 0;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .member-controls {
+        position: static;
+        opacity: 1;
+        justify-content: center;
+        margin-bottom: 1rem;
+        background-color: rgba(0, 0, 0, 0.8);
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+
+    .drag-handle {
+        font-size: 1rem;
+        padding: 0.4rem;
+    }
+
+    .band-member.draggable {
+        cursor: default;
+    }
+
+    .band-grid.sortable .band-member {
+        margin-bottom: 1rem;
     }
 }

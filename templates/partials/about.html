@@ -1,17 +1,17 @@
-<!-- templates/partials/about.html -->
 <div class="about-content">
-    {% for section in about_sections %}
-        <div class="about-item {% cycle 'left' 'right' %}">
-            {% if section.image %}
-                <div class="about-image">
-                    <img src="{{ section.image.url }}" alt="{{ section.title }}">
-                </div>
-            {% endif %}
-            <div class="about-text">
-                <h3>{{ section.title }}</h3>
-                <p>{{ section.content }}</p>
-            </div>
+    {% if user.is_staff %}
+        <div class="edit-controls">
+            <button class="btn btn-primary btn-sm" 
+                    hx-post="{% url 'add_about_section' %}"
+                    hx-target=".about-content"
+                    hx-swap="outerHTML">
+                + Add New Section
+            </button>
         </div>
+    {% endif %}
+    
+    {% for section in about_sections %}
+        {% include 'partials/about_section_item.html' with section=section index=forloop.counter0 is_staff=user.is_staff %}
     {% empty %}
         <div class="about-item">
             <div class="about-text">

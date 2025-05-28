@@ -10,6 +10,7 @@ class Event(models.Model):
     date = models.DateTimeField()
     location = models.CharField(max_length=255)
     image = models.ImageField(upload_to="events/", blank=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["date"]
