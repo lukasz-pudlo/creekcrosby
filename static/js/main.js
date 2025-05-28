@@ -71,8 +71,10 @@ document.addEventListener('htmx:beforeRequest', function (event) {
 });
 
 document.addEventListener('htmx:afterRequest', function (event) {
-    // Remove loading indicator
     const target = event.target;
+    console.log('HTMX after request:', event.detail);
+
+    // Remove loading indicator
     if (target.classList.contains('search-input')) {
         target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
     }
@@ -94,4 +96,813 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add any other initialization code here
     console.log('Creek Crosby website loaded');
+});
+
+// Inline editing functionality - FIXED VERSION
+function makeEditable(element, inputType = 'text') {
+    // Prevent double-editing
+    if (element.classList.contains('editing')) {
+        return;
+    }
+
+    // Prevent default HTMX behavior
+    event.preventDefault();
+    event.stopPropagation();
+
+    const field = element.getAttribute('data-field');
+    const currentValue = element.getAttribute('data-value') || element.textContent.trim();
+    const editUrl = element.getAttribute('data-edit-url');
+
+    // Store original content
+    const originalContent = element.innerHTML;
+
+    // Create edit form
+    let inputElement;
+    if (field === 'content' || field === 'bio') {
+        inputElement = document.createElement('textarea');
+        inputElement.rows = 4;
+    } else {
+        inputElement = document.createElement('input');
+        inputElement.type = inputType;
+    }
+
+    inputElement.value = currentValue;
+    inputElement.className = 'edit-input';
+
+    // Create buttons
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.className = 'save-btn';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.className = 'cancel-btn';
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'edit-buttons';
+    buttonContainer.appendChild(saveBtn);
+    buttonContainer.appendChild(cancelBtn);
+
+    const formContainer = document.createElement('div');
+    formContainer.className = 'edit-form';
+    formContainer.appendChild(inputElement);
+    formContainer.appendChild(buttonContainer);
+
+    // Replace content with form
+    element.innerHTML = '';
+    element.appendChild(formContainer);
+    element.classList.add('editing');
+
+    // Focus input
+    inputElement.focus();
+    if (inputType === 'text') {
+        inputElement.select();
+    }
+
+    // Save function
+    function saveEdit() {
+        const newValue = inputElement.value.trim();
+
+        if (newValue === '') {
+            alert('Field cannot be empty');
+            return;
+        }
+
+        // Show saving indicator
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+
+        // Create form data
+        const formData = new FormData();
+        formData.append('field', field);
+        formData.append('value', newValue);
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
+
+        // Send HTMX request
+        fetch(editUrl, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'HX-Request': 'true'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Find the parent container that needs to be updated
+                const eventContainer = element.closest('[data-event-id]');
+                const sectionContainer = element.closest('[data-section-id], [data-member-id]');
+                const contactContainer = element.closest('.contact-content');
+
+                if (eventContainer) {
+                    // For events, check if we need to refresh the entire events grid or just the event card
+                    if (field === 'date' || field === 'time') {
+                        // Date/time changes affect ordering, so refresh the entire events grid
+                        const eventsGrid = document.querySelector('#events-results');
+                        if (eventsGrid) {
+                            eventsGrid.innerHTML = html;
+                        } else {
+                            eventContainer.outerHTML = html;
+                        }
+                    } else {
+                        // Other field changes just update the event card
+                        eventContainer.outerHTML = html;
+                    }
+                } else if (sectionContainer) {
+                    sectionContainer.outerHTML = html;
+                } else if (contactContainer) {
+                    contactContainer.outerHTML = html;
+                } else {
+                    // Fallback: just update the element content
+                    element.innerHTML = newValue;
+                    element.setAttribute('data-value', newValue);
+                    element.classList.remove('editing');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving edit:', error);
+                alert('Error saving changes: ' + error.message);
+                cancelEdit();
+            });
+    }
+
+    // Cancel function
+    function cancelEdit() {
+        element.innerHTML = originalContent;
+        element.classList.remove('editing');
+    }
+
+    // Event listeners
+    saveBtn.addEventListener('click', saveEdit);
+    cancelBtn.addEventListener('click', cancelEdit);
+
+    // Save on Enter (for input fields, not textarea)
+    if (inputElement.tagName === 'INPUT') {
+        inputElement.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveEdit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelEdit();
+            }
+        });
+    } else {
+        // For textarea, save on Ctrl+Enter
+        inputElement.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                saveEdit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelEdit();
+            }
+        });
+    }
+}
+
+// Get CSRF token
+function getCSRFToken() {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+
+    if (cookieValue) {
+        return cookieValue;
+    }
+
+    // Fallback: try to get from meta tag
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        return metaTag.getAttribute('content');
+    }
+
+    return '';
+}
+
+// Enhanced image upload handling
+document.addEventListener('change', function (event) {
+    const input = event.target;
+
+    // Check if it's a file input for image uploads
+    if (input.type === 'file' && input.accept && input.accept.includes('image')) {
+        const file = input.files[0];
+        const form = input.closest('form');
+
+        if (!file) {
+            console.log('No file selected');
+            return;
+        }
+
+        // Validate file size (5MB limit)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            alert('File size must be under 5MB');
+            input.value = '';
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+            input.value = '';
+            return;
+        }
+
+        // Show preview if possible
+        console.log('Image selected:', file.name, 'Size:', Math.round(file.size / 1024) + 'KB', 'Type:', file.type);
+
+        // Find the label and show uploading state
+        const label = input.nextElementSibling || input.previousElementSibling;
+        if (label && label.tagName === 'LABEL') {
+            const originalText = label.textContent;
+            label.textContent = '📤 Uploading...';
+            label.style.pointerEvents = 'none';
+            label.style.opacity = '0.6';
+
+            // Store original text for restoration if needed
+            label.setAttribute('data-original-text', originalText);
+        }
+
+        // Add loading class to container
+        const container = form.closest('.event-image-container');
+        if (container) {
+            container.classList.add('uploading');
+        }
+
+        // Submit form using HTMX
+        htmx.trigger(form, 'submit');
+    }
+});
+
+// Handle successful uploads
+document.addEventListener('htmx:afterSwap', function (event) {
+    console.log('HTMX after swap:', event.detail);
+
+    // Reset any upload states after successful swap
+    const uploadingElements = document.querySelectorAll('[data-original-text]');
+    uploadingElements.forEach(element => {
+        const originalText = element.getAttribute('data-original-text');
+        if (originalText) {
+            element.textContent = originalText;
+            element.style.pointerEvents = '';
+            element.style.opacity = '';
+            element.removeAttribute('data-original-text');
+        }
+    });
+
+    // Remove uploading class from containers
+    const uploadingContainers = document.querySelectorAll('.uploading');
+    uploadingContainers.forEach(container => {
+        container.classList.remove('uploading');
+    });
+});
+
+// Handle upload errors
+document.addEventListener('htmx:responseError', function (event) {
+    console.log('HTMX response error:', event.detail);
+
+    // Reset upload states on error
+    const uploadingElements = document.querySelectorAll('[data-original-text]');
+    uploadingElements.forEach(element => {
+        const originalText = element.getAttribute('data-original-text');
+        if (originalText) {
+            element.textContent = originalText;
+            element.style.pointerEvents = '';
+            element.style.opacity = '';
+            element.removeAttribute('data-original-text');
+        }
+    });
+
+    // Remove uploading class from containers
+    const uploadingContainers = document.querySelectorAll('.uploading');
+    uploadingContainers.forEach(container => {
+        container.classList.remove('uploading');
+    });
+
+    // Show error message for file uploads
+    if (event.detail.target && event.detail.target.matches('form[hx-encoding="multipart/form-data"]')) {
+        let errorMessage = 'Upload failed. Please try again.';
+        try {
+            const response = JSON.parse(event.detail.xhr.responseText);
+            if (response.error) {
+                errorMessage = response.error;
+            }
+        } catch (e) {
+            console.error('Error parsing error response:', e);
+        }
+        alert(errorMessage);
+    }
+});
+
+// Handle image upload progress
+document.addEventListener('htmx:xhr:progress', function (event) {
+    if (!event.detail.loaded || !event.detail.total) return;
+
+    const progress = (event.detail.loaded / event.detail.total) * 100;
+    console.log('Upload progress:', Math.round(progress) + '%');
+
+    // Find any progress indicators and update them
+    const progressBars = document.querySelectorAll('.upload-progress');
+    progressBars.forEach(bar => {
+        bar.style.width = progress + '%';
+    });
+
+    // Update any upload labels with progress
+    const uploadingLabels = document.querySelectorAll('[data-original-text]');
+    uploadingLabels.forEach(label => {
+        if (progress < 100) {
+            label.textContent = `📤 Uploading... ${Math.round(progress)}%`;
+        }
+    });
+});
+
+// Enhanced HTMX request handlers
+document.addEventListener('htmx:beforeRequest', function (event) {
+    const target = event.target;
+    console.log('HTMX before request:', event.detail);
+
+    // Handle image upload forms
+    if (target.matches('form[hx-encoding="multipart/form-data"]')) {
+        const label = target.querySelector('label');
+        if (label && !label.hasAttribute('data-original-text')) {
+            const originalText = label.textContent;
+            label.setAttribute('data-original-text', originalText);
+            label.textContent = '📤 Preparing upload...';
+            label.style.pointerEvents = 'none';
+            label.style.opacity = '0.6';
+        }
+
+        // Add uploading class to container
+        const container = target.closest('.event-image-container');
+        if (container) {
+            container.classList.add('uploading');
+        }
+    }
+});
+
+document.addEventListener('htmx:afterRequest', function (event) {
+    const target = event.target;
+    console.log('HTMX after request:', event.detail);
+
+    // Handle image upload completion
+    if (target.matches('form[hx-encoding="multipart/form-data"]')) {
+        // Remove uploading state
+        const container = target.closest('.event-image-container');
+        if (container) {
+            container.classList.remove('uploading');
+        }
+
+        // Check if upload was successful
+        if (event.detail.xhr.status >= 200 && event.detail.xhr.status < 300) {
+            console.log('Image uploaded successfully');
+        } else {
+            console.error('Image upload failed:', event.detail.xhr.status);
+            // Reset label state on error
+            const label = target.querySelector('[data-original-text]');
+            if (label) {
+                const originalText = label.getAttribute('data-original-text');
+                label.textContent = originalText;
+                label.style.pointerEvents = '';
+                label.style.opacity = '';
+                label.removeAttribute('data-original-text');
+            }
+        }
+    }
+});
+
+// Debug: Log all form submissions
+document.addEventListener('submit', function (event) {
+    console.log('Form submitted:', event.target);
+    console.log('Form action:', event.target.action);
+    console.log('Form method:', event.target.method);
+    console.log('Form enctype:', event.target.enctype);
+    console.log('Has hx-post?', event.target.hasAttribute('hx-post'));
+    console.log('Has hx-encoding?', event.target.hasAttribute('hx-encoding'));
+});
+
+// Debug: Log all file input changes
+document.addEventListener('change', function (event) {
+    if (event.target.type === 'file') {
+        console.log('File input changed:', event.target);
+        console.log('File selected:', event.target.files[0]);
+        console.log('Parent form:', event.target.closest('form'));
+
+        const form = event.target.closest('form');
+        if (form) {
+            console.log('Form has hx-post:', form.hasAttribute('hx-post'));
+            console.log('Form hx-post value:', form.getAttribute('hx-post'));
+            console.log('Form has hx-encoding:', form.hasAttribute('hx-encoding'));
+        }
+    }
+});
+
+// Debug: Check if HTMX is working
+document.addEventListener('htmx:configRequest', function (event) {
+    console.log('HTMX request configured:', event.detail);
+});
+
+document.addEventListener('htmx:beforeRequest', function (event) {
+    console.log('HTMX before request:', event.target);
+});
+
+document.addEventListener('htmx:afterRequest', function (event) {
+    console.log('HTMX after request:', event.detail);
+});
+
+// Debug: Check for HTMX errors
+document.addEventListener('htmx:responseError', function (event) {
+    console.error('HTMX Response Error:', event.detail);
+});
+
+document.addEventListener('htmx:sendError', function (event) {
+    console.error('HTMX Send Error:', event.detail);
+});
+
+// Band Member Drag and Drop Functionality
+let draggedElement = null;
+let draggedIndex = null;
+
+function initializeBandSorting() {
+    const bandGrid = document.querySelector('.band-grid.sortable');
+    console.log('Initializing band sorting, found grid:', bandGrid);
+
+    if (!bandGrid) {
+        console.log('No sortable band grid found');
+        return;
+    }
+
+    const bandMembers = bandGrid.querySelectorAll('.band-member.draggable');
+    console.log('Found draggable band members:', bandMembers.length);
+
+    bandMembers.forEach((member, index) => {
+        console.log(`Setting up member ${index}:`, member.getAttribute('data-member-id'));
+
+        // Only make draggable when drag handle is used
+        const dragHandle = member.querySelector('.drag-handle');
+        if (dragHandle) {
+            // Add drag event listeners to the drag handle
+            dragHandle.addEventListener('mousedown', function (e) {
+                member.draggable = true;
+            });
+
+            // Add drag event listeners to the member
+            member.addEventListener('dragstart', handleDragStart);
+            member.addEventListener('dragend', handleDragEnd);
+            member.addEventListener('dragover', handleDragOver);
+            member.addEventListener('drop', handleDrop);
+            member.addEventListener('dragenter', handleDragEnter);
+            member.addEventListener('dragleave', handleDragLeave);
+
+            // Disable dragging when not using drag handle
+            member.addEventListener('mousedown', function (e) {
+                if (!e.target.closest('.drag-handle')) {
+                    member.draggable = false;
+                }
+            });
+        }
+
+        member.setAttribute('data-index', index);
+    });
+
+    // Add drop zone to the grid itself for dropping at the end
+    bandGrid.addEventListener('dragover', handleGridDragOver);
+    bandGrid.addEventListener('drop', handleGridDrop);
+
+    console.log('Band sorting initialized successfully');
+}
+
+function handleDragStart(e) {
+    draggedElement = this;
+    draggedIndex = parseInt(this.getAttribute('data-index'));
+
+    this.classList.add('dragging');
+
+    // Add visual feedback to all potential drop zones
+    const allMembers = document.querySelectorAll('.band-member.draggable');
+    allMembers.forEach(member => {
+        if (member !== this) {
+            member.classList.add('drop-zone');
+        }
+    });
+
+    // Set drag data
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.outerHTML);
+
+    console.log('Drag started for member:', this.getAttribute('data-member-id'));
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+
+    // Remove all visual feedback
+    const allMembers = document.querySelectorAll('.band-member');
+    allMembers.forEach(member => {
+        member.classList.remove('drag-over', 'drop-zone');
+    });
+
+    // Remove drag-over from grid
+    const bandGrid = document.querySelector('.band-grid.sortable');
+    if (bandGrid) {
+        bandGrid.classList.remove('drag-over');
+    }
+
+    draggedElement = null;
+    draggedIndex = null;
+
+    console.log('Drag ended');
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+
+    // Only allow drop if this is not the dragged element
+    if (this !== draggedElement) {
+        e.dataTransfer.dropEffect = 'move';
+
+        // Add visual feedback
+        this.classList.add('drag-over');
+
+        return false;
+    }
+
+    return true;
+}
+
+function handleGridDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+
+    // Only handle if we're dragging over empty space in the grid
+    if (e.target === this || e.target.classList.contains('band-grid')) {
+        e.dataTransfer.dropEffect = 'move';
+        this.classList.add('drag-over');
+        return false;
+    }
+
+    return true;
+}
+
+function handleGridDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+
+    // Only handle if we're dropping on the grid itself (empty space)
+    if ((e.target === this || e.target.classList.contains('band-grid')) && draggedElement) {
+        console.log('Dropping on grid (end position)');
+
+        const bandGrid = document.querySelector('.band-grid.sortable');
+        const allMembers = Array.from(bandGrid.querySelectorAll('.band-member.draggable'));
+
+        // Get current order of member IDs
+        const currentOrder = allMembers.map(member => member.getAttribute('data-member-id'));
+
+        const draggedMemberId = draggedElement.getAttribute('data-member-id');
+
+        // Remove dragged element from its current position
+        const draggedIdx = currentOrder.indexOf(draggedMemberId);
+        currentOrder.splice(draggedIdx, 1);
+
+        // Add to the end
+        currentOrder.push(draggedMemberId);
+
+        console.log('New order (moved to end):', currentOrder);
+
+        // Send reorder request
+        sendReorderRequest(currentOrder);
+    }
+
+    this.classList.remove('drag-over');
+    return false;
+}
+
+function handleDragEnter(e) {
+    if (this !== draggedElement) {
+        this.classList.add('drag-over');
+        console.log('Drag enter on member:', this.getAttribute('data-member-id'));
+    }
+}
+
+function handleDragLeave(e) {
+    // More reliable drag leave detection using relatedTarget
+    const relatedTarget = e.relatedTarget;
+
+    // If we're moving to a child element, don't remove drag-over
+    if (relatedTarget && this.contains(relatedTarget)) {
+        return;
+    }
+
+    // If we're moving to the dragged element, don't remove drag-over
+    if (relatedTarget === draggedElement || (draggedElement && draggedElement.contains(relatedTarget))) {
+        return;
+    }
+
+    this.classList.remove('drag-over');
+    console.log('Drag leave from member:', this.getAttribute('data-member-id'));
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+
+    if (draggedElement && draggedElement !== this) {
+        console.log('Dropping on member:', this.getAttribute('data-member-id'));
+
+        const bandGrid = document.querySelector('.band-grid.sortable');
+        const allMembers = Array.from(bandGrid.querySelectorAll('.band-member.draggable'));
+
+        const draggedMemberId = draggedElement.getAttribute('data-member-id');
+        const targetMemberId = this.getAttribute('data-member-id');
+
+        // Get current order of member IDs
+        const currentOrder = allMembers.map(member => member.getAttribute('data-member-id'));
+
+        // Remove dragged element from its current position
+        const draggedIdx = currentOrder.indexOf(draggedMemberId);
+        currentOrder.splice(draggedIdx, 1);
+
+        // Find target position and insert
+        const targetIdx = currentOrder.indexOf(targetMemberId);
+
+        // Determine if we should insert before or after the target based on mouse position
+        const rect = this.getBoundingClientRect();
+        const isGrid = bandGrid.classList.contains('band-grid');
+
+        let insertAfter = false;
+        if (isGrid) {
+            // For grid layout, use horizontal position
+            const midPoint = rect.left + rect.width / 2;
+            insertAfter = e.clientX > midPoint;
+        } else {
+            // For vertical layout, use vertical position
+            const midPoint = rect.top + rect.height / 2;
+            insertAfter = e.clientY > midPoint;
+        }
+
+        if (insertAfter) {
+            currentOrder.splice(targetIdx + 1, 0, draggedMemberId);
+        } else {
+            currentOrder.splice(targetIdx, 0, draggedMemberId);
+        }
+
+        console.log('New order (inserted):', currentOrder);
+
+        // Send reorder request
+        sendReorderRequest(currentOrder);
+    }
+
+    this.classList.remove('drag-over');
+    return false;
+}
+
+function sendReorderRequest(memberIds) {
+    const formData = new FormData();
+    formData.append('member_ids', JSON.stringify(memberIds));
+    formData.append('csrfmiddlewaretoken', getCSRFToken());
+
+    // Show loading state
+    const bandGrid = document.querySelector('.band-grid.sortable');
+    if (bandGrid) {
+        bandGrid.style.opacity = '0.6';
+        bandGrid.style.pointerEvents = 'none';
+    }
+
+    fetch('/edit/band/reorder/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'HX-Request': 'true'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            // Update the band content
+            const bandContent = document.querySelector('.band-content');
+            if (bandContent) {
+                bandContent.innerHTML = html;
+                // Reinitialize drag and drop
+                setTimeout(initializeBandSorting, 100);
+            }
+        })
+        .catch(error => {
+            console.error('Error reordering band members:', error);
+            alert('Error reordering band members. Please try again.');
+        })
+        .finally(() => {
+            // Remove loading state
+            if (bandGrid) {
+                bandGrid.style.opacity = '';
+                bandGrid.style.pointerEvents = '';
+            }
+        });
+}
+
+// Initialize drag and drop when page loads
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOM loaded, initializing band sorting...');
+    initializeBandSorting();
+});
+
+// Reinitialize drag and drop after HTMX swaps
+document.addEventListener('htmx:afterSwap', function (event) {
+    console.log('HTMX after swap:', event.detail);
+
+    // Check if the swapped content contains band members
+    if (event.detail.target.querySelector &&
+        (event.detail.target.querySelector('.band-grid') ||
+            event.detail.target.classList.contains('band-grid'))) {
+        console.log('Band content swapped, reinitializing sorting...');
+        setTimeout(initializeBandSorting, 100);
+    }
+});
+
+// Debug: Log all HTMX requests for band operations
+document.addEventListener('htmx:beforeRequest', function (event) {
+    const url = event.detail.requestConfig.url;
+    if (url && url.includes('/edit/band/')) {
+        console.log('Band operation request:', url, event.detail);
+        console.log('Request body:', event.detail.requestConfig.body);
+        console.log('Request headers:', event.detail.requestConfig.headers);
+    }
+});
+
+document.addEventListener('htmx:afterRequest', function (event) {
+    const url = event.detail.requestConfig.url;
+    if (url && url.includes('/edit/band/')) {
+        console.log('Band operation response:', url, event.detail.xhr.status);
+        console.log('Response text:', event.detail.xhr.responseText);
+        if (event.detail.xhr.status !== 200) {
+            console.error('Band operation failed:', event.detail.xhr.responseText);
+        }
+    }
+});
+
+// Debug: Log form submissions specifically
+document.addEventListener('htmx:beforeRequest', function (event) {
+    if (event.target.tagName === 'FORM') {
+        console.log('Form submission:', event.target);
+        console.log('Form action:', event.target.getAttribute('hx-post'));
+        console.log('Form target:', event.target.getAttribute('hx-target'));
+        console.log('Form data:', new FormData(event.target));
+
+        // Log form data entries
+        const formData = new FormData(event.target);
+        for (let [key, value] of formData.entries()) {
+            console.log(`Form field ${key}:`, value);
+        }
+    }
+});
+
+// Touch support for mobile devices
+let touchStartY = 0;
+let touchStartX = 0;
+let isTouchDragging = false;
+
+document.addEventListener('touchstart', function (e) {
+    const target = e.target.closest('.band-member.draggable');
+    if (target && target.querySelector('.drag-handle').contains(e.target)) {
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+        isTouchDragging = true;
+        target.classList.add('touch-dragging');
+    }
+}, { passive: false });
+
+document.addEventListener('touchmove', function (e) {
+    if (isTouchDragging) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const deltaY = touch.clientY - touchStartY;
+        const deltaX = touch.clientX - touchStartX;
+
+        // Simple threshold to determine if this is a drag gesture
+        if (Math.abs(deltaY) > 10 || Math.abs(deltaX) > 10) {
+            // Handle touch drag logic here if needed
+        }
+    }
+}, { passive: false });
+
+document.addEventListener('touchend', function (e) {
+    if (isTouchDragging) {
+        isTouchDragging = false;
+        const draggingElements = document.querySelectorAll('.touch-dragging');
+        draggingElements.forEach(el => el.classList.remove('touch-dragging'));
+    }
 });
