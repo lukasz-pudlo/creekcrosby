@@ -12,6 +12,13 @@ pillow = "*"
 python-dotenv = "*"
 requests = "*"
 django-htmx = "*"
+# Production dependencies
+dj-database-url = "*"
+whitenoise = "*"
+gunicorn = "*"
+django-redis = "*"
+# Optional: Sentry for error tracking
+sentry-sdk = "*"
 
 [dev-packages]
 black = "*"
