@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>New Contact Message - Creek Crosby</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 0 0 8px 8px;
+        }
+        .field {
+            margin-bottom: 15px;
+        }
+        .field-label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .field-value {
+            background: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .message-content {
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+        .metadata {
+            background: #e9e9e9;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 New Contact Message</h1>
+        <p>Creek Crosby Website</p>
+    </div>
+    
+    <div class="content">
+        <div class="field">
+            <span class="field-label">From:</span>
+            <div class="field-value">{{ contact_message.name }}</div>
+        </div>
+        
+        <div class="field">
+            <span class="field-label">Email:</span>
+            <div class="field-value">
+                <a href="mailto:{{ contact_message.email }}">{{ contact_message.email }}</a>
+            </div>
+        </div>
+        
+        <div class="field">
+            <span class="field-label">Subject:</span>
+            <div class="field-value">{{ contact_message.subject }}</div>
+        </div>
+        
+        <div class="field">
+            <span class="field-label">Message:</span>
+            <div class="field-value message-content">{{ contact_message.message }}</div>
+        </div>
+        
+        <div class="metadata">
+            <strong>Message Details:</strong><br>
+            Received: {{ contact_message.created_at|date:"F j, Y \a\t g:i A" }}<br>
+            {% if contact_message.ip_address %}IP Address: {{ contact_message.ip_address }}<br>{% endif %}
+            {% if contact_message.user_agent %}User Agent: {{ contact_message.user_agent }}{% endif %}
+        </div>
+        
+        <p style="margin-top: 20px; text-align: center;">
+            <strong>Reply directly to this email to respond to {{ contact_message.name }}</strong>
+        </p>
+    </div>
+</body>
+</html> 

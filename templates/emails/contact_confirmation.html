@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Thank You - Creek Crosby</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 0 0 8px 8px;
+        }
+        .message-summary {
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            color: #ff0000;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 Thank You!</h1>
+        <p>Creek Crosby</p>
+    </div>
+    
+    <div class="content">
+        <h2>Hi {{ contact_message.name }},</h2>
+        
+        <p>Thank you for reaching out to Creek Crosby! We've received your message and will get back to you as soon as possible.</p>
+        
+        <div class="message-summary">
+            <h3>Your Message Summary:</h3>
+            <p><strong>Subject:</strong> {{ contact_message.subject }}</p>
+            <p><strong>Sent:</strong> {{ contact_message.created_at|date:"F j, Y \a\t g:i A" }}</p>
+        </div>
+        
+        <p>We typically respond to messages within 24-48 hours. In the meantime, feel free to:</p>
+        
+        <ul>
+            <li>Check out our upcoming events on our website</li>
+            <li>Follow us on social media for the latest updates</li>
+            <li>Listen to our music and see what we're all about</li>
+        </ul>
+        
+        <div class="social-links">
+            <p><strong>Stay Connected:</strong></p>
+            <a href="#">Facebook</a> |
+            <a href="#">Instagram</a> |
+            <a href="#">Twitter</a>
+        </div>
+        
+        <p>Thanks again for your interest in Creek Crosby!</p>
+        
+        <p>Best regards,<br>
+        <strong>The Creek Crosby Team</strong></p>
+        
+        <div class="footer">
+            <p>This is an automated confirmation email. Please do not reply to this message.</p>
+            <p>If you need immediate assistance, please contact us directly through our website.</p>
+        </div>
+    </div>
+</body>
+</html> 

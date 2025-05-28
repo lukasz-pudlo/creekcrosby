@@ -71,3 +71,35 @@ class ContactInfo(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class ContactMessage(models.Model):
+    """Model for storing contact form submissions"""
+    
+    name = models.CharField(max_length=100, verbose_name=_("Name"))
+    email = models.EmailField(verbose_name=_("Email"))
+    subject = models.CharField(max_length=200, verbose_name=_("Subject"))
+    message = models.TextField(verbose_name=_("Message"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    is_read = models.BooleanField(default=False, verbose_name=_("Is Read"))
+    is_replied = models.BooleanField(default=False, verbose_name=_("Is Replied"))
+    ip_address = models.GenericIPAddressField(blank=True, null=True, verbose_name=_("IP Address"))
+    user_agent = models.TextField(blank=True, null=True, verbose_name=_("User Agent"))
+    
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("Contact Message")
+        verbose_name_plural = _("Contact Messages")
+    
+    def __str__(self):
+        return f"{self.name} - {self.subject} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
+    
+    def mark_as_read(self):
+        """Mark message as read"""
+        self.is_read = True
+        self.save(update_fields=['is_read'])
+    
+    def mark_as_replied(self):
+        """Mark message as replied"""
+        self.is_replied = True
+        self.save(update_fields=['is_replied'])
