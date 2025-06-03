@@ -1,0 +1,91 @@
+{% load markdown_extras %}
+
+<div class="band-member{% if is_staff %} draggable{% endif %}" data-member-id="{{ member.id }}">
+    {% if is_staff %}
+        <div class="edit-controls member-controls">
+            <div class="drag-handle" title="Drag to reorder">⋮⋮</div>
+            <form hx-post="{% url 'delete_band_member' member.id %}"
+                  hx-target=".band-content"
+                  hx-swap="innerHTML"
+                  hx-confirm="Are you sure you want to delete {{ member.name }}?">
+                {% csrf_token %}
+                <button type="submit" class="btn delete-btn btn-sm">
+                    🗑️ Delete
+                </button>
+            </form>
+        </div>
+    {% endif %}
+    
+    <div class="member-image-container">
+        {% if member.image %}
+            <div class="member-image">
+                <img src="{{ member.image.url }}?v={{ member.updated|date:'U' }}" alt="{{ member.name }}, {{ member.position }}">
+                {% if is_staff %}
+                    <div class="image-edit-overlay">
+                        <form hx-post="{% url 'upload_band_image' member.id %}"
+                              hx-target="[data-member-id='{{ member.id }}']"
+                              hx-swap="outerHTML"
+                              hx-encoding="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="file" name="image" accept="image/*" style="display: none;" id="member-image-{{ member.id }}">
+                            <label for="member-image-{{ member.id }}" class="image-edit-btn">📷 Change Photo</label>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            {% if is_staff %}
+                <div class="member-image member-placeholder">
+                    <form hx-post="{% url 'upload_band_image' member.id %}"
+                          hx-target="[data-member-id='{{ member.id }}']"
+                          hx-swap="outerHTML"
+                          hx-encoding="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" name="image" accept="image/*" style="display: none;" id="member-image-{{ member.id }}">
+                        <label for="member-image-{{ member.id }}" class="image-placeholder-btn">
+                            📷 Add Photo
+                        </label>
+                    </form>
+                </div>
+            {% else %}
+                <div class="member-image member-placeholder">
+                    <span class="initials">
+                        {% for name_part in member.name.split %}{{ name_part.0 }}{% endfor %}
+                    </span>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    <div class="member-info">
+        <h3 class="{% if is_staff %}editable{% endif %}"
+            {% if is_staff %}
+            data-field="name"
+            data-value="{{ member.name }}"
+            data-edit-url="{% url 'edit_band_member' member.id %}"
+            onclick="makeEditable(this)"
+            {% endif %}>
+            {{ member.name }}
+        </h3>
+        <p class="member-position {% if is_staff %}editable{% endif %}"
+           {% if is_staff %}
+           data-field="position"
+           data-value="{{ member.position }}"
+           data-edit-url="{% url 'edit_band_member' member.id %}"
+           onclick="makeEditable(this)"
+           {% endif %}>
+            {{ member.position }}
+        </p>
+        {% if member.bio %}
+            <div class="member-bio {% if is_staff %}editable{% endif %}"
+               {% if is_staff %}
+               data-field="bio"
+               data-value="{{ member.bio }}"
+               data-edit-url="{% url 'edit_band_member' member.id %}"
+               onclick="makeEditable(this)"
+               {% endif %}>
+                {{ member.bio|markdown }}
+            </div>
+        {% endif %}
+    </div>
+</div>

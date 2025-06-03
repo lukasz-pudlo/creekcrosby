@@ -1,0 +1,36 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+djangorestframework = "*"
+django-cors-headers = "*"
+psycopg2-binary = "*"
+pillow = "*"
+python-dotenv = "*"
+requests = "*"
+django-htmx = "*"
+# Production dependencies
+dj-database-url = "*"
+whitenoise = "*"
+gunicorn = "*"
+django-redis = "*"
+# Optional: Sentry for error tracking
+sentry-sdk = "*"
+# Rich text formatting
+markdown = "*"
+
+[dev-packages]
+black = "*"
+isort = "*"
+flake8 = "*"
+pytest = "*"
+pytest-django = "*"
+autopep8 = "*"
+autoflake = "*"
+
+[requires]
+python_version = "3.12"
+python_full_version = "3.12.10"

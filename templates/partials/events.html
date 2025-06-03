@@ -1,0 +1,122 @@
+{% if user.is_staff %}
+    <div class="add-event-controls" style="margin-bottom: 2rem; text-align: center; opacity: 1 !important; position: relative !important;">
+        <button class="btn btn-primary" 
+                hx-post="{% url 'add_event' %}"
+                hx-target=".events-content"
+                hx-swap="innerHTML"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+            + Add New Event
+        </button>
+    </div>
+{% endif %}
+
+<div class="events-grid">
+    {% for event in events %}
+        <div class="event-card" data-event-id="{{ event.id }}">
+            {% if user.is_staff %}
+                <div class="edit-controls">
+                    <button class="btn btn-outline btn-sm delete-btn" 
+                            hx-post="{% url 'delete_event' event.id %}"
+                            hx-target=".events-content"
+                            hx-swap="innerHTML"
+                            hx-confirm="Are you sure you want to delete this event?"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                        × Delete
+                    </button>
+                </div>
+            {% endif %}
+            
+            <div class="event-image-container">
+                {% if event.image %}
+                    <div class="event-image">
+                        <img src="{{ event.image.url }}?v={{ event.updated|date:'U' }}" alt="{{ event.title }}">
+                        {% if user.is_staff %}
+                            <div class="image-edit-overlay">
+                                <form hx-post="{% url 'upload_event_image' event.id %}"
+                                      hx-target="[data-event-id='{{ event.id }}']"
+                                      hx-swap="outerHTML"
+                                      hx-encoding="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="file" name="image" accept="image/*" style="display: none;" id="event-image-{{ event.id }}">
+                                    <label for="event-image-{{ event.id }}" class="image-edit-btn">📷 Change Image</label>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="event-content">
+                <h3 class="event-title {% if user.is_staff %}editable{% endif %}"
+                    {% if user.is_staff %}
+                    data-field="title"
+                    data-value="{{ event.title }}"
+                    data-edit-url="{% url 'edit_event' event.id %}"
+                    onclick="makeEditable(this)"
+                    {% endif %}>
+                    {{ event.title }}
+                </h3>
+                
+                <div class="event-details">
+                    <p class="event-date {% if user.is_staff %}editable{% endif %}"
+                       {% if user.is_staff %}
+                       data-field="date"
+                       data-value="{{ event.date|date:'Y-m-d' }}"
+                       data-edit-url="{% url 'edit_event' event.id %}"
+                       onclick="makeEditable(this)"
+                       {% endif %}>
+                        <span class="icon">📅</span> {{ event.date|date:"d F Y" }}
+                    </p>
+                    <p class="event-time {% if user.is_staff %}editable{% endif %}"
+                       {% if user.is_staff %}
+                       data-field="time"
+                       data-value="{{ event.date|time:'H:i' }}"
+                       data-edit-url="{% url 'edit_event' event.id %}"
+                       onclick="makeEditable(this)"
+                       {% endif %}>
+                        <span class="icon">🕒</span> {{ event.date|time:"H:i" }}
+                    </p>
+                    <p class="event-location {% if user.is_staff %}editable{% endif %}"
+                       {% if user.is_staff %}
+                       data-field="location"
+                       data-value="{{ event.location }}"
+                       data-edit-url="{% url 'edit_event' event.id %}"
+                       onclick="makeEditable(this)"
+                       {% endif %}>
+                        <span class="icon">📍</span> 
+                        <span>{{ event.location }}</span>
+                    </p>
+                </div>
+                
+                <p class="event-description {% if user.is_staff %}editable{% endif %}"
+                   {% if user.is_staff %}
+                   data-field="description"
+                   data-value="{{ event.description }}"
+                   data-edit-url="{% url 'edit_event' event.id %}"
+                   onclick="makeEditable(this)"
+                   {% endif %}>
+                   {{ event.description }}
+                </p>
+                
+                {% if user.is_staff and not event.image %}
+                    <div class="event-add-image" style="margin-top: 1rem; text-align: center;">
+                        <form hx-post="{% url 'upload_event_image' event.id %}"
+                              hx-target="[data-event-id='{{ event.id }}']"
+                              hx-swap="outerHTML"
+                              hx-encoding="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="file" name="image" accept="image/*" style="display: none;" id="event-image-{{ event.id }}">
+                            <label for="event-image-{{ event.id }}" class="btn btn-outline btn-sm">
+                                📷 Add Image
+                            </label>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="no-events">
+            <p>{% if search_text %}No events found for "{{ search_text }}"{% else %}No upcoming events scheduled{% endif %}</p>
+        </div>
+    {% endfor %}
+</div> 

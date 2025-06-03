@@ -1,0 +1,13 @@
+{% if contact_info %}
+    <ul>
+        <li><a href="mailto:{{ contact_info.email }}">{{ contact_info.email }}</a></li>
+        <li><a href="tel:{{ contact_info.phone }}">{{ contact_info.phone }}</a></li>
+        <li><address>{{ contact_info.address }}</address></li>
+    </ul>
+{% else %}
+    <ul>
+        <li><a href="mailto:contact@creekcrosby.com">contact@creekcrosby.com</a></li>
+        <li><a href="tel:07700900000">07700 900000</a></li>
+        <li><address>Greenock, Scotland</address></li>
+    </ul>
+{% endif %} 
