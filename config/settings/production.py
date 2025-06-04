@@ -12,11 +12,13 @@ DEBUG = False
 
 # Allowed hosts for production
 ALLOWED_HOSTS = [
-    'creekcrosby.onrender.com',  # Replace with your actual Render domain
+    'creekcrosby.onrender.com',  # Render domain
     '.onrender.com',  # Allow all Render subdomains
+    'creekcrosby.co.uk',  # Custom domain
+    'www.creekcrosby.co.uk',  # Custom domain with www
 ]
 
-# Add custom domain if provided
+# Add custom domain if provided via environment variable
 CUSTOM_DOMAIN = os.environ.get('CUSTOM_DOMAIN')
 if CUSTOM_DOMAIN:
     ALLOWED_HOSTS.append(CUSTOM_DOMAIN)
@@ -26,8 +28,10 @@ print(f"Production ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
 # CSRF trusted origins for production
 CSRF_TRUSTED_ORIGINS = [
-    'https://creekcrosby.onrender.com',  # Replace with your actual Render domain
+    'https://creekcrosby.onrender.com',  # Render domain
     'https://*.onrender.com',
+    'https://creekcrosby.co.uk',  # Custom domain
+    'https://www.creekcrosby.co.uk',  # Custom domain with www
 ]
 
 if CUSTOM_DOMAIN:
