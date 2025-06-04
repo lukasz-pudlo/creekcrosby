@@ -24,4 +24,8 @@ python manage.py migrate
 echo "Creating superuser if needed..."
 python manage.py create_superuser_if_none
 
+# Create band story about section
+echo "Creating band story about section..."
+python manage.py create_band_story
+
 echo "Build process completed successfully!" 
