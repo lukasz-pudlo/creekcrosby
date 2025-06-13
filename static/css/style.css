@@ -129,6 +129,10 @@ body {
     z-index: 110;
 }
 
+.mobile-menu-toggle:focus {
+    outline: none;
+}
+
 /* Hide nav header on desktop */
 .nav-header {
     display: none;
