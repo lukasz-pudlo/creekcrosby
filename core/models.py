@@ -57,9 +57,9 @@ class AboutSection(models.Model):
 class ContactInfo(models.Model):
     """Model for storing band contact information"""
 
-    email = models.EmailField()
-    phone = models.CharField(max_length=20)
-    address = models.TextField()
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
     social_facebook = models.URLField(blank=True, null=True)
     social_twitter = models.URLField(blank=True, null=True)
     social_instagram = models.URLField(blank=True, null=True)

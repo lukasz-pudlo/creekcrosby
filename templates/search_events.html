@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if search_text %}Search Results for "{{ search_text }}"{% else %}Event Search{% endif %} - Creek Crosby{% endblock %}
+
+{% block content %}
+<!-- Search Events Section -->
+<section class="events" id="events" style="padding-top: 8rem;">
+    <div class="container">
+        <h2 class="section-title">
+            {% if search_text %}
+                Search Results for "{{ search_text }}"
+            {% else %}
+                Event Search
+            {% endif %}
+        </h2>
+        
+        <!-- Search Box -->
+        <div class="search-container">
+            <input name="search_text"
+                   placeholder="Search events..."
+                   type="text"
+                   class="search-input"
+                   value="{{ search_text }}"
+                   hx-get="{% url 'search_events' %}"
+                   hx-trigger="keyup changed delay:500ms"
+                   hx-target=".events-content"
+                   hx-push-url="true">
+        </div>
+        
+        <div class="events-content" id="events-results">
+            {% include 'partials/event_results.html' %}
+        </div>
+        
+        <!-- Navigation back -->
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="/#events" class="btn btn-outline">← Back to Main Page</a>
+        </div>
+    </div>
+</section>
+{% endblock %} 
