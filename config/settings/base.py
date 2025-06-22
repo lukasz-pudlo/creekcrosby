@@ -122,4 +122,4 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@creekcrosby.com')
 
 # Contact form settings
-CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL', 'contact@creekcrosby.com') 
+CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL', 'info@creekcrosby.com') 

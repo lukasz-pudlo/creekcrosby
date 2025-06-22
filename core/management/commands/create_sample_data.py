@@ -58,8 +58,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Created {
-                    len(members)} band members"
+                f"Created {len(members)} band members"
             )
         )
 
@@ -109,7 +108,7 @@ class Command(BaseCommand):
         ContactInfo.objects.all().delete()
 
         contact = {
-            "email": "contact@creekcrosby.com",
+            "email": "info@creekcrosby.com",
             "phone": "07700 900000",
             "address": "Greenock, Scotland",
             "social_facebook": "https://facebook.com/creekhq",
