@@ -111,6 +111,18 @@
                         <!-- Will be populated by HTMX -->
                     </div>
                 </div>
+
+                <div class="footer-thanks">
+                    <h4>With thanks</h4>
+                    <div class="thanks" 
+                         hx-get="{% url 'footer_thanks_partial' %}" 
+                         hx-trigger="load" 
+                         hx-target="this" 
+                         hx-swap="innerHTML"
+                         id="footer-thanks">
+                        <!-- Will be populated by HTMX -->
+                    </div>
+                </div>
             </div>
             
             <div class="footer-bottom">

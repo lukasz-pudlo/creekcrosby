@@ -40,11 +40,11 @@ def events_partial(request):
     """HTMX view for loading events"""
     from django.utils import timezone
     now = timezone.now()
-    
+
     # Get upcoming events (future) and past events separately
     upcoming_events = Event.objects.filter(date__gte=now).order_by('date')
     past_events = Event.objects.filter(date__lt=now).order_by('-date')
-    
+
     # Combine them: upcoming events first, then past events
     events = list(upcoming_events) + list(past_events)
 
@@ -120,41 +120,43 @@ def contact_partial(request):
 @require_http_methods(["GET", "POST"])
 def contact_form(request):
     """Handle contact form submissions"""
-    
+
     if request.method == 'POST':
         form = ContactMessageForm(request.POST)
-        
+
         if form.is_valid():
             # Save to database
             contact_message = form.save(commit=False)
-            
+
             # Add metadata
             contact_message.ip_address = get_client_ip(request)
             contact_message.user_agent = request.META.get('HTTP_USER_AGENT', '')
             contact_message.save()
-            
+
             # Send email notification
             try:
                 send_contact_email(contact_message)
-                
+
                 if request.htmx:
                     return render(request, 'partials/contact_success.html', {
                         'message': 'Thank you for your message! We\'ll get back to you soon.'
                     })
                 else:
-                    messages.success(request, 'Thank you for your message! We\'ll get back to you soon.')
+                    messages.success(
+                        request, 'Thank you for your message! We\'ll get back to you soon.')
                     return redirect('contact_form')
-                    
+
             except Exception as e:
                 # Log the error but still save the message
                 print(f"Email sending failed: {e}")
-                
+
                 if request.htmx:
                     return render(request, 'partials/contact_success.html', {
                         'message': 'Your message has been saved. We\'ll get back to you soon!'
                     })
                 else:
-                    messages.success(request, 'Your message has been saved. We\'ll get back to you soon!')
+                    messages.success(
+                        request, 'Your message has been saved. We\'ll get back to you soon!')
                     return redirect('contact_form')
         else:
             # Form has errors
@@ -165,10 +167,10 @@ def contact_form(request):
                 })
     else:
         form = ContactMessageForm()
-    
+
     if request.htmx:
         return render(request, 'partials/contact_form.html', {'form': form})
-    
+
     return render(request, 'contact_form.html', {'form': form})
 
 
@@ -184,19 +186,19 @@ def get_client_ip(request):
 
 def send_contact_email(contact_message):
     """Send email notification for new contact message"""
-    
+
     # Email to admin/band
     admin_subject = f"New Contact Message: {contact_message.subject}"
     admin_message = render_to_string('emails/contact_admin.html', {
         'contact_message': contact_message
     })
-    
+
     # Email to sender (confirmation)
     sender_subject = "Thank you for contacting Creek Crosby"
     sender_message = render_to_string('emails/contact_confirmation.html', {
         'contact_message': contact_message
     })
-    
+
     try:
         # Send to admin
         admin_email = getattr(settings, 'CONTACT_EMAIL', 'admin@creekcrosby.com')
@@ -208,7 +210,7 @@ def send_contact_email(contact_message):
             fail_silently=False,
             html_message=admin_message
         )
-        
+
         # Send confirmation to sender
         send_mail(
             sender_subject,
@@ -218,7 +220,7 @@ def send_contact_email(contact_message):
             fail_silently=False,
             html_message=sender_message
         )
-        
+
     except BadHeaderError:
         raise Exception("Invalid header found in email.")
     except Exception as e:
@@ -233,7 +235,7 @@ def search_events(request):
 
     from django.utils import timezone
     now = timezone.now()
-    
+
     # Get upcoming events (future) and past events separately
     upcoming_events = Event.objects.filter(date__gte=now).order_by('date')
     past_events = Event.objects.filter(date__lt=now).order_by('-date')
@@ -247,7 +249,7 @@ def search_events(request):
         ) | upcoming_events.filter(
             location__icontains=search_text
         )
-        
+
         past_events = past_events.filter(
             title__icontains=search_text
         ) | past_events.filter(
@@ -286,13 +288,13 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing band events"""
     serializer_class = EventSerializer
     permission_classes = [AllowAny]
-    
+
     def get_queryset(self):
         """Return events ordered with upcoming events first, then past events"""
         from django.utils import timezone
         from django.db.models import Case, When, Value, IntegerField
         now = timezone.now()
-        
+
         # Simple approach: upcoming events (is_upcoming=0) come first, ordered by date ascending
         # Past events (is_upcoming=1) come second, ordered by date descending
         return Event.objects.annotate(
@@ -393,7 +395,7 @@ def delete_about_image(request, section_id):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
     section = get_object_or_404(AboutSection, id=section_id)
-    
+
     if section.image:
         section.image.delete()
         section.save()
@@ -526,8 +528,9 @@ def add_band_member(request):
     bio = request.POST.get('bio', 'Band member bio').strip()
 
     # Get the highest order number and add 1
-    max_order = BandMember.objects.aggregate(max_order=models.Max('order'))['max_order'] or 0
-    
+    max_order = BandMember.objects.aggregate(
+        max_order=models.Max('order'))['max_order'] or 0
+
     member = BandMember.objects.create(
         name=name,
         position=position,
@@ -579,11 +582,11 @@ def reorder_band_members(request):
     import json
     try:
         member_ids = json.loads(request.POST.get('member_ids', '[]'))
-        
+
         # Update the order for each member
         for index, member_id in enumerate(member_ids):
             BandMember.objects.filter(id=member_id).update(order=index + 1)
-        
+
         if request.htmx:
             # Return the updated band members
             band_members = BandMember.objects.all().order_by('order', 'name')
@@ -591,7 +594,7 @@ def reorder_band_members(request):
                 'band_members': band_members,
                 'is_staff': request.user.is_staff
             })
-        
+
         return JsonResponse({'success': True})
     except (json.JSONDecodeError, ValueError) as e:
         return JsonResponse({'error': 'Invalid data'}, status=400)
@@ -667,7 +670,8 @@ def edit_event(request, event_id):
                 from datetime import datetime
                 new_date = datetime.strptime(value, '%Y-%m-%d').date()
                 # Keep the existing time, just change the date
-                event.date = event.date.replace(year=new_date.year, month=new_date.month, day=new_date.day)
+                event.date = event.date.replace(
+                    year=new_date.year, month=new_date.month, day=new_date.day)
                 needs_full_refresh = True  # Date changes affect ordering
             except (ValueError, TypeError):
                 return JsonResponse({'error': 'Invalid date format. Use YYYY-MM-DD'}, status=400)
@@ -677,7 +681,8 @@ def edit_event(request, event_id):
                 from datetime import datetime
                 new_time = datetime.strptime(value, '%H:%M').time()
                 # Keep the existing date, just change the time
-                event.date = event.date.replace(hour=new_time.hour, minute=new_time.minute)
+                event.date = event.date.replace(
+                    hour=new_time.hour, minute=new_time.minute)
                 needs_full_refresh = True  # Time changes affect ordering
             except (ValueError, TypeError):
                 return JsonResponse({'error': 'Invalid time format. Use HH:MM'}, status=400)
@@ -690,14 +695,14 @@ def edit_event(request, event_id):
             # The JavaScript will handle replacing the entire #events-results content
             from django.utils import timezone
             now = timezone.now()
-            
+
             # Get upcoming events (future) and past events separately
             upcoming_events = Event.objects.filter(date__gte=now).order_by('date')
             past_events = Event.objects.filter(date__lt=now).order_by('-date')
-            
+
             # Combine them: upcoming events first, then past events
             events = list(upcoming_events) + list(past_events)
-            
+
             return render(request, 'partials/event_results.html', {
                 'events': events,
                 'is_staff': request.user.is_staff
@@ -765,14 +770,14 @@ def add_event(request):
         # Return the updated events
         from django.utils import timezone
         now = timezone.now()
-        
+
         # Get upcoming events (future) and past events separately
         upcoming_events = Event.objects.filter(date__gte=now).order_by('date')
         past_events = Event.objects.filter(date__lt=now).order_by('-date')
-        
+
         # Combine them: upcoming events first, then past events
         events = list(upcoming_events) + list(past_events)
-        
+
         return render(request, 'partials/event_results.html', {
             'events': events,
             'is_staff': request.user.is_staff
@@ -796,14 +801,14 @@ def delete_event(request, event_id):
         # Return the updated events
         from django.utils import timezone
         now = timezone.now()
-        
+
         # Get upcoming events (future) and past events separately
         upcoming_events = Event.objects.filter(date__gte=now).order_by('date')
         past_events = Event.objects.filter(date__lt=now).order_by('-date')
-        
+
         # Combine them: upcoming events first, then past events
         events = list(upcoming_events) + list(past_events)
-        
+
         return render(request, 'partials/event_results.html', {
             'events': events,
             'is_staff': request.user.is_staff
@@ -835,3 +840,9 @@ def footer_social_partial(request):
     return render(request, 'partials/footer_social.html', {
         'contact_info': contact_info
     })
+
+
+def footer_thanks_partial(request):
+    """HTMX view for loading footer thanks section"""
+
+    return render(request, 'partials/footer_thanks.html')
