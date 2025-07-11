@@ -889,6 +889,14 @@ section {
     letter-spacing: 1px;
 }
 
+.footer-thanks h4 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 .footer-links ul,
 .footer-contact ul {
     list-style: none;

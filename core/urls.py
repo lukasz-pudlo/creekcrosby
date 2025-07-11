@@ -11,6 +11,7 @@ from .views import (
     search_events,
     footer_contact_partial,
     footer_social_partial,
+    footer_thanks_partial,
 
     # Inline editing views
     edit_about_section,
@@ -56,6 +57,7 @@ urlpatterns = [
     path('partials/contact/', contact_partial, name='contact_partial'),
     path('partials/footer-contact/', footer_contact_partial, name='footer_contact_partial'),
     path('partials/footer-social/', footer_social_partial, name='footer_social_partial'),
+    path('partials/thanks/', footer_thanks_partial, name='footer_thanks_partial'),
 
     # HTMX actions
     path('contact-form/', contact_form, name='contact_form'),
@@ -75,7 +77,8 @@ urlpatterns = [
     path('edit/band/<int:member_id>/', edit_band_member, name='edit_band_member'),
     path('edit/band/<int:member_id>/image/', upload_band_image, name='upload_band_image'),
     path('edit/band/add/', add_band_member, name='add_band_member'),
-    path('edit/band/<int:member_id>/delete/', delete_band_member, name='delete_band_member'),
+    path('edit/band/<int:member_id>/delete/',
+         delete_band_member, name='delete_band_member'),
     path('edit/band/reorder/', reorder_band_members, name='reorder_band_members'),
 
     # Inline editing endpoints - Contact
