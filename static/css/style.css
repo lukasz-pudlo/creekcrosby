@@ -179,7 +179,7 @@ body {
     align-items: center;
     background: linear-gradient(45deg, rgba(255, 0, 0, 0.1), transparent),
         linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-        url('/static/images/ashtray3.jpg') center/cover;
+        url('/static/images/JM DSC_2067 BW.jpg') center/cover;
     color: #ffffff;
     text-align: center;
     padding: 1rem;
@@ -191,6 +191,7 @@ body {
     z-index: 2;
     max-width: 800px;
     margin: 0 auto;
+    margin-top: -3rem;
     animation: fadeIn 1.5s ease-out;
 }
 
@@ -891,7 +892,7 @@ section {
 
 .footer-thanks h4 {
     color: var(--primary-color);
-    font-size: 1.2rem;
+    font-size: 2rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
     letter-spacing: 1px;
