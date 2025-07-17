@@ -169,8 +169,8 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # File upload settings for production
-FILE_UPLOAD_MAX_MEMORY_SIZE = 11042880
-DATA_UPLOAD_MAX_MEMORY_SIZE = 11042880
+FILE_UPLOAD_MAX_MEMORY_SIZE = 22042880
+DATA_UPLOAD_MAX_MEMORY_SIZE = 22042880
 
 # Performance optimizations
 CONN_MAX_AGE = 600  # Database connection pooling

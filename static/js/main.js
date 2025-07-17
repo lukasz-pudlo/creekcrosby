@@ -417,10 +417,10 @@ document.addEventListener('change', function (event) {
             return;
         }
 
-        // Validate file size (5MB limit)
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        // Validate file size (20MB limit)
+        const maxSize = 20 * 1024 * 1024; // 20MB
         if (file.size > maxSize) {
-            alert('File size must be under 5MB');
+            alert('File size must be under 20MB');
             input.value = '';
             return;
         }
