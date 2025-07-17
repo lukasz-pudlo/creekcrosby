@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.http import HttpResponsePermanentRedirect
 from django.utils.deprecation import MiddlewareMixin
@@ -113,3 +114,46 @@ class NgrokAllowedHostMiddleware(MiddlewareMixin):
 
         # Continue processing the request
         return None
+
+
+class MediaDirectoryMiddleware(MiddlewareMixin):
+    """
+    Middleware to ensure media directories exist when needed for file uploads.
+    This creates directories only when actually needed, not during settings import.
+    """
+
+    _directories_checked = False
+
+    def process_request(self, request):
+        # Only check for file upload requests
+        if request.method == 'POST' and (
+            request.content_type and 'multipart' in request.content_type
+        ):
+            self._ensure_media_directories()
+
+        return None
+
+    def _ensure_media_directories(self):
+        """Ensure media directories exist, but only once per app lifecycle"""
+        if MediaDirectoryMiddleware._directories_checked:
+            return
+
+        try:
+            # Create main media directory
+            if not os.path.exists(settings.MEDIA_ROOT):
+                os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+                print(f"Created media directory: {settings.MEDIA_ROOT}")
+
+            # Create subdirectories for different upload types
+            subdirs = ['band', 'events', 'about']
+            for subdir in subdirs:
+                subdir_path = os.path.join(settings.MEDIA_ROOT, subdir)
+                if not os.path.exists(subdir_path):
+                    os.makedirs(subdir_path, exist_ok=True)
+                    print(f"Created media subdirectory: {subdir_path}")
+
+            MediaDirectoryMiddleware._directories_checked = True
+
+        except OSError as e:
+            print(f"Warning: Could not create media directories: {e}")
+            # Don't fail the request, just log the warning

@@ -55,7 +55,6 @@ body {
     background-color: rgba(0, 0, 0, 0.9);
     z-index: 100;
     transition: all 0.3s ease;
-    padding: 0.5%;
     font-size: 2rem;
 }
 

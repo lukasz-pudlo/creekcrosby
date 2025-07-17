@@ -70,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'core.middleware.MediaDirectoryMiddleware',
 ]
 
 # Static files configuration for production
@@ -78,6 +79,17 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 # WhiteNoise configuration
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
+
+# Media files configuration for production
+# Check if we have a RENDER_EXTERNAL_HOSTNAME (indicates we're on Render)
+if os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
+    # On Render, use a mounted disk for media files
+    MEDIA_ROOT = '/opt/render/project/media'
+    MEDIA_URL = '/media/'
+else:
+    # Local production setup
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
 
 # Security settings for production
 SECURE_HSTS_SECONDS = 31536000  # 1 year
@@ -157,8 +169,8 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # File upload settings for production
-FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 11042880  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 11042880  # 10MB
 
 # Media files configuration for production
 # You might want to use a cloud storage service like AWS S3 or Cloudinary
@@ -181,15 +193,15 @@ if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import LoggingIntegration
-    
+
     sentry_logging = LoggingIntegration(
         level=logging.INFO,
         event_level=logging.ERROR
     )
-    
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration(), sentry_logging],
         traces_sample_rate=0.1,
         send_default_pii=True
-    ) 
+    )
