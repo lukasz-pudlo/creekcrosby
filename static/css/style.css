@@ -20,7 +20,6 @@ body {
     font-family: 'Courier New', monospace;
     background-color: var(--dark-bg);
     color: var(--text-color);
-    line-height: 1.6;
     scroll-behavior: smooth;
 }
 
@@ -54,7 +53,6 @@ body {
     left: 0;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.9);
-    padding: 1rem 0;
     z-index: 100;
     transition: all 0.3s ease;
 }
@@ -177,16 +175,39 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(45deg, rgba(255, 0, 0, 0.1), transparent),
-        linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-        url('/static/images/JM DSC_2067 BW.jpg') center/cover;
+    background: linear-gradient(transparent),
+        linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+        url('/static/images/JM DSC_2067 BW.jpg');
+    /* Key responsive properties */
+    background-size: cover;
+    /* Covers entire container */
+    background-position: center center;
+    /* Centers the image */
+    background-repeat: no-repeat;
+    /* Prevents tiling */
+    background-attachment: fixed;
+    /* Creates parallax effect */
+
+    width: 100%;
+    color: #ffffff;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.about-into-wrapper {
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: #ffffff;
     text-align: center;
     padding: 1rem;
     overflow: hidden;
 }
 
-.hero-content {
+.about-intro {
     position: relative;
     z-index: 2;
     max-width: 800px;
@@ -195,7 +216,7 @@ body {
     animation: fadeIn 1.5s ease-out;
 }
 
-.hero h1 {
+.about-intro h1 {
     font-size: 4rem;
     margin-bottom: 1.5rem;
     font-weight: 700;
@@ -203,7 +224,7 @@ body {
     text-transform: uppercase;
 }
 
-.hero p {
+.about-intro p {
     font-size: 1.5rem;
     margin-bottom: 2rem;
     opacity: 0.9;
@@ -1399,6 +1420,17 @@ textarea.form-control {
     .contact-success p {
         font-size: 1.2rem;
     }
+
+    .hero {
+        background-attachment: scroll;
+
+        /* Adjust positioning for mobile */
+        background-position: center center;
+
+        /* Ensure minimum height is reasonable on mobile */
+        min-height: 500px;
+        height: 100vh;
+    }
 }
 
 /* Animations */
@@ -2589,6 +2621,11 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
     .about-image,
     .about-text {
         min-width: unset;
+    }
+
+    .hero {
+        min-height: 400px;
+        padding: 0.5rem;
     }
 }
 
