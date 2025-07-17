@@ -2687,12 +2687,13 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
     }
 
     .hero {
+        background-position: center 100%;
         min-height: 250px;
-        height: 40vh;
-        max-height: 350px;
+        height: 100vh;
+        background-size: contain;
     }
 
-    .about-into-wrapper {
+    .about-intro-wrapper {
         padding: 2rem 1rem;
     }
 
@@ -2766,6 +2767,13 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
     .container {
         padding: 0 0.5rem;
     }
+
+    .hero {
+        background-position: center 100%;
+        min-height: 250px;
+        height: 100vh;
+        background-size: contain;
+    }
 }
 
 /* Special styling for the band story */
@@ -2777,7 +2785,7 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
 
 @media (min-width: 1200px) {
     .about-item[data-section-id] .about-content {
-        column-count: 2;
+        column-count: 1;
         column-gap: 3rem;
         column-fill: balance;
         text-align: justify;
