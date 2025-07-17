@@ -23,11 +23,17 @@ python manage.py collectstatic --noinput
 echo "Running database migrations..."
 python manage.py migrate
 
+<<<<<<< HEAD
 # Restore media files
 python persist_media.py restore
+=======
+# Ensure media directory exists
+echo "Ensuring media directory exists..."
+python manage.py ensure_media_dir
+>>>>>>> feature-update-content
 
 # Create superuser if none exists
 echo "Creating superuser if needed..."
 python manage.py create_superuser_if_none
 
-echo "Build process completed successfully!" 
+echo "Build process completed successfully!"
