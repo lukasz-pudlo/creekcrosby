@@ -2687,12 +2687,13 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
     }
 
     .hero {
+        background-position: center 100%;
         min-height: 250px;
-        height: 40vh;
-        max-height: 350px;
+        height: 100vh;
+        background-size: contain;
     }
 
-    .about-into-wrapper {
+    .about-intro-wrapper {
         padding: 2rem 1rem;
     }
 
@@ -2765,6 +2766,13 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
     /* Adjust container to have minimal padding on extremely small screens */
     .container {
         padding: 0 0.5rem;
+    }
+
+    .hero {
+        background-position: center 100%;
+        min-height: 250px;
+        height: 100vh;
+        background-size: contain;
     }
 }
 
