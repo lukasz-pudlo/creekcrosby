@@ -55,6 +55,8 @@ body {
     background-color: rgba(0, 0, 0, 0.9);
     z-index: 100;
     transition: all 0.3s ease;
+    padding: 0.5%;
+    font-size: 2rem;
 }
 
 .header.scrolled {
@@ -69,7 +71,7 @@ body {
 }
 
 .logo a {
-    font-size: 2rem;
+    font-size: 3rem;
     font-weight: 700;
     color: var(--primary-color);
     text-decoration: none;
@@ -167,52 +169,47 @@ body {
     top: 6px;
 }
 
-/* Hero Section */
 .hero {
     position: relative;
     height: 100vh;
     min-height: 600px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(transparent),
+    background:
         linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
         url('/static/images/JM DSC_2067 BW.jpg');
-    /* Key responsive properties */
-    background-size: cover;
-    /* Covers entire container */
+
+    background-size: contain;
+    /* Shows entire image without cropping */
     background-position: center center;
     /* Centers the image */
     background-repeat: no-repeat;
     /* Prevents tiling */
     background-attachment: fixed;
     /* Creates parallax effect */
+    background-color: #0a0a0a;
+    /* Fallback color for empty space */
 
     width: 100%;
-    color: #ffffff;
-    padding: 1rem;
     overflow: hidden;
 }
 
-.about-into-wrapper {
+.about-intro-wrapper {
     position: relative;
-    height: 100vh;
-    min-height: 600px;
+    background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%);
+    padding: 4rem 0;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #ffffff;
     text-align: center;
-    padding: 1rem;
-    overflow: hidden;
+    min-height: auto;
+    border-top: 2px solid var(--primary-color);
 }
 
 .about-intro {
     position: relative;
-    z-index: 2;
     max-width: 800px;
     margin: 0 auto;
-    margin-top: -3rem;
+    padding: 1rem;
     animation: fadeIn 1.5s ease-out;
 }
 
@@ -222,6 +219,7 @@ body {
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .about-intro p {
@@ -230,6 +228,7 @@ body {
     opacity: 0.9;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .hero-buttons {
@@ -911,12 +910,63 @@ section {
     letter-spacing: 1px;
 }
 
+.footer-thanks {
+    text-align: center;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
+}
+
 .footer-thanks h4 {
     color: var(--primary-color);
     font-size: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-align: center;
+}
+
+.footer-thanks h3 {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0 0 0.8rem 0;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.4;
+    display: block;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Remove thanks section from grid layout */
+.footer-grid .footer-thanks {
+    display: none;
+}
+
+/* Mobile responsive for thanks section */
+@media (max-width: 767px) {
+    .footer-thanks {
+        padding: 2rem 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .footer-thanks h4 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .footer-thanks h3 {
+        font-size: 0.9rem;
+        white-space: normal;
+        margin-bottom: 0.6rem;
+    }
 }
 
 .footer-links ul,
@@ -1423,13 +1473,23 @@ textarea.form-control {
 
     .hero {
         background-attachment: scroll;
-
-        /* Adjust positioning for mobile */
+        background-size: contain;
         background-position: center center;
+        min-height: 200px;
+        height: 40vh;
+        max-height: 400px;
+    }
 
-        /* Ensure minimum height is reasonable on mobile */
-        min-height: 500px;
-        height: 100vh;
+    .about-intro h1 {
+        font-size: 2.5rem;
+    }
+
+    .about-intro p {
+        font-size: 1.2rem;
+    }
+
+    .about-intro-wrapper {
+        padding: 3rem 1rem;
     }
 }
 
@@ -2624,8 +2684,21 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
     }
 
     .hero {
-        min-height: 400px;
-        padding: 0.5rem;
+        min-height: 250px;
+        height: 40vh;
+        max-height: 350px;
+    }
+
+    .about-into-wrapper {
+        padding: 2rem 1rem;
+    }
+
+    .about-intro h1 {
+        font-size: 2rem;
+    }
+
+    .about-intro p {
+        font-size: 1.1rem;
     }
 }
 
