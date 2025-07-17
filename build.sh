@@ -5,9 +5,6 @@ set -o errexit  # Exit on error
 
 echo "Starting build process..."
 
-# Backup existing media files
-python persist_media.py backup
-
 # Install dependencies
 echo "Installing Python dependencies..."
 pip install -r requirements.txt
@@ -23,14 +20,9 @@ python manage.py collectstatic --noinput
 echo "Running database migrations..."
 python manage.py migrate
 
-<<<<<<< HEAD
-# Restore media files
-python persist_media.py restore
-=======
 # Ensure media directory exists
 echo "Ensuring media directory exists..."
-python manage.py ensure_media_dir
->>>>>>> feature-update-content
+python manage.py ensure_media_directory
 
 # Create superuser if none exists
 echo "Creating superuser if needed..."

@@ -70,7 +70,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
-    'core.middleware.MediaDirectoryMiddleware',
+    'core.middleware.MediaDirectoryMiddleware',  # Ensure media directories exist
 ]
 
 # Static files configuration for production
@@ -169,17 +169,8 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # File upload settings for production
-FILE_UPLOAD_MAX_MEMORY_SIZE = 11042880  # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 11042880  # 10MB
-
-# Media files configuration for production
-# You might want to use a cloud storage service like AWS S3 or Cloudinary
-# For now, we'll use local storage but in production you should consider:
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-# AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-# AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+FILE_UPLOAD_MAX_MEMORY_SIZE = 11042880
+DATA_UPLOAD_MAX_MEMORY_SIZE = 11042880
 
 # Performance optimizations
 CONN_MAX_AGE = 600  # Database connection pooling
@@ -205,18 +196,3 @@ if SENTRY_DSN:
         traces_sample_rate=0.1,
         send_default_pii=True
     )
-<<<<<<< HEAD
-
-MEDIA_URL = '/media'
-MEDIA_ROOT = '/app/media'
-
-if not os.path.exists(MEDIA_ROOT):
-    os.makedirs(MEDIA_ROOT, exist_ok=True)
-
-WHITENOISE_USE_FINDERS = True
-WHITENOISE_AUTOREFRESH = True
-
-WHITENOISE_ROOT = MEDIA_ROOT
-WHITENOISE_INDEX_FILE = True
-=======
->>>>>>> feature-update-content
