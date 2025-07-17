@@ -2785,7 +2785,7 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
 
 @media (min-width: 1200px) {
     .about-item[data-section-id] .about-content {
-        column-count: 2;
+        column-count: 1;
         column-gap: 3rem;
         column-fill: balance;
         text-align: justify;
