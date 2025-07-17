@@ -180,11 +180,6 @@ function makeEditable(element, inputType = 'text') {
     function saveEdit() {
         const newValue = inputElement.value.trim();
 
-        if (newValue === '') {
-            alert('Field cannot be empty');
-            return;
-        }
-
         // Show saving indicator
         saveBtn.textContent = 'Saving...';
         saveBtn.disabled = true;
