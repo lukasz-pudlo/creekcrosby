@@ -181,15 +181,27 @@ if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import LoggingIntegration
-    
+
     sentry_logging = LoggingIntegration(
         level=logging.INFO,
         event_level=logging.ERROR
     )
-    
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration(), sentry_logging],
         traces_sample_rate=0.1,
         send_default_pii=True
-    ) 
+    )
+
+MEDIA_URL = '/media'
+MEDIA_ROOT = '/app/media'
+
+if not os.path.exists(MEDIA_ROOT):
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
+
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+
+WHITENOISE_ROOT = MEDIA_ROOT
+WHITENOISE_INDEX_FILE = True
