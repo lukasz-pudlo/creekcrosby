@@ -629,6 +629,10 @@ section {
     background-color: var(--dark-bg);
 }
 
+.merchandise {
+    background-color: var(--dark-bg);
+}
+
 .search-container {
     text-align: center;
     margin-bottom: 3rem;
@@ -2039,6 +2043,66 @@ textarea.form-control {
 /* Event Card Editing Styles */
 .event-card {
     position: relative;
+}
+
+.merchandise-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 columns on large screens */
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 0;
+    justify-items: center;
+}
+
+.merchandise-item-card {
+    position: relative;
+    text-align: center;
+    width: 100%;
+    max-width: 250px;
+}
+
+.merchandise-item-image-container {
+    position: relative;
+}
+
+.merchandise-item-image {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.merchandise-item-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s ease;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+    .merchandise-grid {
+        grid-template-columns: 1fr;
+        /* Single column on mobile */
+        gap: 1.5rem;
+        padding: 1rem 0;
+    }
+
+    .merchandise-item-card {
+        max-width: 300px;
+        /* Slightly larger on mobile */
+    }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+    .merchandise-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns on tablets */
+        gap: 1.5rem;
+    }
 }
 
 .event-card .edit-controls {

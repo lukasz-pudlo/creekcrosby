@@ -3,25 +3,22 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
-from django.utils.dateparse import parse_datetime
-from django.utils import timezone
 from django.db import models
-from datetime import timedelta
 from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
 from django.contrib import messages
 from django.template.loader import render_to_string
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
-from .models import Event, BandMember, AboutSection, ContactInfo, ContactMessage
+from .models import Event, BandMember, AboutSection, ContactInfo, Merchandise
 from .serializers import (
     EventSerializer,
     BandMemberSerializer,
     AboutSectionSerializer,
-    ContactInfoSerializer
+    ContactInfoSerializer,
+    MerchandiseSerializer,
 )
 from .forms import ContactMessageForm
 
@@ -846,3 +843,15 @@ def footer_thanks_partial(request):
     """HTMX view for loading footer thanks section"""
 
     return render(request, 'partials/footer_thanks.html')
+
+
+def merchandise_partial(request):
+    """HTMX view for loading merchandise"""
+    from django.utils import timezone
+    now = timezone.now()
+
+    merchandise_items = Merchandise.objects.all()
+
+    return render(request, 'partials/merchandise.html', {
+        'merchandise_items': merchandise_items
+    })

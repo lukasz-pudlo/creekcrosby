@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import AboutSection, BandMember, ContactInfo, Event
+from .models import AboutSection, BandMember, ContactInfo, Event, Merchandise
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -24,4 +24,10 @@ class AboutSectionSerializer(serializers.ModelSerializer):
 class ContactInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactInfo
+        fields = "__all__"
+
+
+class MerchandiseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Merchandise
         fields = "__all__"
