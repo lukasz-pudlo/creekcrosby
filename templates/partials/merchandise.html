@@ -1,0 +1,15 @@
+<div class="merchandise-grid">
+    {% for merchandise_item in merchandise_items %}
+        <div class="merchandise-item-card" merchandise-item-id="{{ merchandise_item.id }}">
+            
+            <div class="merchandise-item-image-container">
+                <h2>{{merchandise_item.name}}</h2>
+                {% if merchandise_item.image %}
+                    <div class="merchandise-item-image">
+                        <img src="{{ merchandise_item.image.url }}" alt="{{ merchandise_item.name }}">
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>

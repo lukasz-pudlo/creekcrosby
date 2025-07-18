@@ -104,3 +104,8 @@ class ContactMessage(models.Model):
         """Mark message as replied"""
         self.is_replied = True
         self.save(update_fields=['is_replied'])
+
+
+class Merchandise(models.Model):
+    name = models.CharField(blank=True, null=True)
+    image = models.ImageField(upload_to="merchandise/", blank=True, null=True)

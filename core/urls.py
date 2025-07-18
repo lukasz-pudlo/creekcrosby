@@ -12,6 +12,7 @@ from .views import (
     footer_contact_partial,
     footer_social_partial,
     footer_thanks_partial,
+    merchandise_partial,
 
     # Inline editing views
     edit_about_section,
@@ -58,6 +59,7 @@ urlpatterns = [
     path('partials/footer-contact/', footer_contact_partial, name='footer_contact_partial'),
     path('partials/footer-social/', footer_social_partial, name='footer_social_partial'),
     path('partials/thanks/', footer_thanks_partial, name='footer_thanks_partial'),
+    path('partials/merchandise', merchandise_partial, name='merchandise_partial'),
 
     # HTMX actions
     path('contact-form/', contact_form, name='contact_form'),

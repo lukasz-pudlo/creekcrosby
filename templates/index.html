@@ -75,6 +75,23 @@
     </div>
 </section>
 
+<!-- Merchandise Section -->
+<section class="merchandise" id="merchandise">
+    <div class="container">
+        <h2 class="section-title">Shop</h2>
+        <h3>Please email or call to place an order</h3>
+        <br/>
+        <div class="merchandise-content"
+             hx-get="{% url 'merchandise_partial' %}"
+             hx-trigger="revealed"
+             hx-swap="innerHTML">
+            <div class="loading">
+                <i>Loading merchandise items...</i>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Contact Section -->
 <section class="contact" id="contact">
     <div class="container">

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AboutSection, BandMember, ContactInfo, Event, ContactMessage
+from .models import AboutSection, BandMember, ContactInfo, Event, ContactMessage, Merchandise
 
 
 @admin.register(Event)
@@ -37,7 +37,7 @@ class ContactMessageAdmin(admin.ModelAdmin):
     search_fields = ("name", "email", "subject", "message")
     readonly_fields = ("created_at", "ip_address", "user_agent")
     ordering = ("-created_at",)
-    
+
     fieldsets = (
         ("Message Details", {
             "fields": ("name", "email", "subject", "message")
@@ -50,20 +50,25 @@ class ContactMessageAdmin(admin.ModelAdmin):
             "classes": ("collapse",)
         }),
     )
-    
+
     actions = ["mark_as_read", "mark_as_unread", "mark_as_replied"]
-    
+
     def mark_as_read(self, request, queryset):
         updated = queryset.update(is_read=True)
         self.message_user(request, f"{updated} messages marked as read.")
     mark_as_read.short_description = "Mark selected messages as read"
-    
+
     def mark_as_unread(self, request, queryset):
         updated = queryset.update(is_read=False)
         self.message_user(request, f"{updated} messages marked as unread.")
     mark_as_unread.short_description = "Mark selected messages as unread"
-    
+
     def mark_as_replied(self, request, queryset):
         updated = queryset.update(is_replied=True)
         self.message_user(request, f"{updated} messages marked as replied.")
     mark_as_replied.short_description = "Mark selected messages as replied"
+
+
+@admin.register(Merchandise)
+class MerchandiseAdmin(admin.ModelAdmin):
+    list_display = ("name", "image")
