@@ -5,10 +5,10 @@ from django.utils.translation import gettext_lazy as _
 class Event(models.Model):
     """Model for storing band event information"""
 
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    date = models.DateTimeField()
-    location = models.CharField(max_length=255)
+    title = models.CharField(max_length=200, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True)
+    location = models.TextField(max_length=255, blank=True, null=True)
     image = models.ImageField(upload_to="events/", blank=True, null=True)
     updated = models.DateTimeField(auto_now=True)
 
