@@ -174,9 +174,7 @@ body {
     position: relative;
     height: 100vh;
     min-height: 600px;
-    background:
-        linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-        url('/static/images/JM DSC_2067 BW.jpg');
+    background: url('/static/images/JM DSC_2067 BW.jpg');
 
     background-size: contain;
     /* Shows entire image without cropping */
@@ -186,7 +184,7 @@ body {
     /* Prevents tiling */
     background-attachment: fixed;
     /* Creates parallax effect */
-    background-color: #0a0a0a;
+    background-color: rgb(242, 241, 239);
     /* Fallback color for empty space */
 
     width: 100%;
@@ -195,12 +193,12 @@ body {
 
 .about-intro-wrapper {
     position: relative;
-    background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%);
+    background: linear-gradient(180deg, rgb(242, 241, 239) 0%, rgb(242, 241, 239) 100%);
     padding: 4rem 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #ffffff;
+    color: black;
     text-align: center;
     min-height: auto;
     border-top: 2px solid var(--primary-color);
@@ -267,21 +265,6 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.btn-outline {
-    background-color: transparent;
-    color: #fff;
-    border-color: #fff;
-}
-
-.btn-outline:hover,
-.btn-outline:focus {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
 /* Sections */
 section {
     padding: 4rem 0;
@@ -313,13 +296,13 @@ section {
 
 /* About Section */
 .about {
-    background-color: #0f0f0f;
+    background-color: rgb(242, 241, 239);
 }
 
 .about-content {
     line-height: 1.8;
     font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.95);
+    color: black;
     max-width: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -369,6 +352,7 @@ section {
     text-align: justify;
     text-justify: inter-word;
     position: relative;
+    color: black
 }
 
 .about-content p:last-child {
@@ -386,7 +370,7 @@ section {
 .about-content em,
 .about-content i {
     font-style: italic;
-    color: #ffcccc;
+    color: black;
     font-weight: 500;
 }
 
@@ -445,7 +429,7 @@ section {
     padding: 0.2rem 0.4rem;
     border-radius: 4px;
     font-family: 'Courier New', monospace;
-    color: #ffcccc;
+    color: black;
 }
 
 .about-content pre {
@@ -622,7 +606,7 @@ section {
 }
 
 .about-text p {
-    color: rgba(255, 255, 255, 0.8);
+    color: black;
     margin-bottom: 1rem;
 }
 
@@ -2595,7 +2579,7 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
 .about-content i,
 .member-bio i {
     font-style: italic;
-    color: rgba(255, 255, 255, 0.9);
+    color: black;
 }
 
 .about-content a,
