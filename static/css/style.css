@@ -612,16 +612,18 @@ section {
 
 /* Events Section */
 .events {
-    background-color: var(--dark-bg);
+    background-color: rgb(242, 241, 239);
 }
 
 .merchandise {
-    background-color: var(--dark-bg);
+    background-color: rgb(242, 241, 239);
 }
 
 .search-container {
     text-align: center;
     margin-bottom: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
 }
 
 .search-input {
@@ -647,8 +649,8 @@ section {
 }
 
 .event-card {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(40, 35, 35, 0.05);
+    border: 1px solid black;
     transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
@@ -697,7 +699,7 @@ section {
     display: flex;
     align-items: center;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: black;
     margin-bottom: 0.5rem;
 }
 
@@ -706,7 +708,7 @@ section {
 }
 
 .event-description {
-    color: rgba(255, 255, 255, 0.8);
+    color: black;
 }
 
 .no-events {
@@ -717,7 +719,7 @@ section {
 
 /* Band Section */
 .band {
-    background-color: #000;
+    background-color: rgb(242, 241, 239);
 }
 
 .band-grid {
@@ -727,8 +729,8 @@ section {
 }
 
 .band-member {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(40, 35, 35, 0.05);
+    border: 1px black;
     transition: transform 0.3s ease;
 }
 
@@ -759,7 +761,7 @@ section {
 }
 
 .member-placeholder {
-    background-color: #333;
+    background-color: rgb(242, 241, 239);
 }
 
 .initials {
@@ -775,7 +777,7 @@ section {
 .member-info h3 {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
-    color: var(--text-color);
+    color: black;
 }
 
 .member-position {
@@ -786,12 +788,12 @@ section {
 }
 
 .member-bio {
-    color: rgba(255, 255, 255, 0.8);
+    color: black;
 }
 
 /* Contact Section */
 .contact {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgb(242, 241, 239);
     padding: 4rem 0;
 }
 
@@ -806,7 +808,7 @@ section {
 
 .contact-info {
     text-align: center;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(242, 241, 239);
     padding: 3rem;
     border-radius: 16px;
     border: 1px solid rgba(255, 0, 0, 0.2);
@@ -835,7 +837,7 @@ section {
 
 .info-item a,
 .info-item address {
-    color: rgba(255, 255, 255, 0.9);
+    color: black;
     text-decoration: none;
     transition: color 0.3s ease;
     font-style: normal;
@@ -853,7 +855,7 @@ section {
 }
 
 .social-links a {
-    color: rgba(255, 255, 255, 0.8);
+    color: black;
     text-decoration: none;
     transition: color 0.3s ease;
     font-size: 1.2rem;
@@ -865,7 +867,7 @@ section {
 
 /* Footer */
 .footer {
-    background-color: #000;
+    background-color: rgb(242, 241, 239);
     color: var(--text-color);
     padding: 3rem 0 1rem;
     margin-top: 4rem;
@@ -887,7 +889,7 @@ section {
 }
 
 .footer-logo p {
-    color: rgba(255, 255, 255, 0.7);
+    color: black;
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -921,7 +923,7 @@ section {
 }
 
 .footer-thanks h3 {
-    color: rgba(255, 255, 255, 0.9);
+    color: black;
     font-size: 1rem;
     font-weight: 400;
     margin: 0 0 0.8rem 0;
@@ -975,7 +977,7 @@ section {
 
 .footer-links a,
 .footer-contact a {
-    color: rgba(255, 255, 255, 0.8);
+    color: black;
     text-decoration: none;
     transition: color 0.3s ease;
     font-size: 0.9rem;
@@ -987,7 +989,7 @@ section {
 }
 
 .footer-contact address {
-    color: rgba(255, 255, 255, 0.8);
+    color: black;
     font-style: normal;
     font-size: 0.9rem;
 }
@@ -999,7 +1001,7 @@ section {
 }
 
 .social-icons a {
-    color: rgba(255, 255, 255, 0.8);
+    color: black;
     text-decoration: none;
     transition: color 0.3s ease;
     font-size: 1.1rem;
@@ -1020,7 +1022,7 @@ section {
 }
 
 .footer-bottom p {
-    color: rgba(255, 255, 255, 0.6);
+    color: black;
     font-size: 0.85rem;
     margin: 0;
 }
@@ -1031,7 +1033,7 @@ section {
 }
 
 .footer-legal a {
-    color: rgba(255, 255, 255, 0.6);
+    color: black;
     text-decoration: none;
     font-size: 0.85rem;
     transition: color 0.3s ease;
@@ -1042,7 +1044,7 @@ section {
 }
 
 .loading {
-    color: rgba(255, 255, 255, 0.5);
+    color: black;
     font-style: italic;
     font-size: 0.9rem;
 }
@@ -1086,7 +1088,7 @@ section {
 }
 
 .contact-form-header p {
-    color: rgba(255, 255, 255, 0.85);
+    color: black;
     font-size: 1.4rem;
     font-weight: 300;
 }
@@ -1106,7 +1108,7 @@ section {
 
 .form-group label {
     display: block;
-    color: rgba(255, 255, 255, 0.95);
+    color: black;
     font-weight: 600;
     margin-bottom: 1.5rem;
     font-size: 1.3rem;
