@@ -515,7 +515,7 @@ section {
 /* Quote-like styling for certain paragraphs */
 .about-content p:nth-child(odd) {
     padding-left: 1rem;
-    border-left: 2px solid rgba(255, 0, 0, 0.2);
+    border-left: 2px solid rgba(255, 0, 98, 0.2);
 }
 
 /* Enhanced About Item Layout */
@@ -2906,7 +2906,7 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
     }
 
     /* Add subtle column separator */
-    .about-item[data-section-id] .about-content::before {
+    /* .about-item[data-section-id] .about-content::before {
         content: '';
         position: absolute;
         left: 50%;
@@ -2920,7 +2920,7 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
                 transparent 100%);
         transform: translateX(-50%);
         z-index: 1;
-    }
+    } */
 
     /* Improve text flow around drop cap */
     .about-item[data-section-id] .about-content p:first-of-type {
