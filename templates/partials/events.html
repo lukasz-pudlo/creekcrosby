@@ -29,7 +29,7 @@
             <div class="event-image-container">
                 {% if event.image %}
                     <div class="event-image">
-                        <img src="{{ event.image.url }}?v={{ event.updated|date:'U' }}" alt="{{ event.title }}">
+                        <img src="{{ event.image.url }}?v={{ event.updated|date:'U' }}" loading="lazy" alt="{{ event.title }}">
                         {% if user.is_staff %}
                             <div class="image-edit-overlay">
                                 <form hx-post="{% url 'upload_event_image' event.id %}"

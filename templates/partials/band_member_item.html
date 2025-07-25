@@ -19,7 +19,7 @@
     <div class="member-image-container">
         {% if member.image %}
             <div class="member-image">
-                <img src="{{ member.image.url }}?v={{ member.updated|date:'U' }}" alt="{{ member.name }}, {{ member.position }}">
+                <img src="{{ member.image.url }}?v={{ member.updated|date:'U' }}" loading= "lazy" alt="{{ member.name }}, {{ member.position }}">
                 {% if is_staff %}
                     <div class="image-edit-overlay">
                         <form hx-post="{% url 'upload_band_image' member.id %}"
