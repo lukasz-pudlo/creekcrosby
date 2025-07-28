@@ -5,7 +5,7 @@
     --text-color: black;
     --dark-text: #333333;
     --light-bg: #f5f5f5;
-    --dark-bg: #0a0a0a;
+    --dark-bg: rgb(242, 241, 239);
     --border-color: #333333;
     --heading-font: 'Bebas Neue', sans-serif;
     --body-font: 'Montserrat', sans-serif;
