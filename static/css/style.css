@@ -3472,32 +3472,6 @@ textarea.form-control {
     font-size: 2rem;
 }
 
-/* Media Overlay */
-.media-overlay {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-    opacity: 0.8;
-}
-
-.media-type-badge {
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 0.5rem;
-    border-radius: 50%;
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-}
-
-.media-type-badge .icon {
-    font-size: 1.2rem;
-}
-
 /* Media Info */
 .media-info {
     padding: 1.5rem;
@@ -3753,7 +3727,7 @@ textarea.form-control {
 }
 
 /* Enhanced hover effect for lightbox triggers */
-.lightbox-trigger:hover+.media-overlay .view-full-badge {
+.lightbox-trigger:hover .view-full-badge {
     opacity: 1;
     transform: translateY(-2px);
 }

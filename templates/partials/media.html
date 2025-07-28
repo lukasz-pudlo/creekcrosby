@@ -12,15 +12,6 @@
                             data-lightbox-src="{{ media_item.image.url }}"
                             data-lightbox-title="{{ media_item.title }}"
                             onclick="openLightbox(this)">
-                        <div class="media-overlay">
-                            <div class="media-type-badge">
-                                <span class="icon">🎵</span>
-                            </div>
-                            <div class="view-full-badge">
-                                <span class="icon">🔍</span>
-                                <span>Click to Enlarge</span>
-                            </div>
-                        </div>
                     </div>
                 
                 {% elif media_item.media_type == 'video_file' and media_item.video_file %}
@@ -31,11 +22,6 @@
                             <source src="{{ media_item.video_file.url }}" type="video/webm">
                             Your browser does not support the video tag.
                         </video>
-                        <div class="media-overlay">
-                            <div class="media-type-badge">
-                                <span class="icon">📹</span>
-                            </div>
-                        </div>
                     </div>
                 
                 {% elif media_item.media_type == 'video_link' and media_item.video_link %}
@@ -63,11 +49,6 @@
                                 </div>
                             {% endif %}
                         {% endwith %}
-                        <div class="media-overlay">
-                            <div class="media-type-badge">
-                                <span class="icon">🎬</span>
-                            </div>
-                        </div>
                     </div>
                 {% endif %}
                 
