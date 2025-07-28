@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AboutSection, BandMember, ContactInfo, Event, ContactMessage, Merchandise
+from .models import AboutSection, BandMember, ContactInfo, Event, ContactMessage, MediaItem, Merchandise
 
 
 @admin.register(Event)
@@ -72,3 +72,53 @@ class ContactMessageAdmin(admin.ModelAdmin):
 @admin.register(Merchandise)
 class MerchandiseAdmin(admin.ModelAdmin):
     list_display = ("name", "image")
+
+
+@admin.register(MediaItem)
+class MediaItemAdmin(admin.ModelAdmin):
+    list_display = ("title", "media_type", "order", "created_at")
+    list_filter = ("media_type", "created_at")
+    search_fields = ("title", "description")
+    list_editable = ("order",)
+    ordering = ("order", "-created_at")
+
+    fieldsets = (
+        ("Basic Information", {
+            "fields": ("title", "description", "media_type", "order")
+        }),
+        ("Media Content", {
+            "fields": ("image", "video_file", "video_link"),
+            "description": "Fill in the appropriate field based on the media type selected above."
+        }),
+    )
+
+    def get_form(self, request, obj=None, **kwargs):
+        """Customize the admin form"""
+        form = super().get_form(request, obj, **kwargs)
+
+        # Add help text to media fields
+        if 'image' in form.base_fields:
+            form.base_fields[
+                'image'].help_text = "Use for album covers, band photos, artwork (only for 'Image/Album Cover' type)"
+        if 'video_file' in form.base_fields:
+            form.base_fields[
+                'video_file'].help_text = "Upload video files like MP4, WebM (only for 'Video File' type)"
+        if 'video_link' in form.base_fields:
+            form.base_fields[
+                'video_link'].help_text = "YouTube, Vimeo, or other video service URLs (only for 'Video Link' type)"
+
+        return form
+
+    def save_model(self, request, obj, form, change):
+        """Clean fields based on media type before saving"""
+        if obj.media_type == 'image':
+            obj.video_file = None
+            obj.video_link = None
+        elif obj.media_type == 'video_file':
+            obj.image = None
+            obj.video_link = None
+        elif obj.media_type == 'video_link':
+            obj.image = None
+            obj.video_file = None
+
+        super().save_model(request, obj, form, change)

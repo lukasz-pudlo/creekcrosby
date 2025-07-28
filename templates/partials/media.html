@@ -1,0 +1,85 @@
+<div class="media-grid">
+    {% for media_item in media_items %}
+        <div class="media-item-card" data-media-id="{{ media_item.id }}">
+            <div class="media-item-content">
+                {% if media_item.media_type == 'image' and media_item.image %}
+                    <!-- Image/Album Cover -->
+                    <div class="media-image-container">
+                        <img src="{{ media_item.image.url }}" 
+                             alt="{{ media_item.title }}" 
+                             loading="lazy"
+                             class="media-image">
+                        <div class="media-overlay">
+                            <div class="media-type-badge">
+                                <span class="icon">🎵</span>
+                            </div>
+                        </div>
+                    </div>
+                
+                {% elif media_item.media_type == 'video_file' and media_item.video_file %}
+                    <!-- Uploaded Video File -->
+                    <div class="media-video-container">
+                        <video controls class="media-video" preload="metadata">
+                            <source src="{{ media_item.video_file.url }}" type="video/mp4">
+                            <source src="{{ media_item.video_file.url }}" type="video/webm">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="media-overlay">
+                            <div class="media-type-badge">
+                                <span class="icon">📹</span>
+                            </div>
+                        </div>
+                    </div>
+                
+                {% elif media_item.media_type == 'video_link' and media_item.video_link %}
+                    <!-- Video Link (YouTube/Vimeo) -->
+                    <div class="media-video-container">
+                        {% with embed_url=media_item.get_video_embed_url %}
+                            {% if embed_url %}
+                                <iframe 
+                                    src="{{ embed_url }}" 
+                                    class="media-video-embed"
+                                    frameborder="0" 
+                                    allowfullscreen
+                                    title="{{ media_item.title }}">
+                                </iframe>
+                            {% else %}
+                                <!-- Fallback for unsupported video services -->
+                                <div class="media-video-link">
+                                    <a href="{{ media_item.video_link }}" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer"
+                                       class="video-link-button">
+                                        <span class="icon">🎥</span>
+                                        <span>Watch Video</span>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        <div class="media-overlay">
+                            <div class="media-type-badge">
+                                <span class="icon">🎬</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Media Info -->
+                <div class="media-info">
+                    <h3 class="media-title">{{ media_item.title }}</h3>
+                    {% if media_item.description %}
+                        <p class="media-description">{{ media_item.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="no-media">
+            <div class="no-media-content">
+                <span class="no-media-icon">🎵</span>
+                <h3>No Media Available</h3>
+                <p>Check back later for albums, videos, and more content from Creek Crosby!</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
