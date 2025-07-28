@@ -31,6 +31,21 @@
     </div>
 </section>
 
+<!-- Media Section -->
+<section class="media" id="media">
+    <div class="container">
+        <h2 class="section-title">Music & Videos</h2>
+        <div class="media-content" 
+             hx-get="{% url 'media_partial' %}"
+             hx-trigger="revealed"
+             hx-swap="innerHTML">
+            <div class="loading">
+                <i>Loading media content...</i>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Events Section -->
 <section class="events" id="events">
     <div class="container">

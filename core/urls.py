@@ -2,12 +2,14 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     # HTMX Views
+    MediaItemViewSet,
     index,
     events_partial,
     band_partial,
     about_partial,
     contact_partial,
     contact_form,
+    media_partial,
     search_events,
     footer_contact_partial,
     footer_social_partial,
@@ -46,6 +48,7 @@ router.register(r'events', EventViewSet, basename='event')
 router.register(r'band', BandMemberViewSet)
 router.register(r'about', AboutSectionViewSet)
 router.register(r'contact', ContactInfoViewSet)
+router.register(r'media', MediaItemViewSet, basename='media')
 
 urlpatterns = [
     # Main page
@@ -60,6 +63,7 @@ urlpatterns = [
     path('partials/footer-social/', footer_social_partial, name='footer_social_partial'),
     path('partials/thanks/', footer_thanks_partial, name='footer_thanks_partial'),
     path('partials/merchandise', merchandise_partial, name='merchandise_partial'),
+    path('partials/media/', media_partial, name='media_partial'),
 
     # HTMX actions
     path('contact-form/', contact_form, name='contact_form'),

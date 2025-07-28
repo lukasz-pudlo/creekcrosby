@@ -12,12 +12,13 @@ from django.contrib import messages
 from django.template.loader import render_to_string
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
-from .models import Event, BandMember, AboutSection, ContactInfo, Merchandise
+from .models import Event, BandMember, AboutSection, ContactInfo, MediaItem, Merchandise
 from .serializers import (
     EventSerializer,
     BandMemberSerializer,
     AboutSectionSerializer,
     ContactInfoSerializer,
+    MediaItemSerializer,
     MerchandiseSerializer,
 )
 from .forms import ContactMessageForm
@@ -324,6 +325,13 @@ class ContactInfoViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing contact information"""
     queryset = ContactInfo.objects.all()
     serializer_class = ContactInfoSerializer
+    permission_classes = [AllowAny]
+
+
+class MediaItemViewSet(viewsets.ReadOnlyModelViewSet):
+    """API endpoint for viewing media items"""
+    queryset = MediaItem.objects.all()
+    serializer_class = MediaItemSerializer
     permission_classes = [AllowAny]
 
 
@@ -854,4 +862,18 @@ def merchandise_partial(request):
 
     return render(request, 'partials/merchandise.html', {
         'merchandise_items': merchandise_items
+    })
+
+
+def media_partial(request):
+    """HTMX view for loading media items"""
+    media_items = MediaItem.objects.all().order_by('order', '-created_at')
+
+    if request.htmx:
+        return render(request, 'partials/media.html', {
+            'media_items': media_items
+        })
+
+    return render(request, 'media.html', {
+        'media_items': media_items
     })
