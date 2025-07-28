@@ -1019,3 +1019,140 @@ document.addEventListener('touchend', function (e) {
         draggingElements.forEach(el => el.classList.remove('touch-dragging'));
     }
 });
+
+// Lightbox functionality for media images
+function openLightbox(imgElement) {
+    const modal = document.getElementById('lightbox-modal');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxTitle = document.querySelector('.lightbox-title');
+
+    if (!modal || !lightboxImage) {
+        console.error('Lightbox elements not found');
+        return;
+    }
+
+    // Get image source and title
+    const imageSrc = imgElement.getAttribute('data-lightbox-src') || imgElement.src;
+    const imageTitle = imgElement.getAttribute('data-lightbox-title') || imgElement.alt;
+
+    // Set image source and title
+    lightboxImage.src = imageSrc;
+    lightboxImage.alt = imageTitle;
+    if (lightboxTitle) {
+        lightboxTitle.textContent = imageTitle;
+    }
+
+    // Show modal
+    modal.classList.add('show');
+    document.body.classList.add('lightbox-open');
+
+    // Focus on modal for keyboard accessibility
+    modal.focus();
+}
+
+function closeLightbox() {
+    const modal = document.getElementById('lightbox-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.classList.remove('lightbox-open');
+    }
+}
+
+// Keyboard navigation for lightbox
+document.addEventListener('keydown', function (event) {
+    const modal = document.getElementById('lightbox-modal');
+    if (modal && modal.classList.contains('show')) {
+        switch (event.key) {
+            case 'Escape':
+                closeLightbox();
+                break;
+            case 'ArrowLeft':
+                // Could implement previous image navigation here
+                break;
+            case 'ArrowRight':
+                // Could implement next image navigation here
+                break;
+        }
+    }
+});
+
+// Prevent lightbox from closing when clicking on the image
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('lightbox-image')) {
+        event.stopPropagation();
+    }
+});
+
+// Enhanced image loading with error handling
+function handleLightboxImageLoad(imgElement) {
+    imgElement.addEventListener('load', function () {
+        // Image loaded successfully
+        this.style.opacity = '1';
+    });
+
+    imgElement.addEventListener('error', function () {
+        // Image failed to load
+        console.error('Failed to load lightbox image:', this.src);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'lightbox-error';
+        errorDiv.innerHTML = `
+            <div style="text-align: center; color: white; padding: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🖼️</div>
+                <h3>Image Not Available</h3>
+                <p>Sorry, this image could not be loaded.</p>
+            </div>
+        `;
+        this.parentNode.replaceChild(errorDiv, this);
+    });
+}
+
+// Initialize lightbox functionality when DOM is ready
+document.addEventListener('DOMContentLoaded', function () {
+    // Add lightbox functionality to any existing images
+    const lightboxTriggers = document.querySelectorAll('.lightbox-trigger');
+    lightboxTriggers.forEach(function (trigger) {
+        // Add click event if not already added via onclick
+        if (!trigger.hasAttribute('onclick')) {
+            trigger.addEventListener('click', function () {
+                openLightbox(this);
+            });
+        }
+    });
+
+    // Handle image loading
+    const lightboxImage = document.getElementById('lightbox-image');
+    if (lightboxImage) {
+        handleLightboxImageLoad(lightboxImage);
+    }
+});
+
+// Re-initialize lightbox after HTMX swaps
+document.addEventListener('htmx:afterSwap', function (event) {
+    // Check if the swapped content contains lightbox triggers
+    const newTriggers = event.detail.target.querySelectorAll('.lightbox-trigger');
+    newTriggers.forEach(function (trigger) {
+        // Add click event if not already added via onclick
+        if (!trigger.hasAttribute('onclick')) {
+            trigger.addEventListener('click', function () {
+                openLightbox(this);
+            });
+        }
+    });
+});
+
+// // Alternative: Simple function to open image in new tab
+// function openImageInNewTab(imgElement) {
+//     const imageSrc = imgElement.src;
+//     window.open(imageSrc, '_blank', 'noopener,noreferrer');
+// }
+
+// Utility function to download image
+function downloadImage(imgElement) {
+    const imageSrc = imgElement.src;
+    const link = document.createElement('a');
+    link.href = imageSrc;
+    link.download = imgElement.alt || 'creek-crosby-image';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
