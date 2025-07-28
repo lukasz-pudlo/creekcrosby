@@ -1,6 +1,6 @@
 import os
 from django.conf import settings
-from django.http import HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse
 from django.utils.deprecation import MiddlewareMixin
 
 
@@ -157,3 +157,107 @@ class MediaDirectoryMiddleware(MiddlewareMixin):
         except OSError as e:
             print(f"Warning: Could not create media directories: {e}")
             # Don't fail the request, just log the warning
+
+
+class MediaStreamingMiddleware(MiddlewareMixin):
+    """
+    Middleware to stream large media files efficiently.
+    This prevents timeout issues when serving large audio/video files.
+    """
+
+    def process_request(self, request):
+        # Only handle media file requests
+        if not request.path.startswith(settings.MEDIA_URL):
+            return None
+
+        # Get the file path
+        media_path = request.path[len(settings.MEDIA_URL):]
+        file_path = os.path.join(settings.MEDIA_ROOT, media_path)
+
+        # Check if file exists
+        if not os.path.exists(file_path):
+            raise Http404("Media file not found")
+
+        # Only stream large files (> 10MB)
+        file_size = os.path.getsize(file_path)
+        if file_size < 10 * 1024 * 1024:  # 10MB threshold
+            return None
+
+        # Stream the file
+        return self._stream_file(file_path, request)
+
+    def _stream_file(self, file_path, request):
+        """Stream a file in chunks to handle large files efficiently."""
+
+        def file_iterator(file_path, chunk_size=8192):
+            """Generator to read file in chunks."""
+            with open(file_path, 'rb') as f:
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    yield chunk
+
+        # Get file info
+        file_size = os.path.getsize(file_path)
+        content_type, _ = mimetypes.guess_type(file_path)
+        if not content_type:
+            content_type = 'application/octet-stream'
+
+        # Handle range requests for video/audio streaming
+        range_header = request.META.get('HTTP_RANGE')
+        if range_header:
+            return self._handle_range_request(file_path, range_header, content_type, file_size)
+
+        # Create streaming response
+        response = StreamingHttpResponse(
+            file_iterator(file_path),
+            content_type=content_type
+        )
+        response['Content-Length'] = str(file_size)
+        response['Accept-Ranges'] = 'bytes'
+
+        # Add cache headers for media files
+        response['Cache-Control'] = 'public, max-age=3600'
+
+        return response
+
+    def _handle_range_request(self, file_path, range_header, content_type, file_size):
+        """Handle HTTP range requests for streaming media."""
+
+        # Parse range header
+        range_match = range_header.replace('bytes=', '').split('-')
+        start = int(range_match[0]) if range_match[0] else 0
+        end = int(range_match[1]) if range_match[1] else file_size - 1
+
+        # Ensure valid range
+        start = max(0, start)
+        end = min(file_size - 1, end)
+        content_length = end - start + 1
+
+        def range_file_iterator(file_path, start, end, chunk_size=8192):
+            """Generator to read file range in chunks."""
+            with open(file_path, 'rb') as f:
+                f.seek(start)
+                remaining = end - start + 1
+                while remaining > 0:
+                    chunk_size = min(chunk_size, remaining)
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    remaining -= len(chunk)
+                    yield chunk
+
+        # Create partial content response
+        response = StreamingHttpResponse(
+            range_file_iterator(file_path, start, end),
+            status=206,
+            content_type=content_type
+        )
+
+        response['Content-Length'] = str(content_length)
+        response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
+        response['Accept-Ranges'] = 'bytes'
+        response['Cache-Control'] = 'public, max-age=3600'
+
+        return response

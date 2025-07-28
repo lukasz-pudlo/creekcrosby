@@ -70,7 +70,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
-    'core.middleware.MediaDirectoryMiddleware',  # Ensure media directories exist
+    'core.middleware.MediaDirectoryMiddleware',
+    'core.middleware.MediaStreamingMiddleware',
 ]
 
 # Static files configuration for production
@@ -169,8 +170,10 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # File upload settings for production
-FILE_UPLOAD_MAX_MEMORY_SIZE = 22042880
-DATA_UPLOAD_MAX_MEMORY_SIZE = 22042880
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024   # 50MB
+FILE_UPLOAD_TEMP_DIR = '/tmp'
+
 
 # Performance optimizations
 CONN_MAX_AGE = 600  # Database connection pooling
@@ -196,3 +199,7 @@ if SENTRY_DSN:
         traces_sample_rate=0.1,
         send_default_pii=True
     )
+
+
+# Enable X-Sendfile for efficient file serving (if supported by reverse proxy)
+USE_X_SENDFILE = os.environ.get('USE_X_SENDFILE', 'False').lower() == 'true'

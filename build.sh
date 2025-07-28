@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Build script for Render deployment
 
 set -o errexit  # Exit on error
