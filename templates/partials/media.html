@@ -3,39 +3,58 @@
         <div class="media-item-card" data-media-id="{{ media_item.id }}">
             <div class="media-item-content">
                 {% if media_item.media_type == 'image' and media_item.image %}
-                    <!-- Image/Album Cover with lightbox -->
-                    <div class="media-image-container">
+                    <!-- Optimized Image/Album Cover with progressive loading -->
+                    <div class="media-image-container progressive-image">
                         <img src="{{ media_item.image.url }}" 
                             alt="{{ media_item.title }}" 
                             loading="lazy"
-                            class="media-image lightbox-trigger"
+                            class="media-image lightbox-trigger lazy-load-image"
                             data-lightbox-src="{{ media_item.image.url }}"
                             data-lightbox-title="{{ media_item.title }}"
-                            onclick="openLightbox(this)">
+                            onclick="openLightbox(this)"
+                            onload="this.classList.add('loaded')"
+                            onerror="this.nextElementSibling.style.display='flex'">
+                        <div class="image-placeholder">
+                            🎵
+                        </div>
                     </div>
                 
                 {% elif media_item.media_type == 'video_file' and media_item.video_file %}
-                    <!-- Uploaded Video File -->
+                    <!-- Video File with Thumbnail (Click to Load) -->
                     <div class="media-video-container">
-                        <video controls class="media-video" preload="metadata">
-                            <source src="{{ media_item.video_file.url }}" type="video/mp4">
-                            <source src="{{ media_item.video_file.url }}" type="video/webm">
-                            Your browser does not support the video tag.
-                        </video>
+                        <div class="video-thumbnail" 
+                             onclick="loadVideo(this, '{{ media_item.video_file.url }}', 'video/mp4')">
+                            <!-- Use first frame or a generated thumbnail -->
+                            <div class="video-placeholder image-skeleton" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #333, #555); color: white;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
+                                    <div>{{ media_item.title }}</div>
+                                </div>
+                            </div>
+                            <button class="play-button" aria-label="Play video">
+                                ▶
+                            </button>
+                        </div>
                     </div>
                 
                 {% elif media_item.media_type == 'video_link' and media_item.video_link %}
-                    <!-- Video Link (YouTube/Vimeo) -->
+                    <!-- Video Link with Thumbnail (Click to Load Embed) -->
                     <div class="media-video-container">
                         {% with embed_url=media_item.get_video_embed_url %}
                             {% if embed_url %}
-                                <iframe 
-                                    src="{{ embed_url }}" 
-                                    class="media-video-embed"
-                                    frameborder="0" 
-                                    allowfullscreen
-                                    title="{{ media_item.title }}">
-                                </iframe>
+                                <div class="video-thumbnail" 
+                                     onclick="loadEmbedVideo(this, '{{ embed_url }}')">
+                                    <!-- YouTube/Vimeo thumbnail placeholder -->
+                                    <div class="video-placeholder image-skeleton" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff0000, #cc0000); color: white;">
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 3rem; margin-bottom: 1rem;">📺</div>
+                                            <div>{{ media_item.title }}</div>
+                                        </div>
+                                    </div>
+                                    <button class="play-button" aria-label="Play video">
+                                        ▶
+                                    </button>
+                                </div>
                             {% else %}
                                 <!-- Fallback for unsupported video services -->
                                 <div class="media-video-link">
@@ -52,7 +71,7 @@
                     </div>
                 {% endif %}
                 
-                <!-- Media Info -->
+                <!-- Media Info (loads immediately) -->
                 <div class="media-info">
                     <h3 class="media-title">{{ media_item.title }}</h3>
                     {% if media_item.description %}
@@ -72,11 +91,95 @@
     {% endfor %}
 </div>
 
-<!-- Add this lightbox modal at the end of the media.html template -->
-<div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox()">
+<!-- Optimized lightbox modal (only loads when needed) -->
+<div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox()" style="display: none;">
     <div class="lightbox-content" onclick="event.stopPropagation()">
         <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
         <img id="lightbox-image" src="" alt="" class="lightbox-image">
         <div class="lightbox-title"></div>
     </div>
 </div>
+
+<script>
+// Optimized video loading functions
+function loadVideo(thumbnail, videoUrl, videoType) {
+    const container = thumbnail.parentElement;
+    const video = document.createElement('video');
+    video.controls = true;
+    video.className = 'media-video';
+    video.preload = 'metadata';
+    video.style.width = '100%';
+    video.style.height = '100%';
+    
+    const source = document.createElement('source');
+    source.src = videoUrl;
+    source.type = videoType;
+    video.appendChild(source);
+    
+    // Add loading indicator
+    thumbnail.innerHTML = '<div class="fast-loading">Loading video...</div>';
+    
+    // Replace thumbnail with video when ready
+    video.addEventListener('loadeddata', function() {
+        container.replaceChild(video, thumbnail);
+        video.play().catch(e => console.log('Autoplay prevented:', e));
+    });
+    
+    // Handle errors
+    video.addEventListener('error', function() {
+        thumbnail.innerHTML = '<div style="color: red; text-align: center; padding: 2rem;">Error loading video</div>';
+    });
+}
+
+function loadEmbedVideo(thumbnail, embedUrl) {
+    const container = thumbnail.parentElement;
+    const iframe = document.createElement('iframe');
+    iframe.src = embedUrl;
+    iframe.className = 'media-video-embed';
+    iframe.frameBorder = '0';
+    iframe.allowFullscreen = true;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.title = thumbnail.querySelector('.video-placeholder div div:last-child')?.textContent || 'Video';
+    
+    // Add loading indicator
+    thumbnail.innerHTML = '<div class="fast-loading">Loading video...</div>';
+    
+    // Replace thumbnail with iframe
+    setTimeout(() => {
+        container.replaceChild(iframe, thumbnail);
+    }, 500);
+}
+
+// Enhanced lazy loading for images
+document.addEventListener('DOMContentLoaded', function() {
+    // Use Intersection Observer for better performance
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    const container = img.closest('.progressive-image');
+                    
+                    img.addEventListener('load', function() {
+                        img.classList.add('loaded');
+                        if (container) {
+                            container.classList.add('loaded');
+                        }
+                    });
+                    
+                    // Stop observing this image
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '50px' // Start loading 50px before the image comes into view
+        });
+        
+        // Observe all lazy load images
+        document.querySelectorAll('.lazy-load-image').forEach(img => {
+            imageObserver.observe(img);
+        });
+    }
+});
+</script>
