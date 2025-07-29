@@ -15,6 +15,10 @@ from .views import (
     footer_social_partial,
     footer_thanks_partial,
     merchandise_partial,
+    media_partial_optimized,
+    band_partial_optimized,
+    load_more_media,
+    optimized_media_view,
 
     # Inline editing views
     edit_about_section,
@@ -64,6 +68,12 @@ urlpatterns = [
     path('partials/thanks/', footer_thanks_partial, name='footer_thanks_partial'),
     path('partials/merchandise', merchandise_partial, name='merchandise_partial'),
     path('partials/media/', media_partial, name='media_partial'),
+    path('partials/media/optimized/', media_partial_optimized,
+         name='media_partial_optimized'),
+    path('partials/band/optimized/', band_partial_optimized, name='band_partial_optimized'),
+    path('api/media/load-more/', load_more_media, name='load_more_media'),
+    path('media-optimized/<path:path>', optimized_media_view, name='optimized_media'),
+
 
     # HTMX actions
     path('contact-form/', contact_form, name='contact_form'),

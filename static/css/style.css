@@ -3811,3 +3811,249 @@ textarea.form-control {
 body.lightbox-open {
     overflow: hidden;
 }
+
+/* Skeleton loading placeholders */
+.image-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes loading-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Progressive image loading */
+.progressive-image {
+    position: relative;
+    overflow: hidden;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.progressive-image img {
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+.progressive-image img.loaded {
+    opacity: 1;
+}
+
+.progressive-image .image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+    color: #999;
+    font-size: 2rem;
+    transition: opacity 0.3s ease;
+}
+
+.progressive-image img.loaded+.image-placeholder {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Video thumbnail optimization */
+.video-thumbnail {
+    position: relative;
+    cursor: pointer;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.video-thumbnail:hover {
+    transform: scale(1.02);
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-thumbnail .play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 0, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.video-thumbnail .play-button:hover {
+    background: rgba(255, 0, 0, 1);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.video-thumbnail .video-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 2rem 1rem 1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Enhanced lazy loading */
+.lazy-image {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    min-height: 200px;
+    border-radius: 8px;
+}
+
+.lazy-image img {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.lazy-image.loaded {
+    background: none;
+    animation: none;
+}
+
+.lazy-image.loaded img {
+    opacity: 1;
+}
+
+/* Faster loading indicators */
+.fast-loading {
+    background: linear-gradient(45deg, #ff0000, #cc0000);
+    background-size: 400% 400%;
+    animation: gradient-pulse 1s ease-in-out infinite alternate;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 500;
+}
+
+@keyframes gradient-pulse {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Optimized media grid for better performance */
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    margin-top: 2rem;
+}
+
+.media-item-card {
+    background-color: rgba(40, 35, 35, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    /* Contain layout to prevent reflows */
+    contain: layout style paint;
+}
+
+/* Improve scroll performance */
+.band-member,
+.event-card,
+.media-item-card {
+    /* Use hardware acceleration for smoother animations */
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* Reduce paint/layout operations */
+.band-member:hover,
+.event-card:hover,
+.media-item-card:hover {
+    /* Use transform instead of changing properties that trigger layout */
+    transform: translateY(-5px) translateZ(0);
+}
+
+/* Optimize images for different screen sizes */
+@media (max-width: 480px) {
+    .media-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .progressive-image,
+    .video-thumbnail {
+        min-height: 200px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .media-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Preload critical images */
+.hero {
+    background-image: url('/static/images/JM DSC_2067 BW.jpg');
+    /* Use a smaller image for mobile */
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: rgb(242, 241, 239);
+
+    /* Optimize for different screen sizes */
+    image-rendering: optimizeQuality;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .hero {
+        background-attachment: scroll;
+        /* Better performance on mobile */
+        background-size: cover;
+        min-height: 60vh;
+        /* Reduce height on mobile */
+    }
+
+    .progressive-image,
+    .lazy-image {
+        min-height: 150px;
+    }
+}

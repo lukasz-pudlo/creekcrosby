@@ -1156,3 +1156,272 @@ function downloadImage(imgElement) {
     link.click();
     document.body.removeChild(link);
 }
+
+// Optimize HTMX loading with better indicators
+document.addEventListener('htmx:beforeRequest', function (event) {
+    // Hide generic loading messages and show fast loading indicators
+    const target = event.target;
+
+    // Replace slow loading messages with faster ones
+    const loadingElements = target.querySelectorAll('.loading');
+    loadingElements.forEach(element => {
+        if (element.textContent.includes('Loading')) {
+            element.innerHTML = '<div class="fast-loading">⚡ Loading...</div>';
+        }
+    });
+});
+
+// Preload critical images
+document.addEventListener('DOMContentLoaded', function () {
+    // Preload hero image if not already loaded
+    const heroImage = new Image();
+    heroImage.src = '/static/images/JM DSC_2067 BW.jpg';
+
+    // Preload first few media images
+    setTimeout(() => {
+        const mediaImages = document.querySelectorAll('.media-image');
+        mediaImages.forEach((img, index) => {
+            if (index < 3) { // Only preload first 3 images
+                const tempImg = new Image();
+                tempImg.src = img.src;
+            }
+        });
+    }, 1000);
+});
+
+// Optimize image loading with better error handling
+function optimizeImageLoading() {
+    const images = document.querySelectorAll('img[loading="lazy"]');
+
+    images.forEach(img => {
+        // Add loading class
+        img.closest('.progressive-image, .lazy-image, .media-image-container')?.classList.add('loading');
+
+        img.addEventListener('load', function () {
+            // Remove loading state
+            const container = this.closest('.progressive-image, .lazy-image, .media-image-container');
+            if (container) {
+                container.classList.remove('loading');
+                container.classList.add('loaded');
+            }
+            this.classList.add('loaded');
+        });
+
+        img.addEventListener('error', function () {
+            // Handle broken images gracefully
+            const container = this.closest('.progressive-image, .lazy-image, .media-image-container');
+            if (container) {
+                container.classList.remove('loading');
+                container.innerHTML = `
+                    <div class="image-error" style="
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        height: 200px; 
+                        background: #f0f0f0; 
+                        color: #999; 
+                        border-radius: 8px;
+                        flex-direction: column;
+                        gap: 0.5rem;
+                    ">
+                        <div style="font-size: 2rem;">🖼️</div>
+                        <div>Image unavailable</div>
+                    </div>
+                `;
+            }
+        });
+    });
+}
+
+// Enhanced lazy loading with Intersection Observer
+function initializeLazyLoading() {
+    if (!('IntersectionObserver' in window)) {
+        // Fallback for older browsers
+        optimizeImageLoading();
+        return;
+    }
+
+    const lazyImageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                const dataSrc = img.getAttribute('data-src');
+
+                if (dataSrc) {
+                    img.src = dataSrc;
+                    img.removeAttribute('data-src');
+                }
+
+                img.classList.remove('lazy');
+                lazyImageObserver.unobserve(img);
+            }
+        });
+    }, {
+        // Load images 100px before they come into view
+        rootMargin: '100px 0px',
+        threshold: 0.01
+    });
+
+    // Observe all lazy images
+    document.querySelectorAll('img[data-src], img.lazy').forEach(img => {
+        lazyImageObserver.observe(img);
+    });
+}
+
+// Optimize video loading
+function optimizeVideoLoading() {
+    // Pause videos that are not in view to save bandwidth
+    const videos = document.querySelectorAll('video');
+
+    if ('IntersectionObserver' in window) {
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) {
+                    video.play().catch(e => console.log('Video play prevented:', e));
+                } else {
+                    video.pause();
+                }
+            });
+        }, {
+            threshold: 0.5 // Play when 50% visible
+        });
+
+        videos.forEach(video => {
+            videoObserver.observe(video);
+        });
+    }
+}
+
+// Fast content replacement for HTMX
+document.addEventListener('htmx:beforeSwap', function (event) {
+    // Prepare the new content for faster rendering
+    const newContent = event.detail.serverResponse;
+
+    // If the new content contains images, prepare them
+    if (newContent.includes('<img')) {
+        // Pre-process images in the response
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newContent;
+
+        const images = tempDiv.querySelectorAll('img');
+        images.forEach(img => {
+            // Add loading class to new images
+            if (img.hasAttribute('loading')) {
+                img.classList.add('lazy-load-image');
+            }
+        });
+
+        event.detail.serverResponse = tempDiv.innerHTML;
+    }
+});
+
+// Re-initialize optimizations after HTMX swaps
+document.addEventListener('htmx:afterSwap', function (event) {
+    // Re-initialize lazy loading for new content
+    initializeLazyLoading();
+    optimizeImageLoading();
+    optimizeVideoLoading();
+
+    // Initialize any new lightbox triggers
+    const newTriggers = event.detail.target.querySelectorAll('.lightbox-trigger');
+    newTriggers.forEach(trigger => {
+        if (!trigger.hasAttribute('onclick')) {
+            trigger.addEventListener('click', function () {
+                openLightbox(this);
+            });
+        }
+    });
+});
+
+// Performance monitoring (optional - remove in production)
+function logPerformanceMetrics() {
+    if (typeof performance !== 'undefined' && performance.getEntriesByType) {
+        const navigation = performance.getEntriesByType('navigation')[0];
+        const resources = performance.getEntriesByType('resource');
+
+        console.log('🚀 Performance Metrics:');
+        console.log(`   DOM Content Loaded: ${Math.round(navigation.domContentLoadedEventEnd - navigation.navigationStart)}ms`);
+        console.log(`   Page Load Complete: ${Math.round(navigation.loadEventEnd - navigation.navigationStart)}ms`);
+        console.log(`   Resources Loaded: ${resources.length}`);
+
+        // Log slow resources
+        const slowResources = resources.filter(r => r.duration > 1000);
+        if (slowResources.length > 0) {
+            console.log('⚠️ Slow Resources (>1s):');
+            slowResources.forEach(r => {
+                console.log(`   ${r.name}: ${Math.round(r.duration)}ms`);
+            });
+        }
+    }
+}
+
+// Initialize optimizations
+document.addEventListener('DOMContentLoaded', function () {
+    initializeLazyLoading();
+    optimizeImageLoading();
+    optimizeVideoLoading();
+
+    // Log performance metrics after a delay
+    setTimeout(logPerformanceMetrics, 2000);
+});
+
+// Optimize scroll performance
+let scrollTimeout;
+document.addEventListener('scroll', function () {
+    // Debounce scroll events
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+        // Handle scroll-based optimizations here
+
+        // Hide videos that are far from view to save resources
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            const rect = video.getBoundingClientRect();
+            const isNearView = rect.top < window.innerHeight + 500 && rect.bottom > -500;
+
+            if (!isNearView && !video.paused) {
+                video.pause();
+            }
+        });
+    }, 100);
+});
+
+// Optimize form submissions
+document.addEventListener('htmx:configRequest', function (event) {
+    // Add loading states to form submissions
+    if (event.detail.verb === 'POST') {
+        const submitter = event.detail.elt;
+        if (submitter.tagName === 'FORM' || submitter.closest('form')) {
+            const loadingElement = document.createElement('div');
+            loadingElement.className = 'fast-loading';
+            loadingElement.textContent = '⚡ Submitting...';
+            loadingElement.style.position = 'fixed';
+            loadingElement.style.top = '20px';
+            loadingElement.style.right = '20px';
+            loadingElement.style.zIndex = '9999';
+            loadingElement.id = 'form-loading-indicator';
+
+            document.body.appendChild(loadingElement);
+        }
+    }
+});
+
+document.addEventListener('htmx:afterRequest', function (event) {
+    // Remove loading indicators
+    const loadingIndicator = document.getElementById('form-loading-indicator');
+    if (loadingIndicator) {
+        loadingIndicator.remove();
+    }
+});
+
+// Memory management - Clean up observers when leaving page
+window.addEventListener('beforeunload', function () {
+    // Clean up observers to prevent memory leaks
+    if (window.lazyImageObserver) {
+        window.lazyImageObserver.disconnect();
+    }
+    if (window.videoObserver) {
+        window.videoObserver.disconnect();
+    }
+});

@@ -24,23 +24,44 @@
              hx-get="{% url 'about_partial' %}"
              hx-trigger="revealed"
              hx-swap="innerHTML">
-            <div class="loading">
-                <i>Loading about information...</i>
+            <!-- Immediate placeholder content -->
+            <div class="about-item">
+                <div class="about-text">
+                    <div class="fast-loading">⚡ Loading our story...</div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Media Section -->
+<!-- Media Section - Load immediately to show placeholders -->
 <section class="media" id="media">
     <div class="container">
         <h2 class="section-title">Music & Videos</h2>
         <div class="media-content" 
              hx-get="{% url 'media_partial' %}"
-             hx-trigger="revealed"
+             hx-trigger="load delay:100ms"
              hx-swap="innerHTML">
-            <div class="loading">
-                <i>Loading media content...</i>
+            <!-- Show skeleton placeholders immediately -->
+            <div class="media-grid">
+                <div class="media-item-card">
+                    <div class="media-image-container image-skeleton" style="height: 280px;"></div>
+                    <div class="media-info">
+                        <h3 class="media-title fast-loading">Loading media...</h3>
+                    </div>
+                </div>
+                <div class="media-item-card">
+                    <div class="media-image-container image-skeleton" style="height: 280px;"></div>
+                    <div class="media-info">
+                        <h3 class="media-title fast-loading">Loading media...</h3>
+                    </div>
+                </div>
+                <div class="media-item-card">
+                    <div class="media-image-container image-skeleton" style="height: 280px;"></div>
+                    <div class="media-info">
+                        <h3 class="media-title fast-loading">Loading media...</h3>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -65,11 +86,21 @@
         
         <div class="events-content" id="events-results"
              hx-get="{% url 'events_partial' %}"
-             hx-trigger="load"
+             hx-trigger="revealed"
              hx-swap="innerHTML"
              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-            <div class="loading">
-                <i>Loading events...</i>
+            <!-- Show placeholder events immediately -->
+            <div class="events-grid">
+                <div class="event-card">
+                    <div class="event-image-container image-skeleton" style="height: 200px;"></div>
+                    <div class="event-content">
+                        <h3 class="event-title fast-loading">Loading events...</h3>
+                        <div class="event-details">
+                            <p class="event-date">📅 <span class="fast-loading">Date loading...</span></p>
+                            <p class="event-location">📍 <span class="fast-loading">Location loading...</span></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -83,8 +114,29 @@
              hx-get="{% url 'band_partial' %}"
              hx-trigger="revealed"
              hx-swap="innerHTML">
-            <div class="loading">
-                <i>Loading band members...</i>
+            <!-- Show placeholder band members immediately -->
+            <div class="band-grid">
+                <div class="band-member">
+                    <div class="member-image member-placeholder image-skeleton" style="height: 280px;"></div>
+                    <div class="member-info">
+                        <h3 class="fast-loading">Loading member...</h3>
+                        <p class="member-position fast-loading">Loading...</p>
+                    </div>
+                </div>
+                <div class="band-member">
+                    <div class="member-image member-placeholder image-skeleton" style="height: 280px;"></div>
+                    <div class="member-info">
+                        <h3 class="fast-loading">Loading member...</h3>
+                        <p class="member-position fast-loading">Loading...</p>
+                    </div>
+                </div>
+                <div class="band-member">
+                    <div class="member-image member-placeholder image-skeleton" style="height: 280px;"></div>
+                    <div class="member-info">
+                        <h3 class="fast-loading">Loading member...</h3>
+                        <p class="member-position fast-loading">Loading...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -102,8 +154,14 @@
              hx-get="{% url 'merchandise_partial' %}"
              hx-trigger="revealed"
              hx-swap="innerHTML">
-            <div class="loading">
-                <i>Loading merchandise items...</i>
+            <!-- Show placeholder merchandise immediately -->
+            <div class="merchandise-grid">
+                <div class="merchandise-item-card">
+                    <div class="merchandise-item-image-container">
+                        <h2 class="fast-loading">Loading items...</h2>
+                        <div class="merchandise-item-image image-skeleton" style="height: 200px;"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -117,10 +175,98 @@
              hx-get="{% url 'contact_partial' %}"
              hx-trigger="revealed"
              hx-swap="innerHTML">
-            <div class="loading">
-                <i>Loading contact information...</i>
+            <!-- Show basic contact info immediately -->
+            <div class="contact-info">
+                <h3>Get in Touch</h3>
+                <div class="info-item">
+                    <span class="icon">📧</span>
+                    <div class="fast-loading">Loading contact info...</div>
+                </div>
+                <div class="info-item">
+                    <span class="icon">📞</span>
+                    <div class="fast-loading">Loading phone...</div>
+                </div>
+                <div class="info-item">
+                    <span class="icon">📍</span>
+                    <div class="fast-loading">Loading address...</div>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<script>
+// Progressive content loading
+document.addEventListener('DOMContentLoaded', function() {
+    // Load sections progressively to avoid blocking
+    const sections = [
+        { selector: '[hx-trigger="load delay:100ms"]', delay: 0 },
+        { selector: '[hx-trigger="revealed"]', delay: 200 }
+    ];
+    
+    sections.forEach(({ selector, delay }) => {
+        setTimeout(() => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                // Trigger the HTMX request manually for better control
+                if (el.hasAttribute('hx-get')) {
+                    htmx.trigger(el, 'load');
+                }
+            });
+        }, delay);
+    });
+    
+    // Optimize image loading
+    const images = document.querySelectorAll('img[loading="lazy"]');
+    images.forEach(img => {
+        img.addEventListener('load', function() {
+            this.style.transition = 'opacity 0.3s ease';
+            this.style.opacity = '1';
+        });
+        
+        img.addEventListener('error', function() {
+            this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIFVuYXZhaWxhYmxlPC90ZXh0Pjwvc3ZnPg==';
+        });
+    });
+});
+
+// Fast section loading optimization
+document.addEventListener('htmx:beforeRequest', function(event) {
+    const target = event.target;
+    
+    // Replace skeleton loading with faster indicators
+    const skeletons = target.querySelectorAll('.image-skeleton');
+    skeletons.forEach(skeleton => {
+        skeleton.style.animationDuration = '0.8s'; // Faster animation
+    });
+    
+    const fastLoading = target.querySelectorAll('.fast-loading');
+    fastLoading.forEach(loading => {
+        loading.style.animationDuration = '0.5s'; // Even faster
+    });
+});
+
+document.addEventListener('htmx:afterSwap', function(event) {
+    // Initialize lazy loading for new content
+    const newImages = event.target.querySelectorAll('img[loading="lazy"]');
+    newImages.forEach(img => {
+        img.style.opacity = '0';
+        img.addEventListener('load', function() {
+            this.style.transition = 'opacity 0.3s ease';
+            this.style.opacity = '1';
+        });
+    });
+    
+    // Remove any remaining loading indicators
+    const loadingElements = event.target.querySelectorAll('.fast-loading, .loading');
+    setTimeout(() => {
+        loadingElements.forEach(el => {
+            if (el.textContent.includes('Loading')) {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 300);
+            }
+        });
+    }, 500);
+});
+</script>
 {% endblock %}
