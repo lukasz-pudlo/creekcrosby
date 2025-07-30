@@ -155,15 +155,23 @@ LOGGING = {
     },
 }
 
-# Cache configuration for production
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
-        'KEY_PREFIX': 'creekcrosby',
-        'TIMEOUT': 300,
+REDIS_URL = os.environ.get('REDIS_URL')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'KEY_PREFIX': 'creekcrosby',
+            'TIMEOUT': 300,
+        }
     }
-}
+else:
+    # Fallback to dummy cache if Redis is not available
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
 
 # Session configuration - Use database sessions for reliability
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

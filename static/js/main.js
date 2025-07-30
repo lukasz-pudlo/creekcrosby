@@ -94,8 +94,357 @@ document.addEventListener('DOMContentLoaded', function () {
         header.classList.add('scrolled');
     }
 
+    // Initialize media functionality
+    initializeMediaFunctionality();
+
     // Add any other initialization code here
     console.log('Creek Crosby website loaded');
+});
+
+// CONSOLIDATED MEDIA FUNCTIONALITY
+function initializeMediaFunctionality() {
+    // Initialize lightbox functionality
+    initializeLightbox();
+
+    // Initialize video loading functionality
+    initializeVideoLoading();
+
+    // Initialize image optimization
+    initializeImageOptimization();
+}
+
+// ENHANCED LIGHTBOX FUNCTIONALITY (CONSOLIDATED)
+function initializeLightbox() {
+    // Create lightbox modal if it doesn't exist
+    if (!document.getElementById('lightbox-modal')) {
+        const lightboxHTML = `
+            <div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox()" style="display: none;">
+                <div class="lightbox-content" onclick="event.stopPropagation()">
+                    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+                    <img id="lightbox-image" src="" alt="" class="lightbox-image">
+                    <div class="lightbox-title"></div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', lightboxHTML);
+    }
+
+    // Add click handlers to lightbox triggers
+    const lightboxTriggers = document.querySelectorAll('.lightbox-trigger');
+    lightboxTriggers.forEach(function (trigger) {
+        // Remove existing listeners to prevent duplicates
+        trigger.removeEventListener('click', handleLightboxClick);
+        trigger.addEventListener('click', handleLightboxClick);
+    });
+}
+
+function handleLightboxClick(event) {
+    event.preventDefault();
+    openLightbox(this);
+}
+
+// Global lightbox functions (used by media.html)
+window.openLightbox = function (imgElement) {
+    const modal = document.getElementById('lightbox-modal');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxTitle = document.querySelector('.lightbox-title');
+
+    if (!modal || !lightboxImage) {
+        console.error('Lightbox elements not found');
+        return;
+    }
+
+    // Get image source and title
+    const imageSrc = imgElement.getAttribute('data-lightbox-src') || imgElement.src;
+    const imageTitle = imgElement.getAttribute('data-lightbox-title') || imgElement.alt;
+
+    // Set image source and title
+    lightboxImage.src = imageSrc;
+    lightboxImage.alt = imageTitle;
+    if (lightboxTitle) {
+        lightboxTitle.textContent = imageTitle;
+    }
+
+    // Show modal
+    modal.classList.add('show');
+    document.body.classList.add('lightbox-open');
+
+    // Focus on modal for keyboard accessibility
+    modal.focus();
+};
+
+window.closeLightbox = function () {
+    const modal = document.getElementById('lightbox-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.classList.remove('lightbox-open');
+    }
+};
+
+// VIDEO LOADING FUNCTIONALITY (CONSOLIDATED)
+function initializeVideoLoading() {
+    // These functions are made available globally for media.html
+    window.loadAndPlayVideo = function (thumbnail) {
+        const container = thumbnail.parentElement;
+        const videoUrl = thumbnail.getAttribute('data-video-url');
+
+        if (!videoUrl) {
+            console.error('No video URL found');
+            return;
+        }
+
+        // Show loading state
+        thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #333; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
+
+        // Create video element
+        const video = document.createElement('video');
+        video.controls = true;
+        video.preload = 'metadata';
+        video.style.width = '100%';
+        video.style.height = '280px';
+        video.style.objectFit = 'contain';
+        video.style.backgroundColor = '#000';
+
+        // Add source
+        const source = document.createElement('source');
+        source.src = videoUrl;
+        source.type = 'video/mp4';
+        video.appendChild(source);
+
+        // Handle successful loading
+        video.addEventListener('canplay', function () {
+            console.log('✅ Video can play:', videoUrl);
+            container.replaceChild(video, thumbnail);
+
+            // Auto-play if possible
+            video.play().catch(e => {
+                console.log('⚠️ Autoplay prevented (normal behavior):', e.message);
+            });
+        });
+
+        // Handle errors
+        video.addEventListener('error', function (e) {
+            console.error('❌ Video loading error:', e);
+            thumbnail.innerHTML = `
+                <div style="height: 280px; display: flex; align-items: center; justify-content: center; background: #ff4444; color: white; text-align: center; padding: 2rem;">
+                    <div>
+                        <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+                        <div>Video unavailable</div>
+                        <div style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.8;">Please try again later</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Start loading the video
+        video.load();
+    };
+
+    window.loadAndPlayEmbed = function (thumbnail) {
+        const container = thumbnail.parentElement;
+        const embedUrl = thumbnail.getAttribute('data-embed-url');
+
+        if (!embedUrl) {
+            console.error('No embed URL found');
+            return;
+        }
+
+        // Show loading state
+        thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #ff0000; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
+
+        // Create iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = embedUrl + '&autoplay=1';
+        iframe.width = '100%';
+        iframe.height = '280';
+        iframe.frameBorder = '0';
+        iframe.allowFullscreen = true;
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.style.borderRadius = '8px';
+
+        // Handle iframe load
+        iframe.addEventListener('load', function () {
+            console.log('✅ Embed loaded:', embedUrl);
+        });
+
+        // Replace thumbnail with iframe
+        setTimeout(() => {
+            container.replaceChild(iframe, thumbnail);
+        }, 300);
+    };
+}
+
+// IMAGE OPTIMIZATION FUNCTIONALITY
+function initializeImageOptimization() {
+    const images = document.querySelectorAll('.media-image, img[loading="lazy"]');
+
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+
+                    img.addEventListener('load', function () {
+                        this.style.transition = 'opacity 0.3s ease';
+                        this.style.opacity = '1';
+                        this.classList.add('loaded');
+                    });
+
+                    img.addEventListener('error', function () {
+                        this.style.background = '#f0f0f0';
+                        this.alt = 'Image unavailable';
+                        const container = this.closest('.progressive-image, .lazy-image, .media-image-container');
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="image-error" style="
+                                    display: flex; 
+                                    align-items: center; 
+                                    justify-content: center; 
+                                    height: 200px; 
+                                    background: #f0f0f0; 
+                                    color: #999; 
+                                    border-radius: 8px;
+                                    flex-direction: column;
+                                    gap: 0.5rem;
+                                ">
+                                    <div style="font-size: 2rem;">🖼️</div>
+                                    <div>Image unavailable</div>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    imageObserver.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '50px'
+        });
+
+        images.forEach(img => {
+            if (!img.classList.contains('loaded')) {
+                img.style.opacity = '0';
+                imageObserver.observe(img);
+            }
+        });
+    }
+}
+
+// HTMX INTEGRATION - Reinitialize after content swaps
+document.addEventListener('htmx:afterSwap', function (event) {
+    console.log('HTMX after swap:', event.detail);
+
+    // Reset any upload states after successful swap
+    const uploadingElements = document.querySelectorAll('[data-original-text]');
+    uploadingElements.forEach(element => {
+        const originalText = element.getAttribute('data-original-text');
+        if (originalText) {
+            element.textContent = originalText;
+            element.style.pointerEvents = '';
+            element.style.opacity = '';
+            element.removeAttribute('data-original-text');
+        }
+    });
+
+    // Remove uploading class from containers
+    const uploadingContainers = document.querySelectorAll('.uploading');
+    uploadingContainers.forEach(container => {
+        container.classList.remove('uploading');
+    });
+
+    // Reinitialize media functionality for new content
+    if (event.detail.target.querySelector &&
+        (event.detail.target.querySelector('.media-grid') ||
+            event.detail.target.classList.contains('media-grid') ||
+            event.detail.target.querySelector('.media-item-card'))) {
+        console.log('Media content swapped, reinitializing...');
+        setTimeout(() => {
+            initializeMediaFunctionality();
+        }, 100);
+    }
+
+    // Reinitialize band sorting if needed
+    if (event.detail.target.querySelector &&
+        (event.detail.target.querySelector('.band-grid') ||
+            event.detail.target.classList.contains('band-grid'))) {
+        console.log('Band content swapped, reinitializing sorting...');
+        setTimeout(initializeBandSorting, 100);
+    }
+
+    // Initialize any new content
+    if (event.detail.target.querySelector) {
+        // Initialize lazy loading for new images
+        const newImages = event.detail.target.querySelectorAll('img[loading="lazy"]');
+        newImages.forEach(img => {
+            img.style.opacity = '0';
+            img.addEventListener('load', function () {
+                this.style.transition = 'opacity 0.3s ease';
+                this.style.opacity = '1';
+            });
+        });
+    }
+
+    // Remove loading indicators gradually
+    setTimeout(() => {
+        const loadingElements = event.detail.target.querySelectorAll('.fast-loading, .loading');
+        loadingElements.forEach(el => {
+            if (el.textContent.includes('Loading')) {
+                el.style.transition = 'opacity 0.3s ease';
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    if (el.parentNode) {
+                        el.remove();
+                    }
+                }, 300);
+            }
+        });
+    }, 200);
+});
+
+// Keyboard navigation for lightbox
+document.addEventListener('keydown', function (event) {
+    const modal = document.getElementById('lightbox-modal');
+    if (modal && modal.classList.contains('show')) {
+        switch (event.key) {
+            case 'Escape':
+                closeLightbox();
+                break;
+            case 'ArrowLeft':
+                // Could implement previous image navigation here
+                break;
+            case 'ArrowRight':
+                // Could implement next image navigation here
+                break;
+        }
+    }
+});
+
+// Prevent lightbox from closing when clicking on the image
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('lightbox-image')) {
+        event.stopPropagation();
+    }
+});
+
+// HOVER EFFECTS FOR MEDIA
+document.addEventListener('mouseover', function (event) {
+    if (event.target.closest('.video-thumbnail')) {
+        const playButton = event.target.closest('.video-thumbnail').querySelector('.play-button');
+        if (playButton) {
+            playButton.style.transform = 'translate(-50%, -50%) scale(1.1)';
+            playButton.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+        }
+    }
+});
+
+document.addEventListener('mouseout', function (event) {
+    if (event.target.closest('.video-thumbnail')) {
+        const playButton = event.target.closest('.video-thumbnail').querySelector('.play-button');
+        if (playButton) {
+            playButton.style.transform = 'translate(-50%, -50%) scale(1)';
+            playButton.style.boxShadow = 'none';
+        }
+    }
 });
 
 // Inline editing functionality - ENHANCED VERSION with Rich Text Support
@@ -454,29 +803,6 @@ document.addEventListener('change', function (event) {
     }
 });
 
-// Handle successful uploads
-document.addEventListener('htmx:afterSwap', function (event) {
-    console.log('HTMX after swap:', event.detail);
-
-    // Reset any upload states after successful swap
-    const uploadingElements = document.querySelectorAll('[data-original-text]');
-    uploadingElements.forEach(element => {
-        const originalText = element.getAttribute('data-original-text');
-        if (originalText) {
-            element.textContent = originalText;
-            element.style.pointerEvents = '';
-            element.style.opacity = '';
-            element.removeAttribute('data-original-text');
-        }
-    });
-
-    // Remove uploading class from containers
-    const uploadingContainers = document.querySelectorAll('.uploading');
-    uploadingContainers.forEach(container => {
-        container.classList.remove('uploading');
-    });
-});
-
 // Handle upload errors
 document.addEventListener('htmx:responseError', function (event) {
     console.log('HTMX response error:', event.detail);
@@ -558,84 +884,6 @@ document.addEventListener('htmx:beforeRequest', function (event) {
             container.classList.add('uploading');
         }
     }
-});
-
-document.addEventListener('htmx:afterRequest', function (event) {
-    const target = event.target;
-    console.log('HTMX after request:', event.detail);
-
-    // Handle image upload completion
-    if (target.matches('form[hx-encoding="multipart/form-data"]')) {
-        // Remove uploading state
-        const container = target.closest('.event-image-container');
-        if (container) {
-            container.classList.remove('uploading');
-        }
-
-        // Check if upload was successful
-        if (event.detail.xhr.status >= 200 && event.detail.xhr.status < 300) {
-            console.log('Image uploaded successfully');
-        } else {
-            console.error('Image upload failed:', event.detail.xhr.status);
-            // Reset label state on error
-            const label = target.querySelector('[data-original-text]');
-            if (label) {
-                const originalText = label.getAttribute('data-original-text');
-                label.textContent = originalText;
-                label.style.pointerEvents = '';
-                label.style.opacity = '';
-                label.removeAttribute('data-original-text');
-            }
-        }
-    }
-});
-
-// Debug: Log all form submissions
-document.addEventListener('submit', function (event) {
-    console.log('Form submitted:', event.target);
-    console.log('Form action:', event.target.action);
-    console.log('Form method:', event.target.method);
-    console.log('Form enctype:', event.target.enctype);
-    console.log('Has hx-post?', event.target.hasAttribute('hx-post'));
-    console.log('Has hx-encoding?', event.target.hasAttribute('hx-encoding'));
-});
-
-// Debug: Log all file input changes
-document.addEventListener('change', function (event) {
-    if (event.target.type === 'file') {
-        console.log('File input changed:', event.target);
-        console.log('File selected:', event.target.files[0]);
-        console.log('Parent form:', event.target.closest('form'));
-
-        const form = event.target.closest('form');
-        if (form) {
-            console.log('Form has hx-post:', form.hasAttribute('hx-post'));
-            console.log('Form hx-post value:', form.getAttribute('hx-post'));
-            console.log('Form has hx-encoding:', form.hasAttribute('hx-encoding'));
-        }
-    }
-});
-
-// Debug: Check if HTMX is working
-document.addEventListener('htmx:configRequest', function (event) {
-    console.log('HTMX request configured:', event.detail);
-});
-
-document.addEventListener('htmx:beforeRequest', function (event) {
-    console.log('HTMX before request:', event.target);
-});
-
-document.addEventListener('htmx:afterRequest', function (event) {
-    console.log('HTMX after request:', event.detail);
-});
-
-// Debug: Check for HTMX errors
-document.addEventListener('htmx:responseError', function (event) {
-    console.error('HTMX Response Error:', event.detail);
-});
-
-document.addEventListener('htmx:sendError', function (event) {
-    console.error('HTMX Send Error:', event.detail);
 });
 
 // Band Member Drag and Drop Functionality
@@ -927,494 +1175,6 @@ function sendReorderRequest(memberIds) {
         });
 }
 
-// Initialize drag and drop when page loads
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOM loaded, initializing band sorting...');
-    initializeBandSorting();
-});
-
-// Reinitialize drag and drop after HTMX swaps
-document.addEventListener('htmx:afterSwap', function (event) {
-    console.log('HTMX after swap:', event.detail);
-
-    // Check if the swapped content contains band members
-    if (event.detail.target.querySelector &&
-        (event.detail.target.querySelector('.band-grid') ||
-            event.detail.target.classList.contains('band-grid'))) {
-        console.log('Band content swapped, reinitializing sorting...');
-        setTimeout(initializeBandSorting, 100);
-    }
-});
-
-// Debug: Log all HTMX requests for band operations
-document.addEventListener('htmx:beforeRequest', function (event) {
-    const url = event.detail.requestConfig.url;
-    if (url && url.includes('/edit/band/')) {
-        console.log('Band operation request:', url, event.detail);
-        console.log('Request body:', event.detail.requestConfig.body);
-        console.log('Request headers:', event.detail.requestConfig.headers);
-    }
-});
-
-document.addEventListener('htmx:afterRequest', function (event) {
-    const url = event.detail.requestConfig.url;
-    if (url && url.includes('/edit/band/')) {
-        console.log('Band operation response:', url, event.detail.xhr.status);
-        console.log('Response text:', event.detail.xhr.responseText);
-        if (event.detail.xhr.status !== 200) {
-            console.error('Band operation failed:', event.detail.xhr.responseText);
-        }
-    }
-});
-
-// Debug: Log form submissions specifically
-document.addEventListener('htmx:beforeRequest', function (event) {
-    if (event.target.tagName === 'FORM') {
-        console.log('Form submission:', event.target);
-        console.log('Form action:', event.target.getAttribute('hx-post'));
-        console.log('Form target:', event.target.getAttribute('hx-target'));
-        console.log('Form data:', new FormData(event.target));
-
-        // Log form data entries
-        const formData = new FormData(event.target);
-        for (let [key, value] of formData.entries()) {
-            console.log(`Form field ${key}:`, value);
-        }
-    }
-});
-
-// Touch support for mobile devices
-let touchStartY = 0;
-let touchStartX = 0;
-let isTouchDragging = false;
-
-document.addEventListener('touchstart', function (e) {
-    const target = e.target.closest('.band-member.draggable');
-    if (target && target.querySelector('.drag-handle').contains(e.target)) {
-        touchStartY = e.touches[0].clientY;
-        touchStartX = e.touches[0].clientX;
-        isTouchDragging = true;
-        target.classList.add('touch-dragging');
-    }
-}, { passive: false });
-
-document.addEventListener('touchmove', function (e) {
-    if (isTouchDragging) {
-        e.preventDefault();
-        const touch = e.touches[0];
-        const deltaY = touch.clientY - touchStartY;
-        const deltaX = touch.clientX - touchStartX;
-
-        // Simple threshold to determine if this is a drag gesture
-        if (Math.abs(deltaY) > 10 || Math.abs(deltaX) > 10) {
-            // Handle touch drag logic here if needed
-        }
-    }
-}, { passive: false });
-
-document.addEventListener('touchend', function (e) {
-    if (isTouchDragging) {
-        isTouchDragging = false;
-        const draggingElements = document.querySelectorAll('.touch-dragging');
-        draggingElements.forEach(el => el.classList.remove('touch-dragging'));
-    }
-});
-
-// Lightbox functionality for media images
-function openLightbox(imgElement) {
-    const modal = document.getElementById('lightbox-modal');
-    const lightboxImage = document.getElementById('lightbox-image');
-    const lightboxTitle = document.querySelector('.lightbox-title');
-
-    if (!modal || !lightboxImage) {
-        console.error('Lightbox elements not found');
-        return;
-    }
-
-    // Get image source and title
-    const imageSrc = imgElement.getAttribute('data-lightbox-src') || imgElement.src;
-    const imageTitle = imgElement.getAttribute('data-lightbox-title') || imgElement.alt;
-
-    // Set image source and title
-    lightboxImage.src = imageSrc;
-    lightboxImage.alt = imageTitle;
-    if (lightboxTitle) {
-        lightboxTitle.textContent = imageTitle;
-    }
-
-    // Show modal
-    modal.classList.add('show');
-    document.body.classList.add('lightbox-open');
-
-    // Focus on modal for keyboard accessibility
-    modal.focus();
-}
-
-function closeLightbox() {
-    const modal = document.getElementById('lightbox-modal');
-    if (modal) {
-        modal.classList.remove('show');
-        document.body.classList.remove('lightbox-open');
-    }
-}
-
-// Keyboard navigation for lightbox
-document.addEventListener('keydown', function (event) {
-    const modal = document.getElementById('lightbox-modal');
-    if (modal && modal.classList.contains('show')) {
-        switch (event.key) {
-            case 'Escape':
-                closeLightbox();
-                break;
-            case 'ArrowLeft':
-                // Could implement previous image navigation here
-                break;
-            case 'ArrowRight':
-                // Could implement next image navigation here
-                break;
-        }
-    }
-});
-
-// Prevent lightbox from closing when clicking on the image
-document.addEventListener('click', function (event) {
-    if (event.target.classList.contains('lightbox-image')) {
-        event.stopPropagation();
-    }
-});
-
-// Enhanced image loading with error handling
-function handleLightboxImageLoad(imgElement) {
-    imgElement.addEventListener('load', function () {
-        // Image loaded successfully
-        this.style.opacity = '1';
-    });
-
-    imgElement.addEventListener('error', function () {
-        // Image failed to load
-        console.error('Failed to load lightbox image:', this.src);
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'lightbox-error';
-        errorDiv.innerHTML = `
-            <div style="text-align: center; color: white; padding: 2rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🖼️</div>
-                <h3>Image Not Available</h3>
-                <p>Sorry, this image could not be loaded.</p>
-            </div>
-        `;
-        this.parentNode.replaceChild(errorDiv, this);
-    });
-}
-
-// Initialize lightbox functionality when DOM is ready
-document.addEventListener('DOMContentLoaded', function () {
-    // Add lightbox functionality to any existing images
-    const lightboxTriggers = document.querySelectorAll('.lightbox-trigger');
-    lightboxTriggers.forEach(function (trigger) {
-        // Add click event if not already added via onclick
-        if (!trigger.hasAttribute('onclick')) {
-            trigger.addEventListener('click', function () {
-                openLightbox(this);
-            });
-        }
-    });
-
-    // Handle image loading
-    const lightboxImage = document.getElementById('lightbox-image');
-    if (lightboxImage) {
-        handleLightboxImageLoad(lightboxImage);
-    }
-});
-
-// Re-initialize lightbox after HTMX swaps
-document.addEventListener('htmx:afterSwap', function (event) {
-    // Check if the swapped content contains lightbox triggers
-    const newTriggers = event.detail.target.querySelectorAll('.lightbox-trigger');
-    newTriggers.forEach(function (trigger) {
-        // Add click event if not already added via onclick
-        if (!trigger.hasAttribute('onclick')) {
-            trigger.addEventListener('click', function () {
-                openLightbox(this);
-            });
-        }
-    });
-});
-
-// // Alternative: Simple function to open image in new tab
-// function openImageInNewTab(imgElement) {
-//     const imageSrc = imgElement.src;
-//     window.open(imageSrc, '_blank', 'noopener,noreferrer');
-// }
-
-// Utility function to download image
-function downloadImage(imgElement) {
-    const imageSrc = imgElement.src;
-    const link = document.createElement('a');
-    link.href = imageSrc;
-    link.download = imgElement.alt || 'creek-crosby-image';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// Optimize HTMX loading with better indicators
-document.addEventListener('htmx:beforeRequest', function (event) {
-    // Hide generic loading messages and show fast loading indicators
-    const target = event.target;
-
-    // Replace slow loading messages with faster ones
-    const loadingElements = target.querySelectorAll('.loading');
-    loadingElements.forEach(element => {
-        if (element.textContent.includes('Loading')) {
-            element.innerHTML = '<div class="fast-loading">⚡ Loading...</div>';
-        }
-    });
-});
-
-// Preload critical images
-document.addEventListener('DOMContentLoaded', function () {
-    // Preload hero image if not already loaded
-    const heroImage = new Image();
-    heroImage.src = '/static/images/JM DSC_2067 BW.jpg';
-
-    // Preload first few media images
-    setTimeout(() => {
-        const mediaImages = document.querySelectorAll('.media-image');
-        mediaImages.forEach((img, index) => {
-            if (index < 3) { // Only preload first 3 images
-                const tempImg = new Image();
-                tempImg.src = img.src;
-            }
-        });
-    }, 1000);
-});
-
-// Optimize image loading with better error handling
-function optimizeImageLoading() {
-    const images = document.querySelectorAll('img[loading="lazy"]');
-
-    images.forEach(img => {
-        // Add loading class
-        img.closest('.progressive-image, .lazy-image, .media-image-container')?.classList.add('loading');
-
-        img.addEventListener('load', function () {
-            // Remove loading state
-            const container = this.closest('.progressive-image, .lazy-image, .media-image-container');
-            if (container) {
-                container.classList.remove('loading');
-                container.classList.add('loaded');
-            }
-            this.classList.add('loaded');
-        });
-
-        img.addEventListener('error', function () {
-            // Handle broken images gracefully
-            const container = this.closest('.progressive-image, .lazy-image, .media-image-container');
-            if (container) {
-                container.classList.remove('loading');
-                container.innerHTML = `
-                    <div class="image-error" style="
-                        display: flex; 
-                        align-items: center; 
-                        justify-content: center; 
-                        height: 200px; 
-                        background: #f0f0f0; 
-                        color: #999; 
-                        border-radius: 8px;
-                        flex-direction: column;
-                        gap: 0.5rem;
-                    ">
-                        <div style="font-size: 2rem;">🖼️</div>
-                        <div>Image unavailable</div>
-                    </div>
-                `;
-            }
-        });
-    });
-}
-
-// Enhanced lazy loading with Intersection Observer
-function initializeLazyLoading() {
-    if (!('IntersectionObserver' in window)) {
-        // Fallback for older browsers
-        optimizeImageLoading();
-        return;
-    }
-
-    const lazyImageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                const dataSrc = img.getAttribute('data-src');
-
-                if (dataSrc) {
-                    img.src = dataSrc;
-                    img.removeAttribute('data-src');
-                }
-
-                img.classList.remove('lazy');
-                lazyImageObserver.unobserve(img);
-            }
-        });
-    }, {
-        // Load images 100px before they come into view
-        rootMargin: '100px 0px',
-        threshold: 0.01
-    });
-
-    // Observe all lazy images
-    document.querySelectorAll('img[data-src], img.lazy').forEach(img => {
-        lazyImageObserver.observe(img);
-    });
-}
-
-// Optimize video loading
-function optimizeVideoLoading() {
-    // Pause videos that are not in view to save bandwidth
-    const videos = document.querySelectorAll('video');
-
-    if ('IntersectionObserver' in window) {
-        const videoObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const video = entry.target;
-                if (entry.isIntersecting) {
-                    video.play().catch(e => console.log('Video play prevented:', e));
-                } else {
-                    video.pause();
-                }
-            });
-        }, {
-            threshold: 0.5 // Play when 50% visible
-        });
-
-        videos.forEach(video => {
-            videoObserver.observe(video);
-        });
-    }
-}
-
-// Fast content replacement for HTMX
-document.addEventListener('htmx:beforeSwap', function (event) {
-    // Prepare the new content for faster rendering
-    const newContent = event.detail.serverResponse;
-
-    // If the new content contains images, prepare them
-    if (newContent.includes('<img')) {
-        // Pre-process images in the response
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = newContent;
-
-        const images = tempDiv.querySelectorAll('img');
-        images.forEach(img => {
-            // Add loading class to new images
-            if (img.hasAttribute('loading')) {
-                img.classList.add('lazy-load-image');
-            }
-        });
-
-        event.detail.serverResponse = tempDiv.innerHTML;
-    }
-});
-
-// Re-initialize optimizations after HTMX swaps
-document.addEventListener('htmx:afterSwap', function (event) {
-    // Re-initialize lazy loading for new content
-    initializeLazyLoading();
-    optimizeImageLoading();
-    optimizeVideoLoading();
-
-    // Initialize any new lightbox triggers
-    const newTriggers = event.detail.target.querySelectorAll('.lightbox-trigger');
-    newTriggers.forEach(trigger => {
-        if (!trigger.hasAttribute('onclick')) {
-            trigger.addEventListener('click', function () {
-                openLightbox(this);
-            });
-        }
-    });
-});
-
-// Performance monitoring (optional - remove in production)
-function logPerformanceMetrics() {
-    if (typeof performance !== 'undefined' && performance.getEntriesByType) {
-        const navigation = performance.getEntriesByType('navigation')[0];
-        const resources = performance.getEntriesByType('resource');
-
-        console.log('🚀 Performance Metrics:');
-        console.log(`   DOM Content Loaded: ${Math.round(navigation.domContentLoadedEventEnd - navigation.navigationStart)}ms`);
-        console.log(`   Page Load Complete: ${Math.round(navigation.loadEventEnd - navigation.navigationStart)}ms`);
-        console.log(`   Resources Loaded: ${resources.length}`);
-
-        // Log slow resources
-        const slowResources = resources.filter(r => r.duration > 1000);
-        if (slowResources.length > 0) {
-            console.log('⚠️ Slow Resources (>1s):');
-            slowResources.forEach(r => {
-                console.log(`   ${r.name}: ${Math.round(r.duration)}ms`);
-            });
-        }
-    }
-}
-
-// Initialize optimizations
-document.addEventListener('DOMContentLoaded', function () {
-    initializeLazyLoading();
-    optimizeImageLoading();
-    optimizeVideoLoading();
-
-    // Log performance metrics after a delay
-    setTimeout(logPerformanceMetrics, 2000);
-});
-
-// Optimize scroll performance
-let scrollTimeout;
-document.addEventListener('scroll', function () {
-    // Debounce scroll events
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-        // Handle scroll-based optimizations here
-
-        // Hide videos that are far from view to save resources
-        const videos = document.querySelectorAll('video');
-        videos.forEach(video => {
-            const rect = video.getBoundingClientRect();
-            const isNearView = rect.top < window.innerHeight + 500 && rect.bottom > -500;
-
-            if (!isNearView && !video.paused) {
-                video.pause();
-            }
-        });
-    }, 100);
-});
-
-// Optimize form submissions
-document.addEventListener('htmx:configRequest', function (event) {
-    // Add loading states to form submissions
-    if (event.detail.verb === 'POST') {
-        const submitter = event.detail.elt;
-        if (submitter.tagName === 'FORM' || submitter.closest('form')) {
-            const loadingElement = document.createElement('div');
-            loadingElement.className = 'fast-loading';
-            loadingElement.textContent = '⚡ Submitting...';
-            loadingElement.style.position = 'fixed';
-            loadingElement.style.top = '20px';
-            loadingElement.style.right = '20px';
-            loadingElement.style.zIndex = '9999';
-            loadingElement.id = 'form-loading-indicator';
-
-            document.body.appendChild(loadingElement);
-        }
-    }
-});
-
-document.addEventListener('htmx:afterRequest', function (event) {
-    // Remove loading indicators
-    const loadingIndicator = document.getElementById('form-loading-indicator');
-    if (loadingIndicator) {
-        loadingIndicator.remove();
-    }
-});
-
 // Memory management - Clean up observers when leaving page
 window.addEventListener('beforeunload', function () {
     // Clean up observers to prevent memory leaks
@@ -1425,3 +1185,5 @@ window.addEventListener('beforeunload', function () {
         window.videoObserver.disconnect();
     }
 });
+
+console.log('🎵 Creek Crosby main.js loaded with consolidated media functionality');
