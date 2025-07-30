@@ -187,20 +187,16 @@ h3 {
     height: 100vh;
     min-height: 600px;
     background: url('/static/images/JM DSC_2067 BW.jpg');
-
     background-size: contain;
-    /* Shows entire image without cropping */
+    /* Changed from 'cover' to 'contain' */
     background-position: center center;
-    /* Centers the image */
     background-repeat: no-repeat;
-    /* Prevents tiling */
-    background-attachment: fixed;
-    /* Creates parallax effect */
+    background-attachment: scroll;
     background-color: rgb(242, 241, 239);
-    /* Fallback color for empty space */
-
     width: 100%;
     overflow: hidden;
+    transition: all 0.3s ease;
+    /* Add smooth transitions */
 }
 
 .about-intro-wrapper {
@@ -2754,10 +2750,10 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
     }
 
     .hero {
-        background-position: center 100%;
-        min-height: 250px;
-        height: 100vh;
         background-size: contain;
+        min-height: 40vh;
+        height: 60vh;
+        max-height: 400px;
     }
 
     .about-intro-wrapper {
@@ -4046,10 +4042,14 @@ body.lightbox-open {
 @media (max-width: 768px) {
     .hero {
         background-attachment: scroll;
-        /* Better performance on mobile */
-        background-size: cover;
-        min-height: 60vh;
-        /* Reduce height on mobile */
+        background-size: contain;
+        /* Keep consistent */
+        min-height: 50vh;
+        /* Adjust minimum height for mobile */
+        height: 70vh;
+        /* Adjust height for mobile */
+        max-height: 500px;
+        /* Reasonable max height */
     }
 
     .progressive-image,

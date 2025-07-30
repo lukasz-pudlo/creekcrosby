@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero Section - Loads immediately with high priority background -->
 <section class="hero" id="hero">
 </section>
 
-<!-- About Section -->
+<!-- About Section - Loads first after hero -->
 <section class="about" id="about">
     <div class="about-intro-wrapper">
         <div class="about-intro">
@@ -22,7 +22,7 @@
         <h2 class="section-title">About Us</h2>
         <div class="about-content" 
              hx-get="{% url 'about_partial' %}"
-             hx-trigger="revealed"
+             hx-trigger="load delay:200ms"
              hx-swap="innerHTML">
             <!-- Immediate placeholder content -->
             <div class="about-item">
@@ -34,40 +34,7 @@
     </div>
 </section>
 
-<!-- Media Section - Load immediately to show placeholders -->
-<section class="media" id="media">
-    <div class="container">
-        <h2 class="section-title">Music & Videos</h2>
-        <div class="media-content" 
-             hx-get="{% url 'media_partial' %}"
-             hx-trigger="load delay:100ms"
-             hx-swap="innerHTML">
-            <!-- Show skeleton placeholders immediately -->
-            <div class="media-grid">
-                <div class="media-item-card">
-                    <div class="media-image-container image-skeleton" style="height: 280px;"></div>
-                    <div class="media-info">
-                        <h3 class="media-title fast-loading">Loading media...</h3>
-                    </div>
-                </div>
-                <div class="media-item-card">
-                    <div class="media-image-container image-skeleton" style="height: 280px;"></div>
-                    <div class="media-info">
-                        <h3 class="media-title fast-loading">Loading media...</h3>
-                    </div>
-                </div>
-                <div class="media-item-card">
-                    <div class="media-image-container image-skeleton" style="height: 280px;"></div>
-                    <div class="media-info">
-                        <h3 class="media-title fast-loading">Loading media...</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Events Section -->
+<!-- Events Section - Loads second -->
 <section class="events" id="events">
     <div class="container">
         <h2 class="section-title">Creek Crosby Live</h2>
@@ -86,7 +53,7 @@
         
         <div class="events-content" id="events-results"
              hx-get="{% url 'events_partial' %}"
-             hx-trigger="revealed"
+             hx-trigger="load delay:800ms"
              hx-swap="innerHTML"
              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
             <!-- Show placeholder events immediately -->
@@ -106,13 +73,13 @@
     </div>
 </section>
 
-<!-- Band Section -->
+<!-- Band Section - Loads third -->
 <section class="band" id="band">
     <div class="container">
         <h2 class="section-title">Our Band</h2>
         <div class="band-content"
              hx-get="{% url 'band_partial' %}"
-             hx-trigger="revealed"
+             hx-trigger="load delay:1400ms"
              hx-swap="innerHTML">
             <!-- Show placeholder band members immediately -->
             <div class="band-grid">
@@ -130,19 +97,12 @@
                         <p class="member-position fast-loading">Loading...</p>
                     </div>
                 </div>
-                <div class="band-member">
-                    <div class="member-image member-placeholder image-skeleton" style="height: 280px;"></div>
-                    <div class="member-info">
-                        <h3 class="fast-loading">Loading member...</h3>
-                        <p class="member-position fast-loading">Loading...</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Merchandise Section -->
+<!-- Merchandise Section - Loads fourth -->
 <section class="merchandise" id="merchandise">
     <div class="container">
         <h2 class="section-title">Shop</h2>
@@ -152,7 +112,7 @@
         <br/>
         <div class="merchandise-content"
              hx-get="{% url 'merchandise_partial' %}"
-             hx-trigger="revealed"
+             hx-trigger="load delay:2000ms"
              hx-swap="innerHTML">
             <!-- Show placeholder merchandise immediately -->
             <div class="merchandise-grid">
@@ -167,13 +127,50 @@
     </div>
 </section>
 
-<!-- Contact Section -->
+<!-- Media Section - Visible immediately but media files load only on click -->
+<section class="media" id="media">
+    <div class="container">
+        <h2 class="section-title">Music & Videos</h2>
+        <div class="media-content" 
+             hx-get="{% url 'media_partial' %}"
+             hx-trigger="load delay:500ms"
+             hx-swap="innerHTML">
+            <!-- Show immediate media placeholders -->
+            <div class="media-grid">
+                <div class="media-item-card">
+                    <div class="media-image-container" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff0000, #cc0000); color: white;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎵</div>
+                            <div>Loading media...</div>
+                        </div>
+                    </div>
+                    <div class="media-info">
+                        <h3 class="media-title fast-loading">Loading media...</h3>
+                    </div>
+                </div>
+                <div class="media-item-card">
+                    <div class="media-image-container" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #333, #555); color: white;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
+                            <div>Loading videos...</div>
+                        </div>
+                    </div>
+                    <div class="media-info">
+                        <h3 class="media-title fast-loading">Loading videos...</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section - Loads last -->
 <section class="contact" id="contact">
     <div class="container">
         <h2 class="section-title">Contact Us</h2>
         <div class="contact-content"
              hx-get="{% url 'contact_partial' %}"
-             hx-trigger="revealed"
+             hx-trigger="load delay:2600ms"
              hx-swap="innerHTML">
             <!-- Show basic contact info immediately -->
             <div class="contact-info">
@@ -196,77 +193,88 @@
 </section>
 
 <script>
-// Progressive content loading
+// Preload hero background image immediately
 document.addEventListener('DOMContentLoaded', function() {
-    // Load sections progressively to avoid blocking
-    const sections = [
-        { selector: '[hx-trigger="load delay:100ms"]', delay: 0 },
-        { selector: '[hx-trigger="revealed"]', delay: 200 }
-    ];
-    
-    sections.forEach(({ selector, delay }) => {
-        setTimeout(() => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => {
-                // Trigger the HTMX request manually for better control
-                if (el.hasAttribute('hx-get')) {
-                    htmx.trigger(el, 'load');
-                }
-            });
-        }, delay);
-    });
-    
-    // Optimize image loading
-    const images = document.querySelectorAll('img[loading="lazy"]');
-    images.forEach(img => {
-        img.addEventListener('load', function() {
-            this.style.transition = 'opacity 0.3s ease';
-            this.style.opacity = '1';
-        });
-        
-        img.addEventListener('error', function() {
-            this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIFVuYXZhaWxhYmxlPC90ZXh0Pjwvc3ZnPg==';
-        });
-    });
+    // Preload the hero background image with highest priority
+    const heroImage = new Image();
+    heroImage.src = '/static/images/JM DSC_2067 BW.jpg';
+    heroImage.onload = function() {
+        console.log('✅ Hero background image loaded');
+    };
+    heroImage.onerror = function() {
+        console.error('❌ Failed to load hero background image');
+    };
+
+    // Progressive section loading with proper timing
+    console.log('🚀 Creek Crosby website starting progressive load...');
 });
 
-// Fast section loading optimization
-document.addEventListener('htmx:beforeRequest', function(event) {
+// Enhanced loading sequence
+document.addEventListener('htmx:afterSwap', function(event) {
     const target = event.target;
     
-    // Replace skeleton loading with faster indicators
-    const skeletons = target.querySelectorAll('.image-skeleton');
-    skeletons.forEach(skeleton => {
-        skeleton.style.animationDuration = '0.8s'; // Faster animation
-    });
-    
-    const fastLoading = target.querySelectorAll('.fast-loading');
-    fastLoading.forEach(loading => {
-        loading.style.animationDuration = '0.5s'; // Even faster
-    });
-});
-
-document.addEventListener('htmx:afterSwap', function(event) {
-    // Initialize lazy loading for new content
-    const newImages = event.target.querySelectorAll('img[loading="lazy"]');
-    newImages.forEach(img => {
-        img.style.opacity = '0';
-        img.addEventListener('load', function() {
-            this.style.transition = 'opacity 0.3s ease';
-            this.style.opacity = '1';
+    // Initialize any new content
+    if (target.querySelector) {
+        // Initialize lazy loading for new images
+        const newImages = target.querySelectorAll('img[loading="lazy"]');
+        newImages.forEach(img => {
+            img.style.opacity = '0';
+            img.addEventListener('load', function() {
+                this.style.transition = 'opacity 0.3s ease';
+                this.style.opacity = '1';
+            });
         });
-    });
+    }
     
-    // Remove any remaining loading indicators
-    const loadingElements = event.target.querySelectorAll('.fast-loading, .loading');
+    // Remove loading indicators gradually
     setTimeout(() => {
+        const loadingElements = target.querySelectorAll('.fast-loading, .loading');
         loadingElements.forEach(el => {
             if (el.textContent.includes('Loading')) {
+                el.style.transition = 'opacity 0.3s ease';
                 el.style.opacity = '0';
-                setTimeout(() => el.remove(), 300);
+                setTimeout(() => {
+                    if (el.parentNode) {
+                        el.remove();
+                    }
+                }, 300);
             }
         });
-    }, 500);
+    }, 200);
+});
+
+// Optimize performance for large screens
+document.addEventListener('htmx:configRequest', function(event) {
+    // Add specific headers for better compatibility on larger screens
+    event.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
+    event.detail.headers['Cache-Control'] = 'no-cache';
+});
+
+// Enhanced error handling for large screens
+document.addEventListener('htmx:responseError', function(event) {
+    console.error('HTMX Response Error:', event.detail);
+    const target = event.target;
+    
+    // Provide fallback content for failed requests
+    if (target.innerHTML.includes('Loading')) {
+        target.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">Content temporarily unavailable. Please refresh the page.</div>';
+    }
+});
+
+// Ensure compatibility across different screen sizes
+document.addEventListener('htmx:beforeRequest', function(event) {
+    // Add debugging for large screen issues
+    const viewport = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        devicePixelRatio: window.devicePixelRatio || 1
+    };
+    
+    console.log('🖥️ Request on viewport:', viewport);
+    
+    // Add viewport info to request headers for debugging
+    event.detail.headers['X-Viewport-Width'] = viewport.width.toString();
+    event.detail.headers['X-Viewport-Height'] = viewport.height.toString();
 });
 </script>
 {% endblock %}

@@ -3,67 +3,126 @@
         <div class="media-item-card" data-media-id="{{ media_item.id }}">
             <div class="media-item-content">
                 {% if media_item.media_type == 'image' and media_item.image %}
-                    <!-- Optimized Image/Album Cover with progressive loading -->
-                    <div class="media-image-container progressive-image">
+                    <!-- Image/Album Cover - Loads immediately with lazy loading -->
+                    <div class="media-image-container">
                         <img src="{{ media_item.image.url }}" 
                             alt="{{ media_item.title }}" 
                             loading="lazy"
-                            class="media-image lightbox-trigger lazy-load-image"
+                            class="media-image lightbox-trigger"
                             data-lightbox-src="{{ media_item.image.url }}"
                             data-lightbox-title="{{ media_item.title }}"
                             onclick="openLightbox(this)"
-                            onload="this.classList.add('loaded')"
-                            onerror="this.nextElementSibling.style.display='flex'">
-                        <div class="image-placeholder">
-                            🎵
-                        </div>
+                            style="width: 100%; height: 280px; object-fit: cover;">
                     </div>
                 
                 {% elif media_item.media_type == 'video_file' and media_item.video_file %}
-                    <!-- Video File with Thumbnail (Click to Load) -->
+                    <!-- Video File - Shows thumbnail, loads only when clicked -->
                     <div class="media-video-container">
                         <div class="video-thumbnail" 
-                             onclick="loadVideo(this, '{{ media_item.video_file.url }}', 'video/mp4')">
-                            <!-- Use first frame or a generated thumbnail -->
-                            <div class="video-placeholder image-skeleton" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #333, #555); color: white;">
+                             data-video-url="{{ media_item.video_file.url }}"
+                             onclick="loadAndPlayVideo(this)">
+                            <!-- Video placeholder with play button -->
+                            <div class="video-placeholder" style="
+                                height: 280px; 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                background: linear-gradient(135deg, #333, #555); 
+                                color: white;
+                                position: relative;
+                                cursor: pointer;
+                            ">
                                 <div style="text-align: center;">
                                     <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
-                                    <div>{{ media_item.title }}</div>
+                                    <div style="font-size: 1.2rem; font-weight: bold;">{{ media_item.title }}</div>
+                                    <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">Click to play</div>
                                 </div>
                             </div>
-                            <button class="play-button" aria-label="Play video">
+                            <button class="play-button" aria-label="Play video" style="
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                background: rgba(255, 0, 0, 0.9);
+                                color: white;
+                                border: none;
+                                border-radius: 50%;
+                                width: 60px;
+                                height: 60px;
+                                font-size: 1.5rem;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            ">
                                 ▶
                             </button>
                         </div>
                     </div>
                 
                 {% elif media_item.media_type == 'video_link' and media_item.video_link %}
-                    <!-- Video Link with Thumbnail (Click to Load Embed) -->
+                    <!-- Video Link - Shows thumbnail, embeds only when clicked -->
                     <div class="media-video-container">
                         {% with embed_url=media_item.get_video_embed_url %}
                             {% if embed_url %}
                                 <div class="video-thumbnail" 
-                                     onclick="loadEmbedVideo(this, '{{ embed_url }}')">
-                                    <!-- YouTube/Vimeo thumbnail placeholder -->
-                                    <div class="video-placeholder image-skeleton" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff0000, #cc0000); color: white;">
+                                     data-embed-url="{{ embed_url }}"
+                                     onclick="loadAndPlayEmbed(this)">
+                                    <!-- YouTube/Vimeo placeholder -->
+                                    <div class="video-placeholder" style="
+                                        height: 280px; 
+                                        display: flex; 
+                                        align-items: center; 
+                                        justify-content: center; 
+                                        background: linear-gradient(135deg, #ff0000, #cc0000); 
+                                        color: white;
+                                        position: relative;
+                                        cursor: pointer;
+                                    ">
                                         <div style="text-align: center;">
-                                            <div style="font-size: 3rem; margin-bottom: 1rem;">📺</div>
-                                            <div>{{ media_item.title }}</div>
+                                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎵</div>
+                                            <div style="font-size: 1.2rem; font-weight: bold;">{{ media_item.title }}</div>
+                                            <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 0.5rem;">Click to play</div>
                                         </div>
                                     </div>
-                                    <button class="play-button" aria-label="Play video">
+                                    <button class="play-button" aria-label="Play video" style="
+                                        position: absolute;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%);
+                                        background: rgba(255, 255, 255, 0.9);
+                                        color: #ff0000;
+                                        border: none;
+                                        border-radius: 50%;
+                                        width: 60px;
+                                        height: 60px;
+                                        font-size: 1.5rem;
+                                        cursor: pointer;
+                                        transition: all 0.3s ease;
+                                    ">
                                         ▶
                                     </button>
                                 </div>
                             {% else %}
                                 <!-- Fallback for unsupported video services -->
-                                <div class="media-video-link">
+                                <div class="media-video-link" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #666, #888);">
                                     <a href="{{ media_item.video_link }}" 
                                        target="_blank" 
                                        rel="noopener noreferrer"
-                                       class="video-link-button">
-                                        <span class="icon">🎥</span>
-                                        <span>Watch Video</span>
+                                       class="video-link-button"
+                                       style="
+                                        display: flex;
+                                        flex-direction: column;
+                                        align-items: center;
+                                        gap: 1rem;
+                                        padding: 2rem;
+                                        background: rgba(255, 0, 0, 0.9);
+                                        color: white;
+                                        text-decoration: none;
+                                        border-radius: 12px;
+                                        transition: all 0.3s ease;
+                                        font-weight: bold;
+                                       ">
+                                        <span style="font-size: 2rem;">🎥</span>
+                                        <span style="font-size: 1.1rem;">Watch Video</span>
                                     </a>
                                 </div>
                             {% endif %}
@@ -71,7 +130,7 @@
                     </div>
                 {% endif %}
                 
-                <!-- Media Info (loads immediately) -->
+                <!-- Media Info -->
                 <div class="media-info">
                     <h3 class="media-title">{{ media_item.title }}</h3>
                     {% if media_item.description %}
@@ -83,7 +142,7 @@
     {% empty %}
         <div class="no-media">
             <div class="no-media-content">
-                <span class="no-media-icon">🎵</span>
+                <span class="no-media-icon" style="font-size: 4rem; display: block; margin-bottom: 1.5rem;">🎵</span>
                 <h3>No Media Available</h3>
                 <p>Check back later for albums, videos, and more content from Creek Crosby!</p>
             </div>
@@ -91,7 +150,7 @@
     {% endfor %}
 </div>
 
-<!-- Optimized lightbox modal (only loads when needed) -->
+<!-- Lightweight lightbox modal -->
 <div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox()" style="display: none;">
     <div class="lightbox-content" onclick="event.stopPropagation()">
         <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
@@ -101,85 +160,159 @@
 </div>
 
 <script>
-// Optimized video loading functions
-function loadVideo(thumbnail, videoUrl, videoType) {
+// CRITICAL: Only load actual media files when user clicks play
+function loadAndPlayVideo(thumbnail) {
     const container = thumbnail.parentElement;
+    const videoUrl = thumbnail.getAttribute('data-video-url');
+    
+    if (!videoUrl) {
+        console.error('No video URL found');
+        return;
+    }
+    
+    // Show loading state
+    thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #333; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
+    
+    // Create video element
     const video = document.createElement('video');
     video.controls = true;
-    video.className = 'media-video';
-    video.preload = 'metadata';
+    video.preload = 'metadata'; // Only load metadata initially
     video.style.width = '100%';
-    video.style.height = '100%';
+    video.style.height = '280px';
+    video.style.objectFit = 'contain';
+    video.style.backgroundColor = '#000';
     
+    // Add source
     const source = document.createElement('source');
     source.src = videoUrl;
-    source.type = videoType;
+    source.type = 'video/mp4';
     video.appendChild(source);
     
-    // Add loading indicator
-    thumbnail.innerHTML = '<div class="fast-loading">Loading video...</div>';
-    
-    // Replace thumbnail with video when ready
-    video.addEventListener('loadeddata', function() {
+    // Handle successful loading
+    video.addEventListener('canplay', function() {
+        console.log('✅ Video can play:', videoUrl);
         container.replaceChild(video, thumbnail);
-        video.play().catch(e => console.log('Autoplay prevented:', e));
+        
+        // Auto-play if possible (many browsers block this)
+        video.play().catch(e => {
+            console.log('⚠️ Autoplay prevented (normal behavior):', e.message);
+        });
     });
     
     // Handle errors
-    video.addEventListener('error', function() {
-        thumbnail.innerHTML = '<div style="color: red; text-align: center; padding: 2rem;">Error loading video</div>';
+    video.addEventListener('error', function(e) {
+        console.error('❌ Video loading error:', e);
+        thumbnail.innerHTML = `
+            <div style="height: 280px; display: flex; align-items: center; justify-content: center; background: #ff4444; color: white; text-align: center; padding: 2rem;">
+                <div>
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+                    <div>Video unavailable</div>
+                    <div style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.8;">Please try again later</div>
+                </div>
+            </div>
+        `;
     });
+    
+    // Start loading the video
+    video.load();
 }
 
-function loadEmbedVideo(thumbnail, embedUrl) {
+// CRITICAL: Only embed external videos when user clicks play
+function loadAndPlayEmbed(thumbnail) {
     const container = thumbnail.parentElement;
+    const embedUrl = thumbnail.getAttribute('data-embed-url');
+    
+    if (!embedUrl) {
+        console.error('No embed URL found');
+        return;
+    }
+    
+    // Show loading state
+    thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #ff0000; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
+    
+    // Create iframe
     const iframe = document.createElement('iframe');
-    iframe.src = embedUrl;
-    iframe.className = 'media-video-embed';
+    iframe.src = embedUrl + '&autoplay=1'; // Add autoplay parameter for YouTube/Vimeo
+    iframe.width = '100%';
+    iframe.height = '280';
     iframe.frameBorder = '0';
     iframe.allowFullscreen = true;
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.title = thumbnail.querySelector('.video-placeholder div div:last-child')?.textContent || 'Video';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.style.borderRadius = '8px';
     
-    // Add loading indicator
-    thumbnail.innerHTML = '<div class="fast-loading">Loading video...</div>';
+    // Handle iframe load
+    iframe.addEventListener('load', function() {
+        console.log('✅ Embed loaded:', embedUrl);
+    });
     
-    // Replace thumbnail with iframe
+    // Replace thumbnail with iframe after a short delay
     setTimeout(() => {
         container.replaceChild(iframe, thumbnail);
-    }, 500);
+    }, 300);
 }
 
-// Enhanced lazy loading for images
+// Optimize image loading
 document.addEventListener('DOMContentLoaded', function() {
-    // Use Intersection Observer for better performance
+    // Enhanced lazy loading for images only (not videos)
+    const images = document.querySelectorAll('.media-image');
+    
     if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
+        const imageObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
-                    const container = img.closest('.progressive-image');
                     
                     img.addEventListener('load', function() {
-                        img.classList.add('loaded');
-                        if (container) {
-                            container.classList.add('loaded');
-                        }
+                        this.style.transition = 'opacity 0.3s ease';
+                        this.style.opacity = '1';
                     });
                     
-                    // Stop observing this image
-                    observer.unobserve(img);
+                    img.addEventListener('error', function() {
+                        this.style.background = '#f0f0f0';
+                        this.alt = 'Image unavailable';
+                    });
+                    
+                    imageObserver.unobserve(img);
                 }
             });
         }, {
-            rootMargin: '50px' // Start loading 50px before the image comes into view
+            rootMargin: '50px' // Start loading 50px before coming into view
         });
         
-        // Observe all lazy load images
-        document.querySelectorAll('.lazy-load-image').forEach(img => {
+        images.forEach(img => {
+            img.style.opacity = '0';
             imageObserver.observe(img);
+        });
+    } else {
+        // Fallback for older browsers
+        images.forEach(img => {
+            img.addEventListener('load', function() {
+                this.style.opacity = '1';
+            });
         });
     }
 });
+
+// Add hover effects for better UX
+document.addEventListener('mouseover', function(event) {
+    if (event.target.closest('.video-thumbnail')) {
+        const playButton = event.target.closest('.video-thumbnail').querySelector('.play-button');
+        if (playButton) {
+            playButton.style.transform = 'translate(-50%, -50%) scale(1.1)';
+            playButton.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+        }
+    }
+});
+
+document.addEventListener('mouseout', function(event) {
+    if (event.target.closest('.video-thumbnail')) {
+        const playButton = event.target.closest('.video-thumbnail').querySelector('.play-button');
+        if (playButton) {
+            playButton.style.transform = 'translate(-50%, -50%) scale(1)';
+            playButton.style.boxShadow = 'none';
+        }
+    }
+});
+
+console.log('🎵 Media section loaded - videos will only load when clicked');
 </script>
