@@ -1,3 +1,5 @@
+{% load markdown_extras %}
+
 {% if user.is_staff %}
     <div class="add-event-controls" style="margin-bottom: 2rem; text-align: center; opacity: 1 !important; position: relative !important;">
         <button class="btn btn-primary" 
@@ -95,7 +97,7 @@
                    data-edit-url="{% url 'edit_event' event.id %}"
                    onclick="makeEditable(this)"
                    {% endif %}>
-                   {{ event.description }}
+                   {{ event.description|markdown }}
                 </p>
                 
                 {% if user.is_staff and not event.image %}

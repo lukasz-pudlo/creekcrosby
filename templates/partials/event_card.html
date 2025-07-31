@@ -1,3 +1,5 @@
+{% load markdown_extras %}
+
 <div class="event-card" data-event-id="{{ event.id }}">
     {% if is_staff %}
         <div class="edit-controls">
@@ -81,7 +83,7 @@
            data-edit-url="{% url 'edit_event' event.id %}"
            onclick="makeEditable(this)"
            {% endif %}>
-           {{ event.description }}
+           {{ event.description|markdown }}
         </p>
         
         {% if is_staff and not event.image %}
