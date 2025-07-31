@@ -4242,3 +4242,52 @@ html {
         font-size: 1rem !important;
     }
 }
+
+/* Enhanced video play button visibility for very small screens */
+@media (max-width: 320px) {
+    .play-button {
+        width: 50px !important;
+        /* Increased from 40px */
+        height: 50px !important;
+        /* Increased from 40px */
+        font-size: 1.2rem !important;
+        /* Increased from 1rem */
+        border: 2px solid white !important;
+        /* Add border for better visibility */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+        /* Add shadow for contrast */
+    }
+}
+
+/* Ensure video containers don't clip the play button on small screens */
+@media (max-width: 480px) {
+
+    .video-placeholder,
+    .media-video-container .video-placeholder {
+        min-height: 180px !important;
+        position: relative !important;
+    }
+
+    .video-thumbnail {
+        position: relative !important;
+        min-height: 180px !important;
+    }
+
+    /* Ensure play button is always on top */
+    .play-button {
+        z-index: 100 !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+}
+
+/* Extra small screens - make sure button is easily tappable */
+@media (max-width: 280px) {
+    .play-button {
+        width: 55px !important;
+        height: 55px !important;
+        font-size: 1.3rem !important;
+    }
+}
