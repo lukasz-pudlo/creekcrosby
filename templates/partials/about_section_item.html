@@ -12,8 +12,10 @@
             </button>
         </div>
     {% endif %}
+
+    <!-- Leave uncommented in case you want to add it back later -->
     
-    <div class="about-image-container">
+    <!-- <div class="about-image-container">
         {% if section.image %}
             <div class="about-image">
                 <img src="{{ section.image.url }}?v={{ section.image.name|default_if_none:'' }}" loading="lazy" alt="{{ section.title }}">
@@ -71,7 +73,7 @@
             {% endif %}
             {% endcomment %}
         {% endif %}
-    </div>
+    </div> -->
     
     <div class="about-text">
         <h3 class="{% if is_staff %}editable{% endif %}" 
