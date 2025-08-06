@@ -288,9 +288,8 @@ function initializeImageOptimization() {
                 if (entry.isIntersecting) {
                     const img = entry.target;
 
+                    // Don't set opacity to 0 initially, let image show immediately
                     img.addEventListener('load', function () {
-                        this.style.transition = 'opacity 0.3s ease';
-                        this.style.opacity = '1';
                         this.classList.add('loaded');
                     });
 
@@ -326,8 +325,8 @@ function initializeImageOptimization() {
         });
 
         images.forEach(img => {
+            // Remove the opacity = 0 that was hiding images
             if (!img.classList.contains('loaded')) {
-                img.style.opacity = '0';
                 imageObserver.observe(img);
             }
         });
