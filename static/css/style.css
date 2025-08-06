@@ -2904,11 +2904,6 @@ form[hx-encoding="multipart/form-data"].htmx-request::after {
 
 /* Enhanced column layout for better alignment */
 @media (min-width: 1200px) {
-    .about-item[data-section-id] {
-        /* Ensure consistent baseline */
-        display: block;
-    }
-
     .about-item[data-section-id] .about-content {
         /* Force columns to start at same level */
         column-fill: auto;
