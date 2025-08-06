@@ -160,7 +160,6 @@
 </div>
 
 <script>
-// CRITICAL: Only load actual media files when user clicks play
 function loadAndPlayVideo(thumbnail) {
     const container = thumbnail.parentElement;
     const videoUrl = thumbnail.getAttribute('data-video-url');
@@ -173,14 +172,30 @@ function loadAndPlayVideo(thumbnail) {
     // Show loading state
     thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #333; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
     
-    // Create video element
+    // Create video element with responsive height
     const video = document.createElement('video');
     video.controls = true;
-    video.preload = 'metadata'; // Only load metadata initially
+    video.preload = 'metadata';
     video.style.width = '100%';
-    video.style.height = '280px';
-    video.style.objectFit = 'contain';
     video.style.backgroundColor = '#000';
+    video.style.borderRadius = '8px';
+    
+    // Set responsive height based on screen size
+    function setVideoHeight() {
+        if (window.innerWidth <= 480) {
+            video.style.height = '200px';
+        } else if (window.innerWidth <= 768) {
+            video.style.height = '240px';
+        } else {
+            video.style.height = '280px';
+        }
+        video.style.objectFit = 'contain';
+    }
+    
+    setVideoHeight();
+    
+    // Update height on window resize
+    window.addEventListener('resize', setVideoHeight);
     
     // Add source
     const source = document.createElement('source');
@@ -193,7 +208,7 @@ function loadAndPlayVideo(thumbnail) {
         console.log('✅ Video can play:', videoUrl);
         container.replaceChild(video, thumbnail);
         
-        // Auto-play if possible (many browsers block this)
+        // Auto-play if possible
         video.play().catch(e => {
             console.log('⚠️ Autoplay prevented (normal behavior):', e.message);
         });
