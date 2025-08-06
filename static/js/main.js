@@ -113,12 +113,11 @@ function initializeMediaFunctionality() {
     initializeImageOptimization();
 }
 
-// ENHANCED LIGHTBOX FUNCTIONALITY (CONSOLIDATED)
 function initializeLightbox() {
     // Create lightbox modal if it doesn't exist
     if (!document.getElementById('lightbox-modal')) {
         const lightboxHTML = `
-            <div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox()" style="display: none;">
+            <div id="lightbox-modal" class="lightbox-modal" style="display: none;">
                 <div class="lightbox-content" onclick="event.stopPropagation()">
                     <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
                     <img id="lightbox-image" src="" alt="" class="lightbox-image">
@@ -130,20 +129,23 @@ function initializeLightbox() {
     }
 
     // Add click handlers to lightbox triggers
-    const lightboxTriggers = document.querySelectorAll('.lightbox-trigger');
-    lightboxTriggers.forEach(function (trigger) {
-        // Remove existing listeners to prevent duplicates
-        trigger.removeEventListener('click', handleLightboxClick);
-        trigger.addEventListener('click', handleLightboxClick);
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('lightbox-trigger')) {
+            event.preventDefault();
+            event.stopPropagation();
+            openLightbox(event.target);
+        }
+    });
+
+    // Add click handler to modal background for closing
+    document.addEventListener('click', function (event) {
+        if (event.target.id === 'lightbox-modal') {
+            closeLightbox();
+        }
     });
 }
 
-function handleLightboxClick(event) {
-    event.preventDefault();
-    openLightbox(this);
-}
-
-// Global lightbox functions (used by media.html)
+// Global lightbox functions (fixed)
 window.openLightbox = function (imgElement) {
     const modal = document.getElementById('lightbox-modal');
     const lightboxImage = document.getElementById('lightbox-image');
@@ -166,6 +168,7 @@ window.openLightbox = function (imgElement) {
     }
 
     // Show modal
+    modal.style.display = 'flex';
     modal.classList.add('show');
     document.body.classList.add('lightbox-open');
 
@@ -176,6 +179,7 @@ window.openLightbox = function (imgElement) {
 window.closeLightbox = function () {
     const modal = document.getElementById('lightbox-modal');
     if (modal) {
+        modal.style.display = 'none';
         modal.classList.remove('show');
         document.body.classList.remove('lightbox-open');
     }
