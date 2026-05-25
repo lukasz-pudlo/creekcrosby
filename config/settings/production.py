@@ -70,6 +70,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "creek_crosby.middleware.FrameAncestorsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "core.middleware.MediaDirectoryMiddleware",
@@ -104,6 +105,12 @@ CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
+
+ALLOWED_FRAME_ANCESTORS = [
+    "'self'",
+    "https://lukaszpudlo.com",
+    "https://www.lukaszpudlo.com",
+]
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Additional security headers

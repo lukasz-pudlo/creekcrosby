@@ -41,6 +41,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "creek_crosby.middleware.FrameAncestorsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",  # Added for HTMX support
 ]
@@ -122,3 +123,18 @@ DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@creekcrosby.c
 
 # Contact form settings
 CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "info@creekcrosby.com")
+
+# Iframe embedding (CSP frame-ancestors)
+_raw_frame_ancestors = os.environ.get("DJANGO_ALLOWED_FRAME_ANCESTORS", "").strip()
+if _raw_frame_ancestors:
+    ALLOWED_FRAME_ANCESTORS = [
+        item.strip() for item in _raw_frame_ancestors.split(",") if item.strip()
+    ]
+else:
+    ALLOWED_FRAME_ANCESTORS = [
+        "'self'",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost:8010",
+        "http://127.0.0.1:8010",
+    ]

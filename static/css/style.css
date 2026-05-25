@@ -959,14 +959,17 @@ section {
 }
 
 .social-links a {
-    color: var(--text-color);
-    text-decoration: none;
+    color: var(--secondary-color);
+    text-decoration: underline;
+    text-underline-offset: 4px;
     transition: color 0.3s ease;
     font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 1px;
 }
 
 .social-links a:hover {
-    color: var(--secondary-color);
+    color: #D4B76A;
 }
 
 /* Footer */
