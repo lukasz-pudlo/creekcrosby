@@ -108,9 +108,7 @@ X_FRAME_OPTIONS = "DENY"
 
 _raw = os.environ.get("DJANGO_ALLOWED_FRAME_ANCESTORS", "").strip()
 if _raw:
-    ALLOWED_FRAME_ANCESTORS = [
-        item.strip() for item in _raw.split(",") if item.strip()
-    ]
+    ALLOWED_FRAME_ANCESTORS = [item.strip() for item in _raw.split(",") if item.strip()]
 else:
     ALLOWED_FRAME_ANCESTORS = [
         "'self'",
