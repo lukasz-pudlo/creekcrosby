@@ -52,7 +52,7 @@ body::before {
     color: var(--text-color);
 }
 
-html {
+html, body {
     overflow-x: hidden;
 }
 
