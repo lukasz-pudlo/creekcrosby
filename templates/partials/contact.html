@@ -4,7 +4,6 @@
         
         {% if contact_info %}
             <div class="info-item">
-                <span class="icon">📧</span>
                 <a href="mailto:{{ contact_info.email }}"
                    class="{% if is_staff %}editable{% endif %}"
                    {% if is_staff %}
@@ -16,9 +15,8 @@
                    {{ contact_info.email }}
                 </a>
             </div>
-            
+
             <div class="info-item info-item--stacked">
-                <span class="icon">📞</span>
                 <div class="{% if is_staff %}editable{% endif %}"
                    {% if is_staff %}
                    data-field="phone"
@@ -29,9 +27,8 @@
                    {{ contact_info.phone|linebreaksbr }}
                 </div>
             </div>
-            
+
             <div class="info-item">
-                <span class="icon">📍</span>
                 <address class="{% if is_staff %}editable{% endif %}"
                          {% if is_staff %}
                          data-field="address"
@@ -78,17 +75,14 @@
             </div>
         {% else %}
             <div class="info-item">
-                <span class="icon">📧</span>
                 <a href="mailto:info@creekcrosby.com">info@creekcrosby.com</a>
             </div>
-            
+
             <div class="info-item">
-                <span class="icon">📞</span>
                 <a href="tel:07700900000">07700 900000</a>
             </div>
-            
+
             <div class="info-item">
-                <span class="icon">📍</span>
                 <address>Greenock, Scotland</address>
             </div>
             
