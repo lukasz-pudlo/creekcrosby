@@ -84,7 +84,8 @@ class ContactMessage(models.Model):
     is_read = models.BooleanField(default=False, verbose_name=_("Is Read"))
     is_replied = models.BooleanField(default=False, verbose_name=_("Is Replied"))
     ip_address = models.GenericIPAddressField(
-        blank=True, null=True, verbose_name=_("IP Address"))
+        blank=True, null=True, verbose_name=_("IP Address")
+    )
     user_agent = models.TextField(blank=True, null=True, verbose_name=_("User Agent"))
 
     class Meta:
@@ -98,12 +99,12 @@ class ContactMessage(models.Model):
     def mark_as_read(self):
         """Mark message as read"""
         self.is_read = True
-        self.save(update_fields=['is_read'])
+        self.save(update_fields=["is_read"])
 
     def mark_as_replied(self):
         """Mark message as replied"""
         self.is_replied = True
-        self.save(update_fields=['is_replied'])
+        self.save(update_fields=["is_replied"])
 
 
 class Merchandise(models.Model):
@@ -115,19 +116,19 @@ class MediaItem(models.Model):
     """Model for storing media items (images, videos, album covers)"""
 
     MEDIA_TYPE_CHOICES = [
-        ('image', 'Image/Album Cover'),
-        ('video_file', 'Video File'),
-        ('video_link', 'Video Link (YouTube/Vimeo)'),
+        ("image", "Image/Album Cover"),
+        ("video_file", "Video File"),
+        ("video_link", "Video Link (YouTube/Vimeo)"),
     ]
 
     title = models.CharField(
-        max_length=200, help_text="Title of the media item", blank=True, null=True)
+        max_length=200, help_text="Title of the media item", blank=True, null=True
+    )
     description = models.TextField(
-        blank=True, null=True, help_text="Optional description")
+        blank=True, null=True, help_text="Optional description"
+    )
     media_type = models.CharField(
-        max_length=20,
-        choices=MEDIA_TYPE_CHOICES,
-        help_text="Type of media content"
+        max_length=20, choices=MEDIA_TYPE_CHOICES, help_text="Type of media content"
     )
 
     # Image field for album covers, photos, etc.
@@ -135,7 +136,7 @@ class MediaItem(models.Model):
         upload_to="media/images/",
         blank=True,
         null=True,
-        help_text="Upload an image or album cover"
+        help_text="Upload an image or album cover",
     )
 
     # Video file upload
@@ -143,20 +144,17 @@ class MediaItem(models.Model):
         upload_to="media/videos/",
         blank=True,
         null=True,
-        help_text="Upload a video file (MP4, WebM, etc.)"
+        help_text="Upload a video file (MP4, WebM, etc.)",
     )
 
     # Video link for YouTube, Vimeo, etc.
     video_link = models.URLField(
-        blank=True,
-        null=True,
-        help_text="YouTube, Vimeo, or other video link"
+        blank=True, null=True, help_text="YouTube, Vimeo, or other video link"
     )
 
     # Ordering
     order = models.PositiveIntegerField(
-        default=0,
-        help_text="Order for displaying items (lower numbers appear first)"
+        default=0, help_text="Order for displaying items (lower numbers appear first)"
     )
 
     # Timestamps
@@ -164,7 +162,7 @@ class MediaItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['order', '-created_at']
+        ordering = ["order", "-created_at"]
         verbose_name = _("Media Item")
         verbose_name_plural = _("Media Items")
 
@@ -175,11 +173,11 @@ class MediaItem(models.Model):
         """Validate that the appropriate field is filled based on media_type"""
         from django.core.exceptions import ValidationError
 
-        if self.media_type == 'image' and not self.image:
+        if self.media_type == "image" and not self.image:
             raise ValidationError("Image is required for image media type.")
-        elif self.media_type == 'video_file' and not self.video_file:
+        elif self.media_type == "video_file" and not self.video_file:
             raise ValidationError("Video file is required for video file media type.")
-        elif self.media_type == 'video_link' and not self.video_link:
+        elif self.media_type == "video_link" and not self.video_link:
             raise ValidationError("Video link is required for video link media type.")
 
     def get_video_embed_url(self):
@@ -188,16 +186,16 @@ class MediaItem(models.Model):
             return None
 
         # YouTube
-        if 'youtube.com/watch?v=' in self.video_link:
-            video_id = self.video_link.split('watch?v=')[1].split('&')[0]
+        if "youtube.com/watch?v=" in self.video_link:
+            video_id = self.video_link.split("watch?v=")[1].split("&")[0]
             return f"https://www.youtube.com/embed/{video_id}"
-        elif 'youtu.be/' in self.video_link:
-            video_id = self.video_link.split('youtu.be/')[1].split('?')[0]
+        elif "youtu.be/" in self.video_link:
+            video_id = self.video_link.split("youtu.be/")[1].split("?")[0]
             return f"https://www.youtube.com/embed/{video_id}"
 
         # Vimeo
-        elif 'vimeo.com/' in self.video_link:
-            video_id = self.video_link.split('vimeo.com/')[1].split('?')[0]
+        elif "vimeo.com/" in self.video_link:
+            video_id = self.video_link.split("vimeo.com/")[1].split("?")[0]
             return f"https://player.vimeo.com/video/{video_id}"
 
         # Return original link for other services

@@ -1,8 +1,9 @@
+import mimetypes
 import os
+
 from django.conf import settings
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse
 from django.utils.deprecation import MiddlewareMixin
-import mimetypes
 
 
 class DisableCSRFForAPI:
@@ -127,8 +128,8 @@ class MediaDirectoryMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         # Only check for file upload requests
-        if request.method == 'POST' and (
-            request.content_type and 'multipart' in request.content_type
+        if request.method == "POST" and (
+            request.content_type and "multipart" in request.content_type
         ):
             self._ensure_media_directories()
 
@@ -146,7 +147,7 @@ class MediaDirectoryMiddleware(MiddlewareMixin):
                 print(f"Created media directory: {settings.MEDIA_ROOT}")
 
             # Create subdirectories for different upload types
-            subdirs = ['band', 'events', 'about']
+            subdirs = ["band", "events", "about"]
             for subdir in subdirs:
                 subdir_path = os.path.join(settings.MEDIA_ROOT, subdir)
                 if not os.path.exists(subdir_path):
@@ -172,7 +173,7 @@ class MediaStreamingMiddleware(MiddlewareMixin):
             return None
 
         # Get the file path
-        media_path = request.path[len(settings.MEDIA_URL):]
+        media_path = request.path[len(settings.MEDIA_URL) :]
         file_path = os.path.join(settings.MEDIA_ROOT, media_path)
 
         # Check if file exists
@@ -192,7 +193,7 @@ class MediaStreamingMiddleware(MiddlewareMixin):
 
         def file_iterator(file_path, chunk_size=8192):
             """Generator to read file in chunks."""
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 while True:
                     chunk = f.read(chunk_size)
                     if not chunk:
@@ -203,23 +204,24 @@ class MediaStreamingMiddleware(MiddlewareMixin):
         file_size = os.path.getsize(file_path)
         content_type, _ = mimetypes.guess_type(file_path)
         if not content_type:
-            content_type = 'application/octet-stream'
+            content_type = "application/octet-stream"
 
         # Handle range requests for video/audio streaming
-        range_header = request.META.get('HTTP_RANGE')
+        range_header = request.META.get("HTTP_RANGE")
         if range_header:
-            return self._handle_range_request(file_path, range_header, content_type, file_size)
+            return self._handle_range_request(
+                file_path, range_header, content_type, file_size
+            )
 
         # Create streaming response
         response = StreamingHttpResponse(
-            file_iterator(file_path),
-            content_type=content_type
+            file_iterator(file_path), content_type=content_type
         )
-        response['Content-Length'] = str(file_size)
-        response['Accept-Ranges'] = 'bytes'
+        response["Content-Length"] = str(file_size)
+        response["Accept-Ranges"] = "bytes"
 
         # Add cache headers for media files
-        response['Cache-Control'] = 'public, max-age=3600'
+        response["Cache-Control"] = "public, max-age=3600"
 
         return response
 
@@ -227,7 +229,7 @@ class MediaStreamingMiddleware(MiddlewareMixin):
         """Handle HTTP range requests for streaming media."""
 
         # Parse range header
-        range_match = range_header.replace('bytes=', '').split('-')
+        range_match = range_header.replace("bytes=", "").split("-")
         start = int(range_match[0]) if range_match[0] else 0
         end = int(range_match[1]) if range_match[1] else file_size - 1
 
@@ -238,7 +240,7 @@ class MediaStreamingMiddleware(MiddlewareMixin):
 
         def range_file_iterator(file_path, start, end, chunk_size=8192):
             """Generator to read file range in chunks."""
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 f.seek(start)
                 remaining = end - start + 1
                 while remaining > 0:
@@ -253,12 +255,12 @@ class MediaStreamingMiddleware(MiddlewareMixin):
         response = StreamingHttpResponse(
             range_file_iterator(file_path, start, end),
             status=206,
-            content_type=content_type
+            content_type=content_type,
         )
 
-        response['Content-Length'] = str(content_length)
-        response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
-        response['Accept-Ranges'] = 'bytes'
-        response['Cache-Control'] = 'public, max-age=3600'
+        response["Content-Length"] = str(content_length)
+        response["Content-Range"] = f"bytes {start}-{end}/{file_size}"
+        response["Accept-Ranges"] = "bytes"
+        response["Cache-Control"] = "public, max-age=3600"
 
         return response

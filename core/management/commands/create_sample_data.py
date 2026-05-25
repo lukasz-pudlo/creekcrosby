@@ -56,11 +56,7 @@ class Command(BaseCommand):
         for member in members:
             BandMember.objects.create(**member)
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Created {len(members)} band members"
-            )
-        )
+        self.stdout.write(self.style.SUCCESS(f"Created {len(members)} band members"))
 
     def create_events(self):
         Event.objects.all().delete()

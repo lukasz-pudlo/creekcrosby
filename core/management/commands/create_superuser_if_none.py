@@ -1,6 +1,7 @@
 import os
-from django.core.management.base import BaseCommand
+
 from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
@@ -31,19 +32,15 @@ class Command(BaseCommand):
         # Create the superuser
         try:
             user = User.objects.create_superuser(
-                username=username,
-                email=email,
-                password=password
+                username=username, email=email, password=password
             )
-            
+
             self.stdout.write(
                 self.style.SUCCESS(
                     f'Successfully created superuser "{username}". '
                     f"You can now log in at /admin/ with username: {username}"
                 )
             )
-            
+
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"Error creating superuser: {str(e)}")
-            ) 
+            self.stdout.write(self.style.ERROR(f"Error creating superuser: {str(e)}"))

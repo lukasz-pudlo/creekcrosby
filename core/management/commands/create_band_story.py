@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from core.models import AboutSection
 
 
@@ -7,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         title = "The Story of 'Hope, Hawaiian & Cornhaddock'"
-        
+
         content = """## The Beginning (1980)
 
 **1980** – The boycotted Moscow Olympics – the senseless slaying of Johnny Moondog from Liddypool – the debut of the Rubik's cube.
@@ -179,27 +180,22 @@ There have been a few bass players – even, on occasion the odd stand-in drumme
 
         # Check if this specific story already exists
         existing_story = AboutSection.objects.filter(title=title).first()
-        
+
         if existing_story:
             self.stdout.write(
-                self.style.SUCCESS(f"Band story '{title}' already exists. Skipping creation.")
+                self.style.SUCCESS(
+                    f"Band story '{title}' already exists. Skipping creation."
+                )
             )
             return
 
         # Create the about section
         try:
-            about_section = AboutSection.objects.create(
-                title=title,
-                content=content
-            )
-            
+            about_section = AboutSection.objects.create(title=title, content=content)
+
             self.stdout.write(
-                self.style.SUCCESS(
-                    f'Successfully created band story: "{title}"'
-                )
+                self.style.SUCCESS(f'Successfully created band story: "{title}"')
             )
-            
+
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"Error creating band story: {str(e)}")
-            ) 
+            self.stdout.write(self.style.ERROR(f"Error creating band story: {str(e)}"))
