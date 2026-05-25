@@ -3,7 +3,6 @@ from django.test import RequestFactory, override_settings
 
 from creek_crosby.middleware import FrameAncestorsMiddleware
 
-
 HEALTHZ_URL = "/healthz/"
 
 
