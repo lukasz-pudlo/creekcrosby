@@ -106,11 +106,17 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 
-ALLOWED_FRAME_ANCESTORS = [
-    "'self'",
-    "https://lukaszpudlo.com",
-    "https://www.lukaszpudlo.com",
-]
+_raw = os.environ.get("DJANGO_ALLOWED_FRAME_ANCESTORS", "").strip()
+if _raw:
+    ALLOWED_FRAME_ANCESTORS = [
+        item.strip() for item in _raw.split(",") if item.strip()
+    ]
+else:
+    ALLOWED_FRAME_ANCESTORS = [
+        "'self'",
+        "https://lukaszpudlo.com",
+        "https://www.lukaszpudlo.com",
+    ]
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Additional security headers
