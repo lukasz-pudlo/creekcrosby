@@ -5,24 +5,25 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <meta name="theme-color" content="#ff0000" />
+    <meta name="theme-color" content="#6B1D2A" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <meta name="description" content="Creek Crosby - Rock and Roll, Rockabilly, Country, Blues band from Greenock and Gourock, Scotland." />
-    
+
     <title>{% block title %}Creek Crosby - Rock and Roll Band{% endblock %}</title>
-    
+
     <!-- HTMX -->
     <script src="{% static 'js/htmx.min.js' %}"></script>
-    
+
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Skip to main content for accessibility -->
     <a href="#main" class="skip-link">Skip to main content</a>
-    
-    <!-- Staff Edit Mode Indicator -->
+
     {% if user.is_staff %}
         <div class="staff-controls">
             <div class="edit-mode-indicator">
@@ -38,95 +39,41 @@
             </div>
         </div>
     {% endif %}
-    
-    <!-- Header -->
+
     <header class="header" id="header">
         <div class="container header-container">
             <div class="logo">
                 <a href="/">Creek Crosby</a>
             </div>
-            
-            <button class="mobile-menu-toggle" 
-                    onclick="toggleMobileMenu()" 
-                    aria-expanded="false" 
-                    aria-label="Toggle navigation menu">
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-expanded="false" aria-label="Toggle navigation menu">
                 <span class="hamburger"></span>
             </button>
-            
             <nav class="nav" id="nav">
                 <ul class="nav-list">
                     <li><a href="#about" onclick="closeMobileMenu()">About</a></li>
-                    <li><a href="#media" onclick="closeMobileMenu()">Media</a></li>
                     <li><a href="#events" onclick="closeMobileMenu()">Events</a></li>
                     <li><a href="#band" onclick="closeMobileMenu()">Band</a></li>
+                    <li><a href="#media" onclick="closeMobileMenu()">Media</a></li>
                     <li><a href="#merchandise" onclick="closeMobileMenu()">Shop</a></li>
                     <li><a href="#contact" onclick="closeMobileMenu()">Contact</a></li>
                 </ul>
             </nav>
         </div>
     </header>
-    
-    <!-- Main Content -->
+
     <main id="main">
         {% block content %}{% endblock %}
     </main>
-    
-    <!-- Footer -->
+
     <footer class="footer">
         <div class="container">
             <div class="footer-thanks">
                 <h4>With Thanks</h4>
-                <div class="thanks" 
-                    hx-get="{% url 'footer_thanks_partial' %}" 
-                    hx-trigger="load" 
-                    hx-target="this" 
-                    hx-swap="innerHTML"
-                    id="footer-thanks">
-                    <!-- Will be populated by HTMX -->
-                </div>
-            </div>
-            <div class="footer-grid">
-                <div class="footer-logo">
-                    <h3>Creek Crosby</h3>
-                    <p>Rock and Roll, Rockabilly, Country, Blues</p>
-                </div>
-                
-                <div class="footer-links">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#media">Media</a></li>
-                        <li><a href="#events">Events</a></li>
-                        <li><a href="#band">Band Members</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-social">
-                    <h4>Follow Us</h4>
-                    <div class="social-icons" 
-                         hx-get="{% url 'footer_social_partial' %}" 
-                         hx-trigger="load" 
-                         hx-target="this" 
-                         hx-swap="innerHTML"
-                         id="footer-social-icons">
-                        <!-- Will be populated by HTMX -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 Creek Crosby. All rights reserved.</p>
-                <div class="footer-legal">
-                    <a href="/privacy">Privacy Policy</a>
-                    <a href="/terms">Terms of Service</a>
-                    <a href="/cookies">Cookie Policy</a>
-                </div>
+                <div class="thanks" hx-get="{% url 'footer_thanks_partial' %}" hx-trigger="load" hx-target="this" hx-swap="innerHTML" id="footer-thanks"></div>
             </div>
         </div>
     </footer>
-    
-    <!-- JavaScript -->
+
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>

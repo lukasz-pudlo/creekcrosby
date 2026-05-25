@@ -102,13 +102,50 @@
     </div>
 </section>
 
-<!-- Merchandise Section - Loads fourth -->
+<!-- Media Section -->
+<section class="media" id="media">
+    <div class="container">
+        <h2 class="section-title">Images and Music</h2>
+        <div class="media-content"
+             hx-get="{% url 'media_partial' %}"
+             hx-trigger="load delay:500ms"
+             hx-swap="innerHTML">
+            <!-- Show immediate media placeholders -->
+            <div class="media-grid">
+                <div class="media-item-card">
+                    <div class="media-image-container" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #6B1D2A, #4A1420); color: #F5E6D3;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎵</div>
+                            <div>Loading media...</div>
+                        </div>
+                    </div>
+                    <div class="media-info">
+                        <h3 class="media-title fast-loading">Loading media...</h3>
+                    </div>
+                </div>
+                <div class="media-item-card">
+                    <div class="media-image-container" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1f1a17, #2a2320); color: #F5E6D3;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
+                            <div>Loading videos...</div>
+                        </div>
+                    </div>
+                    <div class="media-info">
+                        <h3 class="media-title fast-loading">Loading videos...</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Merchandise Section -->
 <section class="merchandise" id="merchandise">
     <div class="container">
         <h2 class="section-title">Shop</h2>
         <br/>
         <br/>
-        <h2>Please email or call to place an order.</h3>
+        <h2>Please email or call to place an order.</h2>
         <br/>
         <div class="merchandise-content"
              hx-get="{% url 'merchandise_partial' %}"
@@ -120,43 +157,6 @@
                     <div class="merchandise-item-image-container">
                         <h2 class="fast-loading">Loading items...</h2>
                         <div class="merchandise-item-image image-skeleton" style="height: 200px;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Media Section - Visible immediately but media files load only on click -->
-<section class="media" id="media">
-    <div class="container">
-        <h2 class="section-title">Images and Music</h2>
-        <div class="media-content" 
-             hx-get="{% url 'media_partial' %}"
-             hx-trigger="load delay:500ms"
-             hx-swap="innerHTML">
-            <!-- Show immediate media placeholders -->
-            <div class="media-grid">
-                <div class="media-item-card">
-                    <div class="media-image-container" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff0000, #cc0000); color: white;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎵</div>
-                            <div>Loading media...</div>
-                        </div>
-                    </div>
-                    <div class="media-info">
-                        <h3 class="media-title fast-loading">Loading media...</h3>
-                    </div>
-                </div>
-                <div class="media-item-card">
-                    <div class="media-image-container" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #333, #555); color: white;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
-                            <div>Loading videos...</div>
-                        </div>
-                    </div>
-                    <div class="media-info">
-                        <h3 class="media-title fast-loading">Loading videos...</h3>
                     </div>
                 </div>
             </div>
@@ -257,7 +257,7 @@ document.addEventListener('htmx:responseError', function(event) {
     
     // Provide fallback content for failed requests
     if (target.innerHTML.includes('Loading')) {
-        target.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">Content temporarily unavailable. Please refresh the page.</div>';
+        target.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(245, 230, 211, 0.5);">Content temporarily unavailable. Please refresh the page.</div>';
     }
 });
 

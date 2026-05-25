@@ -5,8 +5,8 @@ from pathlib import Path
 
 def backup_media():
     """Backup media files before deployment"""
-    media_dir = Path('media')
-    backup_dir = Path('media_backup')
+    media_dir = Path("media")
+    backup_dir = Path("media_backup")
 
     if media_dir.exists():
         if backup_dir.exists():
@@ -17,8 +17,8 @@ def backup_media():
 
 def restore_media():
     """Restore media files after deployment"""
-    backup_dir = Path('media_backup')
-    media_dir = Path('media')
+    backup_dir = Path("media_backup")
+    media_dir = Path("media")
 
     if backup_dir.exists():
         if media_dir.exists():
@@ -27,10 +27,11 @@ def restore_media():
         print(f"Media restored from {backup_dir}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     if len(sys.argv) > 1:
-        if sys.argv[1] == 'backup':
+        if sys.argv[1] == "backup":
             backup_media()
-        elif sys.argv[1] == 'restore':
+        elif sys.argv[1] == "restore":
             restore_media()

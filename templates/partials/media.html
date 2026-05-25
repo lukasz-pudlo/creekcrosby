@@ -23,12 +23,12 @@
                              onclick="loadAndPlayVideo(this)">
                             <!-- Video placeholder with play button -->
                             <div class="video-placeholder" style="
-                                height: 280px; 
-                                display: flex; 
-                                align-items: center; 
-                                justify-content: center; 
-                                background: linear-gradient(135deg, #333, #555); 
-                                color: white;
+                                height: 280px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                background: linear-gradient(135deg, #1f1a17, #2a2320);
+                                color: #F5E6D3;
                                 position: relative;
                                 cursor: pointer;
                             ">
@@ -43,8 +43,8 @@
                                 top: 50%;
                                 left: 50%;
                                 transform: translate(-50%, -50%);
-                                background: rgba(255, 0, 0, 0.9);
-                                color: white;
+                                background: rgba(107, 29, 42, 0.9);
+                                color: #F5E6D3;
                                 border: none;
                                 border-radius: 50%;
                                 width: 60px;
@@ -72,8 +72,8 @@
                                         display: flex; 
                                         align-items: center; 
                                         justify-content: center; 
-                                        background: linear-gradient(135deg, #ff0000, #cc0000); 
-                                        color: white;
+                                        background: linear-gradient(135deg, #6B1D2A, #4A1420);
+                                        color: #F5E6D3;
                                         position: relative;
                                         cursor: pointer;
                                     ">
@@ -88,8 +88,8 @@
                                         top: 50%;
                                         left: 50%;
                                         transform: translate(-50%, -50%);
-                                        background: rgba(255, 255, 255, 0.9);
-                                        color: #ff0000;
+                                        background: rgba(245, 230, 211, 0.9);
+                                        color: #6B1D2A;
                                         border: none;
                                         border-radius: 50%;
                                         width: 60px;
@@ -103,9 +103,9 @@
                                 </div>
                             {% else %}
                                 <!-- Fallback for unsupported video services -->
-                                <div class="media-video-link" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #666, #888);">
-                                    <a href="{{ media_item.video_link }}" 
-                                       target="_blank" 
+                                <div class="media-video-link" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1f1a17, #2a2320);">
+                                    <a href="{{ media_item.video_link }}"
+                                       target="_blank"
                                        rel="noopener noreferrer"
                                        class="video-link-button"
                                        style="
@@ -114,8 +114,8 @@
                                         align-items: center;
                                         gap: 1rem;
                                         padding: 2rem;
-                                        background: rgba(255, 0, 0, 0.9);
-                                        color: white;
+                                        background: rgba(107, 29, 42, 0.9);
+                                        color: #F5E6D3;
                                         text-decoration: none;
                                         border-radius: 12px;
                                         transition: all 0.3s ease;
@@ -170,7 +170,7 @@ function loadAndPlayVideo(thumbnail) {
     }
     
     // Show loading state
-    thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #333; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
+    thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #1f1a17; color: #F5E6D3;"><div class="fast-loading">⚡ Loading video...</div></div>';
     
     // Create video element with responsive height
     const video = document.createElement('video');
@@ -218,7 +218,7 @@ function loadAndPlayVideo(thumbnail) {
     video.addEventListener('error', function(e) {
         console.error('❌ Video loading error:', e);
         thumbnail.innerHTML = `
-            <div style="height: 280px; display: flex; align-items: center; justify-content: center; background: #ff4444; color: white; text-align: center; padding: 2rem;">
+            <div style="height: 280px; display: flex; align-items: center; justify-content: center; background: #6B1D2A; color: #F5E6D3; text-align: center; padding: 2rem;">
                 <div>
                     <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
                     <div>Video unavailable</div>
@@ -243,7 +243,7 @@ function loadAndPlayEmbed(thumbnail) {
     }
     
     // Show loading state
-    thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #ff0000; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
+    thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #6B1D2A; color: #F5E6D3;"><div class="fast-loading">⚡ Loading video...</div></div>';
     
     // Create iframe
     const iframe = document.createElement('iframe');
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     
                     img.addEventListener('error', function() {
-                        this.style.background = '#f0f0f0';
+                        this.style.background = '#161210';
                         this.alt = 'Image unavailable';
                     });
                     

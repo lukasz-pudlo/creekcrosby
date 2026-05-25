@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from .models import AboutSection, BandMember, ContactInfo, Event, ContactMessage, MediaItem, Merchandise
+from .models import (
+    AboutSection,
+    BandMember,
+    ContactInfo,
+    ContactMessage,
+    Event,
+    MediaItem,
+    Merchandise,
+)
 
 
 @admin.register(Event)
@@ -39,16 +47,15 @@ class ContactMessageAdmin(admin.ModelAdmin):
     ordering = ("-created_at",)
 
     fieldsets = (
-        ("Message Details", {
-            "fields": ("name", "email", "subject", "message")
-        }),
-        ("Status", {
-            "fields": ("is_read", "is_replied")
-        }),
-        ("Metadata", {
-            "fields": ("created_at", "ip_address", "user_agent"),
-            "classes": ("collapse",)
-        }),
+        ("Message Details", {"fields": ("name", "email", "subject", "message")}),
+        ("Status", {"fields": ("is_read", "is_replied")}),
+        (
+            "Metadata",
+            {
+                "fields": ("created_at", "ip_address", "user_agent"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     actions = ["mark_as_read", "mark_as_unread", "mark_as_replied"]
@@ -56,16 +63,19 @@ class ContactMessageAdmin(admin.ModelAdmin):
     def mark_as_read(self, request, queryset):
         updated = queryset.update(is_read=True)
         self.message_user(request, f"{updated} messages marked as read.")
+
     mark_as_read.short_description = "Mark selected messages as read"
 
     def mark_as_unread(self, request, queryset):
         updated = queryset.update(is_read=False)
         self.message_user(request, f"{updated} messages marked as unread.")
+
     mark_as_unread.short_description = "Mark selected messages as unread"
 
     def mark_as_replied(self, request, queryset):
         updated = queryset.update(is_replied=True)
         self.message_user(request, f"{updated} messages marked as replied.")
+
     mark_as_replied.short_description = "Mark selected messages as replied"
 
 
@@ -83,13 +93,17 @@ class MediaItemAdmin(admin.ModelAdmin):
     ordering = ("order", "-created_at")
 
     fieldsets = (
-        ("Basic Information", {
-            "fields": ("title", "description", "media_type", "order")
-        }),
-        ("Media Content", {
-            "fields": ("image", "video_file", "video_link"),
-            "description": "Fill in the appropriate field based on the media type selected above."
-        }),
+        (
+            "Basic Information",
+            {"fields": ("title", "description", "media_type", "order")},
+        ),
+        (
+            "Media Content",
+            {
+                "fields": ("image", "video_file", "video_link"),
+                "description": "Fill in the appropriate field based on the media type selected above.",
+            },
+        ),
     )
 
     def get_form(self, request, obj=None, **kwargs):
@@ -97,27 +111,30 @@ class MediaItemAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
 
         # Add help text to media fields
-        if 'image' in form.base_fields:
-            form.base_fields[
-                'image'].help_text = "Use for album covers, band photos, artwork (only for 'Image/Album Cover' type)"
-        if 'video_file' in form.base_fields:
-            form.base_fields[
-                'video_file'].help_text = "Upload video files like MP4, WebM (only for 'Video File' type)"
-        if 'video_link' in form.base_fields:
-            form.base_fields[
-                'video_link'].help_text = "YouTube, Vimeo, or other video service URLs (only for 'Video Link' type)"
+        if "image" in form.base_fields:
+            form.base_fields["image"].help_text = (
+                "Use for album covers, band photos, artwork (only for 'Image/Album Cover' type)"
+            )
+        if "video_file" in form.base_fields:
+            form.base_fields["video_file"].help_text = (
+                "Upload video files like MP4, WebM (only for 'Video File' type)"
+            )
+        if "video_link" in form.base_fields:
+            form.base_fields["video_link"].help_text = (
+                "YouTube, Vimeo, or other video service URLs (only for 'Video Link' type)"
+            )
 
         return form
 
     def save_model(self, request, obj, form, change):
         """Clean fields based on media type before saving"""
-        if obj.media_type == 'image':
+        if obj.media_type == "image":
             obj.video_file = None
             obj.video_link = None
-        elif obj.media_type == 'video_file':
+        elif obj.media_type == "video_file":
             obj.image = None
             obj.video_link = None
-        elif obj.media_type == 'video_link':
+        elif obj.media_type == "video_link":
             obj.image = None
             obj.video_file = None
 

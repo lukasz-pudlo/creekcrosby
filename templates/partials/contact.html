@@ -17,18 +17,17 @@
                 </a>
             </div>
             
-            <div class="info-item">
+            <div class="info-item info-item--stacked">
                 <span class="icon">📞</span>
-                <a href="tel:{{ contact_info.phone }}"
-                   class="{% if is_staff %}editable{% endif %}"
+                <div class="{% if is_staff %}editable{% endif %}"
                    {% if is_staff %}
                    data-field="phone"
                    data-value="{{ contact_info.phone }}"
                    data-edit-url="{% url 'edit_contact_info' %}"
                    onclick="makeEditable(this, 'tel')"
                    {% endif %}>
-                   {{ contact_info.phone }}
-                </a>
+                   {{ contact_info.phone|linebreaksbr }}
+                </div>
             </div>
             
             <div class="info-item">
