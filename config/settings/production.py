@@ -3,6 +3,7 @@ Production settings for Creek Crosby project.
 This file contains settings specific to production deployment on Render.
 """
 
+import logging
 import os
 
 import dj_database_url
@@ -12,13 +13,19 @@ from .base import *
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# Allowed hosts for production
-ALLOWED_HOSTS = [
-    "creekcrosby.onrender.com",  # Render domain
-    ".onrender.com",  # Allow all Render subdomains
-    "creekcrosby.co.uk",  # Custom domain
-    "www.creekcrosby.co.uk",  # Custom domain with www
-]
+# Allowed hosts for production. DJANGO_ALLOWED_HOSTS (comma-separated) takes
+# precedence; it must include localhost,127.0.0.1 on Docker deployments so the
+# container healthcheck and the Nginx-side probe aren't rejected with 400.
+_raw_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "").strip()
+if _raw_hosts:
+    ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",") if h.strip()]
+else:
+    ALLOWED_HOSTS = [
+        "creekcrosby.onrender.com",  # Render domain
+        ".onrender.com",  # Allow all Render subdomains
+        "creekcrosby.co.uk",  # Custom domain
+        "www.creekcrosby.co.uk",  # Custom domain with www
+    ]
 
 # Add custom domain if provided via environment variable
 CUSTOM_DOMAIN = os.environ.get("CUSTOM_DOMAIN")
@@ -28,13 +35,18 @@ if CUSTOM_DOMAIN:
 
 print(f"Production ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
-# CSRF trusted origins for production
-CSRF_TRUSTED_ORIGINS = [
-    "https://creekcrosby.onrender.com",  # Render domain
-    "https://*.onrender.com",
-    "https://creekcrosby.co.uk",  # Custom domain
-    "https://www.creekcrosby.co.uk",  # Custom domain with www
-]
+# CSRF trusted origins for production. DJANGO_CSRF_TRUSTED_ORIGINS
+# (comma-separated, with scheme) takes precedence.
+_raw_csrf = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").strip()
+if _raw_csrf:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _raw_csrf.split(",") if o.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        "https://creekcrosby.onrender.com",  # Render domain
+        "https://*.onrender.com",
+        "https://creekcrosby.co.uk",  # Custom domain
+        "https://www.creekcrosby.co.uk",  # Custom domain with www
+    ]
 
 if CUSTOM_DOMAIN:
     CSRF_TRUSTED_ORIGINS.extend(
@@ -99,7 +111,13 @@ else:
 SECURE_HSTS_SECONDS = 31536000  # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
-SECURE_SSL_REDIRECT = True
+# Behind the VPS Nginx, certbot's HTTP->HTTPS redirect happens at the proxy,
+# so set DJANGO_SECURE_SSL_REDIRECT=False there — otherwise the plain-HTTP
+# container healthcheck gets 301'd and the container flaps unhealthy.
+SECURE_SSL_REDIRECT = (
+    os.environ.get("DJANGO_SECURE_SSL_REDIRECT", "True").lower() == "true"
+)
+SECURE_REDIRECT_EXEMPT = [r"^healthz/$"]
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True

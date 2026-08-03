@@ -1,0 +1,4 @@
+# Nightly Postgres dump for the creekcrosby stack at /srv/creekcrosby/.
+# Install:  sudo cp /srv/creekcrosby/repo/deploy/creekcrosby-backup.cron /etc/cron.d/creekcrosby-backup
+# Fields: minute hour dom month dow user command
+30 3 * * * root /srv/creekcrosby/repo/deploy/backup-db.sh >> /var/log/creekcrosby-backup.log 2>&1

@@ -1,0 +1,51 @@
+# Production stack for creekcrosby on the (new) Hetzner VPS.
+# Lives at /srv/creekcrosby/docker-compose.yml next to repo/ and .env —
+# see deploy/DEPLOY_TO_HETZNER.md.
+#
+# Port plan for this box: 8001 creekcrosby, 8003 reserved for the portfolio
+# (lukasz-pudlo's compose already binds 8003). Keep new stacks off both.
+services:
+  web:
+    build: ./repo
+    container_name: creekcrosby-web
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8001:8000"
+    volumes:
+      # Uploaded media must survive image rebuilds. Nginx also serves
+      # /media/ straight from this host directory.
+      - ./media:/app/media
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz/')",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: postgres:18
+    container_name: creekcrosby-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./db-data:/var/lib/postgresql
+    # Modest buffers — this box is smaller than the CPX32 and hosts
+    # multiple stacks.
+    command: postgres -c shared_buffers=128MB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
