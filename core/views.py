@@ -917,44 +917,6 @@ def merchandise_partial(request):
     )
 
 
-def media_partial(request):
-    """HTMX view for loading media items"""
-    media_items = MediaItem.objects.all().order_by("order", "-created_at")
-
-    if request.htmx:
-        return render(request, "partials/media.html", {"media_items": media_items})
-
-    return render(request, "media.html", {"media_items": media_items})
-
-
-# Add these optimized view functions to core/views.py
-
-
-# Optimized media partial with caching
-
-
-@cache_page(60 * 5)  # Cache for 5 minutes
-def media_partial_optimized(request):
-    """Optimized media partial with lazy loading and caching"""
-    # Get media items with select_related for better performance
-    media_items = MediaItem.objects.select_related().order_by("order", "-created_at")
-
-    # Limit initial load to first 6 items for performance
-    initial_items = media_items[:6]
-    has_more = media_items.count() > 6
-
-    context = {
-        "media_items": initial_items,
-        "has_more": has_more,
-        "total_items": media_items.count(),
-    }
-
-    if request.htmx:
-        return render(request, "partials/media_optimized.html", context)
-
-    return render(request, "media.html", context)
-
-
 # Optimized band partial with caching
 
 
@@ -969,28 +931,6 @@ def band_partial_optimized(request):
         return render(request, "partials/band_optimized.html", context)
 
     return render(request, "band.html", context)
-
-
-# Load more media items for pagination
-
-
-def load_more_media(request):
-    """Load more media items for infinite scroll"""
-    offset = int(request.GET.get("offset", 6))
-    limit = 6
-
-    media_items = MediaItem.objects.order_by("order", "-created_at")[
-        offset : offset + limit
-    ]
-    has_more = MediaItem.objects.count() > offset + limit
-
-    context = {
-        "media_items": media_items,
-        "has_more": has_more,
-        "next_offset": offset + limit,
-    }
-
-    return render(request, "partials/media_items.html", context)
 
 
 # Optimized image serving with compression hints
@@ -1044,33 +984,20 @@ def get_performance_stats():
     return stats
 
 
-# Enhanced media partial view (replace the existing one)
-
-
 def media_partial(request):
-    """Enhanced media partial with performance optimizations"""
-    # Use caching for better performance
-    cache_key = f"media_items_{request.user.is_staff}"
-    media_items = cache.get(cache_key)
+    """Media section grouped into audio / video / image sub-sections"""
+    cache_key = "media_sections_v2"
+    sections = cache.get(cache_key)
 
-    if not media_items:
-        # Optimize query with select_related if you have foreign keys
-        media_items = list(MediaItem.objects.all().order_by("order", "-created_at"))
-        # Cache for 5 minutes (adjust as needed)
-        cache.set(cache_key, media_items, 300)
+    if sections is None:
+        items = list(MediaItem.objects.order_by("order", "-created_at"))
+        sections = {
+            "audio_items": [i for i in items if i.media_type == "audio"],
+            "video_items": [
+                i for i in items if i.media_type in ("video_file", "video_link")
+            ],
+            "image_items": [i for i in items if i.media_type == "image"],
+        }
+        cache.set(cache_key, sections, 300)
 
-    # For initial load, show placeholders for images that aren't loaded yet
-    for item in media_items:
-        if hasattr(item, "image") and item.image:
-            # Add lazy loading attributes
-            item.lazy_load = True
-
-    context = {
-        "media_items": media_items,
-        "performance_stats": get_performance_stats() if settings.DEBUG else None,
-    }
-
-    if request.htmx:
-        return render(request, "partials/media.html", context)
-
-    return render(request, "media.html", context)
+    return render(request, "partials/media.html", sections)

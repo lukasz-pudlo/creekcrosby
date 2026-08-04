@@ -117,6 +117,7 @@ class MediaItem(models.Model):
 
     MEDIA_TYPE_CHOICES = [
         ("image", "Image/Album Cover"),
+        ("audio", "Audio Track"),
         ("video_file", "Video File"),
         ("video_link", "Video Link (YouTube/Vimeo)"),
     ]
@@ -137,6 +138,14 @@ class MediaItem(models.Model):
         blank=True,
         null=True,
         help_text="Upload an image or album cover",
+    )
+
+    # Audio track upload
+    audio_file = models.FileField(
+        upload_to="media/audio/",
+        blank=True,
+        null=True,
+        help_text="Upload an audio file (MP3, WAV, M4A, OGG, FLAC)",
     )
 
     # Video file upload
@@ -175,10 +184,20 @@ class MediaItem(models.Model):
 
         if self.media_type == "image" and not self.image:
             raise ValidationError("Image is required for image media type.")
+        elif self.media_type == "audio" and not self.audio_file:
+            raise ValidationError("Audio file is required for audio media type.")
         elif self.media_type == "video_file" and not self.video_file:
             raise ValidationError("Video file is required for video file media type.")
         elif self.media_type == "video_link" and not self.video_link:
             raise ValidationError("Video link is required for video link media type.")
+
+    def get_audio_mime_type(self):
+        """MIME type for the uploaded audio file, for <source type=...>"""
+        import mimetypes
+
+        if not self.audio_file:
+            return None
+        return mimetypes.guess_type(self.audio_file.name)[0] or "audio/mpeg"
 
     def get_video_embed_url(self):
         """Convert video link to embed URL for YouTube/Vimeo"""

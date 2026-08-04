@@ -198,43 +198,33 @@ function initializeVideoLoading() {
         }
 
         // Show loading state
-        thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #333; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
+        thumbnail.innerHTML = '<div class="video-frame-status"><div class="fast-loading">Loading video&hellip;</div></div>';
 
-        // Create video element
+        // Create video element; src set directly so any container format
+        // the browser supports (mp4, webm, mov) plays
         const video = document.createElement('video');
         video.controls = true;
         video.preload = 'metadata';
-        video.style.width = '100%';
-        video.style.height = '280px';
-        video.style.objectFit = 'contain';
-        video.style.backgroundColor = '#000';
-
-        // Add source
-        const source = document.createElement('source');
-        source.src = videoUrl;
-        source.type = 'video/mp4';
-        video.appendChild(source);
+        video.src = videoUrl;
 
         // Handle successful loading
         video.addEventListener('canplay', function () {
-            console.log('✅ Video can play:', videoUrl);
             container.replaceChild(video, thumbnail);
 
             // Auto-play if possible
             video.play().catch(e => {
-                console.log('⚠️ Autoplay prevented (normal behavior):', e.message);
+                console.log('Autoplay prevented (normal behavior):', e.message);
             });
         });
 
         // Handle errors
         video.addEventListener('error', function (e) {
-            console.error('❌ Video loading error:', e);
+            console.error('Video loading error:', e);
             thumbnail.innerHTML = `
-                <div style="height: 280px; display: flex; align-items: center; justify-content: center; background: #ff4444; color: white; text-align: center; padding: 2rem;">
+                <div class="video-frame-status video-frame-status--error">
                     <div>
-                        <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
                         <div>Video unavailable</div>
-                        <div style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.8;">Please try again later</div>
+                        <div class="video-frame-status-hint">Please try again later</div>
                     </div>
                 </div>
             `;
@@ -254,22 +244,14 @@ function initializeVideoLoading() {
         }
 
         // Show loading state
-        thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #ff0000; color: white;"><div class="fast-loading">⚡ Loading video...</div></div>';
+        thumbnail.innerHTML = '<div class="video-frame-status"><div class="fast-loading">Loading video&hellip;</div></div>';
 
         // Create iframe
         const iframe = document.createElement('iframe');
-        iframe.src = embedUrl + '&autoplay=1';
-        iframe.width = '100%';
-        iframe.height = '280';
+        iframe.src = embedUrl + (embedUrl.includes('?') ? '&' : '?') + 'autoplay=1';
         iframe.frameBorder = '0';
         iframe.allowFullscreen = true;
         iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-        iframe.style.borderRadius = '8px';
-
-        // Handle iframe load
-        iframe.addEventListener('load', function () {
-            console.log('✅ Embed loaded:', embedUrl);
-        });
 
         // Replace thumbnail with iframe
         setTimeout(() => {
@@ -357,9 +339,9 @@ document.addEventListener('htmx:afterSwap', function (event) {
 
     // Reinitialize media functionality for new content
     if (event.detail.target.querySelector &&
-        (event.detail.target.querySelector('.media-grid') ||
-            event.detail.target.classList.contains('media-grid') ||
-            event.detail.target.querySelector('.media-item-card'))) {
+        (event.detail.target.querySelector('.media-subsection') ||
+            event.detail.target.classList.contains('media-subsection') ||
+            event.detail.target.querySelector('.no-media'))) {
         console.log('Media content swapped, reinitializing...');
         setTimeout(() => {
             initializeMediaFunctionality();
@@ -403,6 +385,16 @@ document.addEventListener('htmx:afterSwap', function (event) {
         });
     }, 200);
 });
+
+// One-at-a-time playback: starting any audio/video pauses the others.
+// Capturing listener because media 'play' events don't bubble.
+document.addEventListener('play', function (event) {
+    if (event.target.matches('audio, video')) {
+        document.querySelectorAll('audio, video').forEach(function (el) {
+            if (el !== event.target) el.pause();
+        });
+    }
+}, true);
 
 // Keyboard navigation for lightbox
 document.addEventListener('keydown', function (event) {

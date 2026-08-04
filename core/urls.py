@@ -28,9 +28,7 @@ from .views import (  # HTMX Views; Inline editing views; Event editing views; A
     footer_social_partial,
     footer_thanks_partial,
     index,
-    load_more_media,
     media_partial,
-    media_partial_optimized,
     merchandise_partial,
     optimized_media_view,
     reorder_band_members,
@@ -68,16 +66,10 @@ urlpatterns = [
     path("partials/merchandise", merchandise_partial, name="merchandise_partial"),
     path("partials/media/", media_partial, name="media_partial"),
     path(
-        "partials/media/optimized/",
-        media_partial_optimized,
-        name="media_partial_optimized",
-    ),
-    path(
         "partials/band/optimized/",
         band_partial_optimized,
         name="band_partial_optimized",
     ),
-    path("api/media/load-more/", load_more_media, name="load_more_media"),
     path("media-optimized/<path:path>", optimized_media_view, name="optimized_media"),
     # HTMX actions
     path("contact-form/", contact_form, name="contact_form"),

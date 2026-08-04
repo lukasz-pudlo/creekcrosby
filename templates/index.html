@@ -105,35 +105,23 @@
 <!-- Media Section -->
 <section class="media" id="media">
     <div class="container">
-        <h2 class="section-title">Images and Music</h2>
+        <h2 class="section-title">Media</h2>
         <div class="media-content"
              hx-get="{% url 'media_partial' %}"
              hx-trigger="load delay:500ms"
              hx-swap="innerHTML">
-            <!-- Show immediate media placeholders -->
-            <div class="media-grid">
-                <div class="media-item-card">
-                    <div class="media-image-container" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #6B1D2A, #4A1420); color: #F5E6D3;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎵</div>
-                            <div>Loading media...</div>
-                        </div>
-                    </div>
-                    <div class="media-info">
-                        <h3 class="media-title fast-loading">Loading media...</h3>
-                    </div>
-                </div>
-                <div class="media-item-card">
-                    <div class="media-image-container" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1f1a17, #2a2320); color: #F5E6D3;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
-                            <div>Loading videos...</div>
-                        </div>
-                    </div>
-                    <div class="media-info">
-                        <h3 class="media-title fast-loading">Loading videos...</h3>
-                    </div>
-                </div>
+            <!-- Skeleton echoing the three sub-sections while HTMX loads -->
+            <div class="media-subsection">
+                <header class="media-subsection-header">
+                    <h3 class="media-subsection-title fast-loading">Loading music&hellip;</h3>
+                </header>
+                <div class="media-skeleton-row"></div>
+            </div>
+            <div class="media-subsection">
+                <header class="media-subsection-header">
+                    <h3 class="media-subsection-title fast-loading">Loading videos&hellip;</h3>
+                </header>
+                <div class="media-skeleton-card"></div>
             </div>
         </div>
     </div>

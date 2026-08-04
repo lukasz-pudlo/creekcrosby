@@ -1,333 +1,96 @@
-<div class="media-grid">
-    {% for media_item in media_items %}
-        <div class="media-item-card" data-media-id="{{ media_item.id }}">
-            <div class="media-item-content">
-                {% if media_item.media_type == 'image' and media_item.image %}
-                    <!-- Image/Album Cover - Loads immediately with lazy loading -->
-                    <div class="media-image-container">
-                        <img src="{{ media_item.image.url }}" 
-                            alt="{{ media_item.title }}" 
-                            loading="lazy"
-                            class="media-image lightbox-trigger"
-                            data-lightbox-src="{{ media_item.image.url }}"
-                            data-lightbox-title="{{ media_item.title }}"
-                            onclick="openLightbox(this)"
-                            style="width: 100%; height: 280px; object-fit: cover;">
-                    </div>
-                
-                {% elif media_item.media_type == 'video_file' and media_item.video_file %}
-                    <!-- Video File - Shows thumbnail, loads only when clicked -->
-                    <div class="media-video-container">
-                        <div class="video-thumbnail" 
-                             data-video-url="{{ media_item.video_file.url }}"
-                             onclick="loadAndPlayVideo(this)">
-                            <!-- Video placeholder with play button -->
-                            <div class="video-placeholder" style="
-                                height: 280px;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                background: linear-gradient(135deg, #1f1a17, #2a2320);
-                                color: #F5E6D3;
-                                position: relative;
-                                cursor: pointer;
-                            ">
-                                <div style="text-align: center;">
-                                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
-                                    <div style="font-size: 1.2rem; font-weight: bold;">{{ media_item.title }}</div>
-                                    <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">Click to play</div>
-                                </div>
-                            </div>
-                            <button class="play-button" aria-label="Play video" style="
-                                position: absolute;
-                                top: 50%;
-                                left: 50%;
-                                transform: translate(-50%, -50%);
-                                background: rgba(107, 29, 42, 0.9);
-                                color: #F5E6D3;
-                                border: none;
-                                border-radius: 50%;
-                                width: 60px;
-                                height: 60px;
-                                font-size: 1.5rem;
-                                cursor: pointer;
-                                transition: all 0.3s ease;
-                            ">
-                                ▶
-                            </button>
-                        </div>
-                    </div>
-                
-                {% elif media_item.media_type == 'video_link' and media_item.video_link %}
-                    <!-- Video Link - Shows thumbnail, embeds only when clicked -->
-                    <div class="media-video-container">
-                        {% with embed_url=media_item.get_video_embed_url %}
-                            {% if embed_url %}
-                                <div class="video-thumbnail" 
-                                     data-embed-url="{{ embed_url }}"
-                                     onclick="loadAndPlayEmbed(this)">
-                                    <!-- YouTube/Vimeo placeholder -->
-                                    <div class="video-placeholder" style="
-                                        height: 280px; 
-                                        display: flex; 
-                                        align-items: center; 
-                                        justify-content: center; 
-                                        background: linear-gradient(135deg, #6B1D2A, #4A1420);
-                                        color: #F5E6D3;
-                                        position: relative;
-                                        cursor: pointer;
-                                    ">
-                                        <div style="text-align: center;">
-                                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎵</div>
-                                            <div style="font-size: 1.2rem; font-weight: bold;">{{ media_item.title }}</div>
-                                            <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 0.5rem;">Click to play</div>
-                                        </div>
-                                    </div>
-                                    <button class="play-button" aria-label="Play video" style="
-                                        position: absolute;
-                                        top: 50%;
-                                        left: 50%;
-                                        transform: translate(-50%, -50%);
-                                        background: rgba(245, 230, 211, 0.9);
-                                        color: #6B1D2A;
-                                        border: none;
-                                        border-radius: 50%;
-                                        width: 60px;
-                                        height: 60px;
-                                        font-size: 1.5rem;
-                                        cursor: pointer;
-                                        transition: all 0.3s ease;
-                                    ">
-                                        ▶
-                                    </button>
-                                </div>
-                            {% else %}
-                                <!-- Fallback for unsupported video services -->
-                                <div class="media-video-link" style="height: 280px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1f1a17, #2a2320);">
-                                    <a href="{{ media_item.video_link }}"
-                                       target="_blank"
-                                       rel="noopener noreferrer"
-                                       class="video-link-button"
-                                       style="
-                                        display: flex;
-                                        flex-direction: column;
-                                        align-items: center;
-                                        gap: 1rem;
-                                        padding: 2rem;
-                                        background: rgba(107, 29, 42, 0.9);
-                                        color: #F5E6D3;
-                                        text-decoration: none;
-                                        border-radius: 12px;
-                                        transition: all 0.3s ease;
-                                        font-weight: bold;
-                                       ">
-                                        <span style="font-size: 2rem;">🎥</span>
-                                        <span style="font-size: 1.1rem;">Watch Video</span>
-                                    </a>
-                                </div>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                {% endif %}
-                
-                <!-- Media Info -->
-                <div class="media-info">
-                    <h3 class="media-title">{{ media_item.title }}</h3>
-                    {% if media_item.description %}
-                        <p class="media-description">{{ media_item.description }}</p>
-                    {% endif %}
-                </div>
+{% if audio_items %}
+<section class="media-subsection media-subsection--audio" id="media-music">
+    <header class="media-subsection-header">
+        <h3 class="media-subsection-title">Music</h3>
+        <span class="media-subsection-count">{{ audio_items|length }} Track{{ audio_items|length|pluralize }}</span>
+    </header>
+    <ol class="audio-track-list">
+        {% for item in audio_items %}
+        <li class="audio-track" data-media-id="{{ item.id }}">
+            <span class="audio-track-index" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span>
+            <div class="audio-track-meta">
+                <span class="audio-track-title">{{ item.title }}</span>
+                {% if item.description %}<span class="audio-track-description">{{ item.description }}</span>{% endif %}
             </div>
-        </div>
-    {% empty %}
-        <div class="no-media">
-            <div class="no-media-content">
-                <span class="no-media-icon" style="font-size: 4rem; display: block; margin-bottom: 1.5rem;">🎵</span>
-                <h3>No Media Available</h3>
-                <p>Check back later for albums, videos, and more content from Creek Crosby!</p>
-            </div>
-        </div>
-    {% endfor %}
-</div>
+            <audio class="audio-track-player" controls preload="metadata" title="{{ item.title }}">
+                <source src="{{ item.audio_file.url }}" type="{{ item.get_audio_mime_type }}">
+            </audio>
+        </li>
+        {% endfor %}
+    </ol>
+</section>
+{% endif %}
 
-<!-- Lightweight lightbox modal -->
-<div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox()" style="display: none;">
-    <div class="lightbox-content" onclick="event.stopPropagation()">
-        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-        <img id="lightbox-image" src="" alt="" class="lightbox-image">
-        <div class="lightbox-title"></div>
+{% if video_items %}
+<section class="media-subsection media-subsection--video" id="media-videos">
+    <header class="media-subsection-header">
+        <h3 class="media-subsection-title">Videos</h3>
+        <span class="media-subsection-count">{{ video_items|length }} Video{{ video_items|length|pluralize }}</span>
+    </header>
+    <div class="video-grid">
+        {% for item in video_items %}
+        <article class="video-card" data-media-id="{{ item.id }}">
+            <div class="video-frame">
+                {% if item.media_type == 'video_file' %}
+                <div class="video-thumbnail" data-video-url="{{ item.video_file.url }}" onclick="loadAndPlayVideo(this)">
+                    <div class="video-placeholder">
+                        <span class="video-placeholder-hint">Click to play</span>
+                        <button class="play-button" type="button" aria-label="Play {{ item.title }}">&#9654;</button>
+                    </div>
+                </div>
+                {% else %}{% with embed_url=item.get_video_embed_url %}
+                {% if 'youtube.com/embed' in embed_url or 'player.vimeo.com' in embed_url %}
+                <div class="video-thumbnail" data-embed-url="{{ embed_url }}" onclick="loadAndPlayEmbed(this)">
+                    <div class="video-placeholder video-placeholder--embed">
+                        <span class="video-placeholder-hint">Click to play</span>
+                        <button class="play-button" type="button" aria-label="Play {{ item.title }}">&#9654;</button>
+                    </div>
+                </div>
+                {% else %}
+                <div class="video-placeholder video-placeholder--embed">
+                    <a href="{{ item.video_link }}" target="_blank" rel="noopener" class="video-link-button">Watch Video</a>
+                </div>
+                {% endif %}
+                {% endwith %}{% endif %}
+            </div>
+            <div class="media-info">
+                <h4 class="media-title">{{ item.title }}</h4>
+                {% if item.description %}<p class="media-description">{{ item.description }}</p>{% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if image_items %}
+<section class="media-subsection media-subsection--gallery" id="media-gallery">
+    <header class="media-subsection-header">
+        <h3 class="media-subsection-title">Gallery</h3>
+        <span class="media-subsection-count">{{ image_items|length }} Photo{{ image_items|length|pluralize }}</span>
+    </header>
+    <div class="gallery-grid">
+        {% for item in image_items %}
+        <figure class="gallery-item" data-media-id="{{ item.id }}">
+            <img src="{{ item.image.url }}"
+                 alt="{{ item.title }}"
+                 loading="lazy"
+                 class="media-image lightbox-trigger"
+                 data-lightbox-src="{{ item.image.url }}"
+                 data-lightbox-title="{{ item.title }}">
+            {% if item.title %}<figcaption class="gallery-item-caption">{{ item.title }}</figcaption>{% endif %}
+        </figure>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if not audio_items and not video_items and not image_items %}
+<div class="no-media">
+    <div class="no-media-content">
+        <span class="no-media-icon" aria-hidden="true">&#9835;</span>
+        <h3>No Media Available</h3>
+        <p>Check back later for albums, videos, and more content from Creek Crosby!</p>
     </div>
 </div>
-
-<script>
-function loadAndPlayVideo(thumbnail) {
-    const container = thumbnail.parentElement;
-    const videoUrl = thumbnail.getAttribute('data-video-url');
-    
-    if (!videoUrl) {
-        console.error('No video URL found');
-        return;
-    }
-    
-    // Show loading state
-    thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #1f1a17; color: #F5E6D3;"><div class="fast-loading">⚡ Loading video...</div></div>';
-    
-    // Create video element with responsive height
-    const video = document.createElement('video');
-    video.controls = true;
-    video.preload = 'metadata';
-    video.style.width = '100%';
-    video.style.backgroundColor = '#000';
-    video.style.borderRadius = '8px';
-    
-    // Set responsive height based on screen size
-    function setVideoHeight() {
-        if (window.innerWidth <= 480) {
-            video.style.height = '200px';
-        } else if (window.innerWidth <= 768) {
-            video.style.height = '240px';
-        } else {
-            video.style.height = '280px';
-        }
-        video.style.objectFit = 'contain';
-    }
-    
-    setVideoHeight();
-    
-    // Update height on window resize
-    window.addEventListener('resize', setVideoHeight);
-    
-    // Add source
-    const source = document.createElement('source');
-    source.src = videoUrl;
-    source.type = 'video/mp4';
-    video.appendChild(source);
-    
-    // Handle successful loading
-    video.addEventListener('canplay', function() {
-        console.log('✅ Video can play:', videoUrl);
-        container.replaceChild(video, thumbnail);
-        
-        // Auto-play if possible
-        video.play().catch(e => {
-            console.log('⚠️ Autoplay prevented (normal behavior):', e.message);
-        });
-    });
-    
-    // Handle errors
-    video.addEventListener('error', function(e) {
-        console.error('❌ Video loading error:', e);
-        thumbnail.innerHTML = `
-            <div style="height: 280px; display: flex; align-items: center; justify-content: center; background: #6B1D2A; color: #F5E6D3; text-align: center; padding: 2rem;">
-                <div>
-                    <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
-                    <div>Video unavailable</div>
-                    <div style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.8;">Please try again later</div>
-                </div>
-            </div>
-        `;
-    });
-    
-    // Start loading the video
-    video.load();
-}
-
-// CRITICAL: Only embed external videos when user clicks play
-function loadAndPlayEmbed(thumbnail) {
-    const container = thumbnail.parentElement;
-    const embedUrl = thumbnail.getAttribute('data-embed-url');
-    
-    if (!embedUrl) {
-        console.error('No embed URL found');
-        return;
-    }
-    
-    // Show loading state
-    thumbnail.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 280px; background: #6B1D2A; color: #F5E6D3;"><div class="fast-loading">⚡ Loading video...</div></div>';
-    
-    // Create iframe
-    const iframe = document.createElement('iframe');
-    iframe.src = embedUrl + '&autoplay=1'; // Add autoplay parameter for YouTube/Vimeo
-    iframe.width = '100%';
-    iframe.height = '280';
-    iframe.frameBorder = '0';
-    iframe.allowFullscreen = true;
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-    iframe.style.borderRadius = '8px';
-    
-    // Handle iframe load
-    iframe.addEventListener('load', function() {
-        console.log('✅ Embed loaded:', embedUrl);
-    });
-    
-    // Replace thumbnail with iframe after a short delay
-    setTimeout(() => {
-        container.replaceChild(iframe, thumbnail);
-    }, 300);
-}
-
-// Optimize image loading
-document.addEventListener('DOMContentLoaded', function() {
-    // Enhanced lazy loading for images only (not videos)
-    const images = document.querySelectorAll('.media-image');
-    
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    
-                    img.addEventListener('load', function() {
-                        this.style.transition = 'opacity 0.3s ease';
-                        this.style.opacity = '1';
-                    });
-                    
-                    img.addEventListener('error', function() {
-                        this.style.background = '#161210';
-                        this.alt = 'Image unavailable';
-                    });
-                    
-                    imageObserver.unobserve(img);
-                }
-            });
-        }, {
-            rootMargin: '50px' // Start loading 50px before coming into view
-        });
-        
-        images.forEach(img => {
-            img.style.opacity = '0';
-            imageObserver.observe(img);
-        });
-    } else {
-        // Fallback for older browsers
-        images.forEach(img => {
-            img.addEventListener('load', function() {
-                this.style.opacity = '1';
-            });
-        });
-    }
-});
-
-// Add hover effects for better UX
-document.addEventListener('mouseover', function(event) {
-    if (event.target.closest('.video-thumbnail')) {
-        const playButton = event.target.closest('.video-thumbnail').querySelector('.play-button');
-        if (playButton) {
-            playButton.style.transform = 'translate(-50%, -50%) scale(1.1)';
-            playButton.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-        }
-    }
-});
-
-document.addEventListener('mouseout', function(event) {
-    if (event.target.closest('.video-thumbnail')) {
-        const playButton = event.target.closest('.video-thumbnail').querySelector('.play-button');
-        if (playButton) {
-            playButton.style.transform = 'translate(-50%, -50%) scale(1)';
-            playButton.style.boxShadow = 'none';
-        }
-    }
-});
-
-console.log('🎵 Media section loaded - videos will only load when clicked');
-</script>
+{% endif %}

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.core.cache import cache
 
 from .models import (
     AboutSection,
@@ -100,7 +101,7 @@ class MediaItemAdmin(admin.ModelAdmin):
         (
             "Media Content",
             {
-                "fields": ("image", "video_file", "video_link"),
+                "fields": ("image", "audio_file", "video_file", "video_link"),
                 "description": "Fill in the appropriate field based on the media type selected above.",
             },
         ),
@@ -114,6 +115,10 @@ class MediaItemAdmin(admin.ModelAdmin):
         if "image" in form.base_fields:
             form.base_fields["image"].help_text = (
                 "Use for album covers, band photos, artwork (only for 'Image/Album Cover' type)"
+            )
+        if "audio_file" in form.base_fields:
+            form.base_fields["audio_file"].help_text = (
+                "Upload MP3, WAV, M4A, OGG or FLAC (only for 'Audio Track' type)"
             )
         if "video_file" in form.base_fields:
             form.base_fields["video_file"].help_text = (
@@ -129,13 +134,25 @@ class MediaItemAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         """Clean fields based on media type before saving"""
         if obj.media_type == "image":
+            obj.audio_file = None
+            obj.video_file = None
+            obj.video_link = None
+        elif obj.media_type == "audio":
+            obj.image = None
             obj.video_file = None
             obj.video_link = None
         elif obj.media_type == "video_file":
             obj.image = None
+            obj.audio_file = None
             obj.video_link = None
         elif obj.media_type == "video_link":
             obj.image = None
+            obj.audio_file = None
             obj.video_file = None
 
         super().save_model(request, obj, form, change)
+        cache.delete("media_sections_v2")
+
+    def delete_model(self, request, obj):
+        super().delete_model(request, obj)
+        cache.delete("media_sections_v2")
