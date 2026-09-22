@@ -1,18 +1,15 @@
 <div class="contact-form-container">
     <div class="contact-success">
-        <div class="success-icon">
-            ✓
-        </div>
-        <h3>Message Sent Successfully!</h3>
+        <h3>Message sent</h3>
         <p>{{ message }}</p>
-        <p>We typically respond within 24-48 hours. Thanks for reaching out to Creek Crosby!</p>
+        <p>We usually reply within a day or two.</p>
         <div class="success-actions">
-            <button class="btn btn-secondary" 
-                    hx-get="{% url 'contact_form' %}" 
+            <button class="btn btn-outline btn-sm"
+                    hx-get="{% url 'contact_form' %}"
                     hx-target="#contact-form-container"
                     hx-swap="outerHTML">
-                Send Another Message
+                Send another
             </button>
         </div>
     </div>
-</div> 
+</div>

@@ -2,267 +2,93 @@
 {% load static %}
 
 {% block content %}
-<!-- Hero Section - Loads immediately with high priority background -->
 <section class="hero" id="hero">
-</section>
-
-<!-- About Section - Loads first after hero -->
-<section class="about" id="about">
-    <div class="about-intro-wrapper">
-        <div class="about-intro">
-            <h1>Creek Crosby</h1>
-            <p>Rock and Roll, Rockabilly, Country, Blues</p>
-            <div class="hero-buttons">
-                <a href="#events" class="btn btn-primary">Upcoming Shows</a>
-                <a href="#contact" class="btn btn-primary">Book Us</a>
-            </div>
-        </div>
-    </div>
     <div class="container">
-        <h2 class="section-title">About Us</h2>
-        <div class="about-content" 
-             hx-get="{% url 'about_partial' %}"
-             hx-trigger="load delay:200ms"
-             hx-swap="innerHTML">
-            <!-- Immediate placeholder content -->
-            <div class="about-item">
-                <div class="about-text">
-                    <div class="fast-loading">⚡ Loading our story...</div>
-                </div>
-            </div>
-        </div>
+        <p class="hero-genres">Rock and roll, rockabilly, country, blues</p>
+        <h1 class="hero-wordmark">Creek Crosby</h1>
+        <div class="hero-rule" role="presentation"></div>
+        <p class="hero-origin">Out of Greenock and Gourock. Together, on and off, since 1980.</p>
+
+        <figure class="hero-photo">
+            <img src="{% static 'images/JM DSC_2067 BW.jpg' %}"
+                 alt="The five members of Creek Crosby with their instruments on a small stage"
+                 width="4713" height="3484"
+                 fetchpriority="high" decoding="async">
+        </figure>
+
+        <p class="hero-actions">
+            <a href="#events" class="btn btn-primary">Upcoming shows</a>
+            <a href="#contact" class="link-rule">Book the band</a>
+        </p>
     </div>
 </section>
 
-<!-- Events Section - Loads second -->
-<section class="events" id="events">
+<section class="section" id="about">
     <div class="container">
-        <h2 class="section-title">Creek Crosby Live</h2>
-        
-        <!-- Search Box -->
-        <div class="search-container">
+        <h2 class="section-title">The story</h2>
+        <div class="about-body">
+            {% include "partials/about.html" %}
+        </div>
+    </div>
+</section>
+
+<section class="section section--shade" id="events">
+    <div class="container">
+        <h2 class="section-title">Live</h2>
+
+        <div class="events-toolbar">
+            <label class="sr-only" for="event-search">Search events</label>
             <input name="search_text"
-                   placeholder="Search events..."
-                   type="text"
+                   id="event-search"
+                   placeholder="Search events"
+                   type="search"
                    class="search-input"
                    hx-get="{% url 'search_events' %}"
                    hx-trigger="keyup changed delay:500ms"
-                   hx-target=".events-content"
-                   hx-push-url="true">
+                   hx-target="#events-results">
         </div>
-        
+
         <div class="events-content" id="events-results"
-             hx-get="{% url 'events_partial' %}"
-             hx-trigger="load delay:800ms"
-             hx-swap="innerHTML"
              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-            <!-- Show placeholder events immediately -->
-            <div class="events-grid">
-                <div class="event-card">
-                    <div class="event-image-container image-skeleton" style="height: 200px;"></div>
-                    <div class="event-content">
-                        <h3 class="event-title fast-loading">Loading events...</h3>
-                        <div class="event-details">
-                            <p class="event-date">📅 <span class="fast-loading">Date loading...</span></p>
-                            <p class="event-location">📍 <span class="fast-loading">Location loading...</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include "partials/event_results.html" %}
         </div>
     </div>
 </section>
 
-<!-- Band Section - Loads third -->
-<section class="band" id="band">
+<section class="section" id="band">
     <div class="container">
-        <h2 class="section-title">Our Band</h2>
-        <div class="band-content"
-             hx-get="{% url 'band_partial' %}"
-             hx-trigger="load delay:1400ms"
-             hx-swap="innerHTML">
-            <!-- Show placeholder band members immediately -->
-            <div class="band-grid">
-                <div class="band-member">
-                    <div class="member-image member-placeholder image-skeleton" style="height: 280px;"></div>
-                    <div class="member-info">
-                        <h3 class="fast-loading">Loading member...</h3>
-                        <p class="member-position fast-loading">Loading...</p>
-                    </div>
-                </div>
-                <div class="band-member">
-                    <div class="member-image member-placeholder image-skeleton" style="height: 280px;"></div>
-                    <div class="member-info">
-                        <h3 class="fast-loading">Loading member...</h3>
-                        <p class="member-position fast-loading">Loading...</p>
-                    </div>
-                </div>
-            </div>
+        <h2 class="section-title">Creek Crosby are</h2>
+        <div class="band-content">
+            {% include "partials/band.html" %}
         </div>
     </div>
 </section>
 
-<!-- Media Section -->
-<section class="media" id="media">
+<section class="section section--shade" id="media">
     <div class="container">
-        <h2 class="section-title">Media</h2>
-        <div class="media-content"
-             hx-get="{% url 'media_partial' %}"
-             hx-trigger="load delay:500ms"
-             hx-swap="innerHTML">
-            <!-- Skeleton echoing the three sub-sections while HTMX loads -->
-            <div class="media-subsection">
-                <header class="media-subsection-header">
-                    <h3 class="media-subsection-title fast-loading">Loading music&hellip;</h3>
-                </header>
-                <div class="media-skeleton-row"></div>
-            </div>
-            <div class="media-subsection">
-                <header class="media-subsection-header">
-                    <h3 class="media-subsection-title fast-loading">Loading videos&hellip;</h3>
-                </header>
-                <div class="media-skeleton-card"></div>
-            </div>
+        <h2 class="section-title">Music, video and photos</h2>
+        <div class="media-content">
+            {% include "partials/media.html" %}
         </div>
     </div>
 </section>
 
-<!-- Merchandise Section -->
-<section class="merchandise" id="merchandise">
+<section class="section" id="merchandise">
     <div class="container">
-        <h2 class="section-title">Shop</h2>
-        <br/>
-        <br/>
-        <h2 style="text-align: center;">Please email or call to place an order.</h2>
-        <br/>
-        <div class="merchandise-content"
-             hx-get="{% url 'merchandise_partial' %}"
-             hx-trigger="load delay:2000ms"
-             hx-swap="innerHTML">
-            <!-- Show placeholder merchandise immediately -->
-            <div class="merchandise-grid">
-                <div class="merchandise-item-card">
-                    <div class="merchandise-item-image-container">
-                        <h2 class="fast-loading">Loading items...</h2>
-                        <div class="merchandise-item-image image-skeleton" style="height: 200px;"></div>
-                    </div>
-                </div>
-            </div>
+        <h2 class="section-title">Merch</h2>
+        <p class="section-note">Everything is made to order. Email or call us and we will sort it out.</p>
+        <div class="merchandise-content">
+            {% include "partials/merchandise.html" %}
         </div>
     </div>
 </section>
 
-<!-- Contact Section - Loads last -->
-<section class="contact" id="contact">
+<section class="section section--shade" id="contact">
     <div class="container">
-        <h2 class="section-title">Contact Us</h2>
-        <div class="contact-content"
-             hx-get="{% url 'contact_partial' %}"
-             hx-trigger="load delay:2600ms"
-             hx-swap="innerHTML">
-            <!-- Show basic contact info immediately -->
-            <div class="contact-info">
-                <h3>Get in Touch</h3>
-                <div class="info-item">
-                    <span class="icon">📧</span>
-                    <div class="fast-loading">Loading contact info...</div>
-                </div>
-                <div class="info-item">
-                    <span class="icon">📞</span>
-                    <div class="fast-loading">Loading phone...</div>
-                </div>
-                <div class="info-item">
-                    <span class="icon">📍</span>
-                    <div class="fast-loading">Loading address...</div>
-                </div>
-            </div>
+        <h2 class="section-title">Get in touch</h2>
+        <div class="contact-body">
+            {% include "partials/contact.html" %}
         </div>
     </div>
 </section>
-
-<script>
-// Preload hero background image immediately
-document.addEventListener('DOMContentLoaded', function() {
-    // Preload the hero background image with highest priority
-    const heroImage = new Image();
-    heroImage.src = '/static/images/JM DSC_2067 BW.jpg';
-    heroImage.onload = function() {
-        console.log('✅ Hero background image loaded');
-    };
-    heroImage.onerror = function() {
-        console.error('❌ Failed to load hero background image');
-    };
-
-    // Progressive section loading with proper timing
-    console.log('🚀 Creek Crosby website starting progressive load...');
-});
-
-// Enhanced loading sequence
-document.addEventListener('htmx:afterSwap', function(event) {
-    const target = event.target;
-    
-    // Initialize any new content
-    if (target.querySelector) {
-        // Initialize lazy loading for new images
-        const newImages = target.querySelectorAll('img[loading="lazy"]');
-        newImages.forEach(img => {
-            img.style.opacity = '0';
-            img.addEventListener('load', function() {
-                this.style.transition = 'opacity 0.3s ease';
-                this.style.opacity = '1';
-            });
-        });
-    }
-    
-    // Remove loading indicators gradually
-    setTimeout(() => {
-        const loadingElements = target.querySelectorAll('.fast-loading, .loading');
-        loadingElements.forEach(el => {
-            if (el.textContent.includes('Loading')) {
-                el.style.transition = 'opacity 0.3s ease';
-                el.style.opacity = '0';
-                setTimeout(() => {
-                    if (el.parentNode) {
-                        el.remove();
-                    }
-                }, 300);
-            }
-        });
-    }, 200);
-});
-
-// Optimize performance for large screens
-document.addEventListener('htmx:configRequest', function(event) {
-    // Add specific headers for better compatibility on larger screens
-    event.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-    event.detail.headers['Cache-Control'] = 'no-cache';
-});
-
-// Enhanced error handling for large screens
-document.addEventListener('htmx:responseError', function(event) {
-    console.error('HTMX Response Error:', event.detail);
-    const target = event.target;
-    
-    // Provide fallback content for failed requests
-    if (target.innerHTML.includes('Loading')) {
-        target.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(245, 230, 211, 0.5);">Content temporarily unavailable. Please refresh the page.</div>';
-    }
-});
-
-// Ensure compatibility across different screen sizes
-document.addEventListener('htmx:beforeRequest', function(event) {
-    // Add debugging for large screen issues
-    const viewport = {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        devicePixelRatio: window.devicePixelRatio || 1
-    };
-    
-    console.log('🖥️ Request on viewport:', viewport);
-    
-    // Add viewport info to request headers for debugging
-    event.detail.headers['X-Viewport-Width'] = viewport.width.toString();
-    event.detail.headers['X-Viewport-Height'] = viewport.height.toString();
-});
-</script>
 {% endblock %}

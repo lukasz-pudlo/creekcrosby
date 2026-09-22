@@ -8,117 +8,113 @@ from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
-from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
 
 from .forms import ContactMessageForm
 from .models import AboutSection, BandMember, ContactInfo, Event, MediaItem, Merchandise
-from .serializers import (
-    AboutSectionSerializer,
-    BandMemberSerializer,
-    ContactInfoSerializer,
-    EventSerializer,
-    MediaItemSerializer,
-    MerchandiseSerializer,
-)
+
+
+def ordered_events():
+    """Upcoming events first (soonest first), then past ones (newest first).
+
+    Each event is tagged with `is_upcoming`, and the soonest upcoming one with
+    `is_next`, so the template can group the listing and flag the next show
+    without repeating the date arithmetic.
+    """
+    from django.utils import timezone
+
+    now = timezone.now()
+    upcoming = list(Event.objects.filter(date__gte=now).order_by("date"))
+    past = list(Event.objects.filter(date__lt=now).order_by("-date"))
+
+    for event in upcoming:
+        event.is_upcoming = True
+        event.is_next = False
+    if upcoming:
+        upcoming[0].is_next = True
+    for event in past:
+        event.is_upcoming = False
+        event.is_next = False
+
+    return upcoming + past
+
+
+def grouped_media():
+    """Media items split into the three sub-sections the Media template renders."""
+    items = list(MediaItem.objects.all().order_by("order", "-created_at"))
+    return {
+        "audio_items": [i for i in items if i.media_type == "audio"],
+        "video_items": [
+            i for i in items if i.media_type in ("video_file", "video_link")
+        ],
+        "image_items": [i for i in items if i.media_type == "image"],
+    }
 
 
 # Main page view
 def index(request):
-    """Main index view that serves the HTMX-powered page"""
-    return render(
-        request, "index.html", {"user": request.user, "is_staff": request.user.is_staff}
-    )
+    """Main page. Every section is rendered server-side on first paint."""
+    context = {
+        "user": request.user,
+        "is_staff": request.user.is_staff,
+        "about_sections": AboutSection.objects.all(),
+        "events": ordered_events(),
+        "band_members": BandMember.objects.all().order_by("order", "name"),
+        "merchandise_items": Merchandise.objects.all(),
+        "contact_info": ContactInfo.objects.first(),
+        "form": ContactMessageForm(),
+    }
+    context.update(grouped_media())
+    return render(request, "index.html", context)
 
 
-# HTMX Views for lazy loading and dynamic content
+# Partial views. These back the staff editing flow, which swaps fragments in
+# place, so they always return the fragment -- there is no full-page variant.
 def events_partial(request):
-    """HTMX view for loading events"""
-    from django.utils import timezone
-
-    now = timezone.now()
-
-    # Get upcoming events (future) and past events separately
-    upcoming_events = Event.objects.filter(date__gte=now).order_by("date")
-    past_events = Event.objects.filter(date__lt=now).order_by("-date")
-
-    # Combine them: upcoming events first, then past events
-    events = list(upcoming_events) + list(past_events)
-
-    if request.htmx:
-        return render(
-            request,
-            "partials/event_results.html",
-            {"events": events, "user": request.user, "is_staff": request.user.is_staff},
-        )
-
+    """Events grid fragment."""
     return render(
         request,
-        "events.html",
-        {"events": events, "user": request.user, "is_staff": request.user.is_staff},
+        "partials/event_results.html",
+        {"events": ordered_events(), "is_staff": request.user.is_staff},
     )
 
 
 def band_partial(request):
-    """HTMX view for loading band members"""
-    band_members = BandMember.objects.all().order_by("order", "name")
-
-    if request.htmx:
-        return render(
-            request,
-            "partials/band.html",
-            {"band_members": band_members, "is_staff": request.user.is_staff},
-        )
-
+    """Band grid fragment."""
     return render(
         request,
-        "band.html",
-        {"band_members": band_members, "is_staff": request.user.is_staff},
+        "partials/band.html",
+        {
+            "band_members": BandMember.objects.all().order_by("order", "name"),
+            "is_staff": request.user.is_staff,
+        },
     )
 
 
 def about_partial(request):
-    """HTMX view for loading about sections"""
-    about_sections = AboutSection.objects.all()
-
-    if request.htmx:
-        return render(
-            request,
-            "partials/about.html",
-            {"about_sections": about_sections, "is_staff": request.user.is_staff},
-        )
-
+    """About sections fragment."""
     return render(
         request,
-        "about.html",
-        {"about_sections": about_sections, "is_staff": request.user.is_staff},
+        "partials/about.html",
+        {
+            "about_sections": AboutSection.objects.all(),
+            "is_staff": request.user.is_staff,
+        },
     )
 
 
 def contact_partial(request):
-    """Render contact section"""
-    try:
-        contact_info = ContactInfo.objects.first()
-    except ContactInfo.DoesNotExist:
-        contact_info = None
-
-    # Create a new form instance
-    form = ContactMessageForm()
-
-    context = {
-        "contact_info": contact_info,
-        "is_staff": request.user.is_staff,
-        "form": form,
-    }
-
-    if request.htmx:
-        return render(request, "partials/contact.html", context)
-
-    return render(request, "contact.html", context)
+    """Contact details fragment."""
+    return render(
+        request,
+        "partials/contact.html",
+        {
+            "contact_info": ContactInfo.objects.first(),
+            "is_staff": request.user.is_staff,
+            "form": ContactMessageForm(),
+        },
+    )
 
 
 @csrf_protect
@@ -297,69 +293,6 @@ def search_events(request):
         return render(request, "partials/event_results.html", data)
 
     return render(request, "search_events.html", data)
-
-
-# Keep existing API views for backward compatibility
-class EventViewSet(viewsets.ReadOnlyModelViewSet):
-    """API endpoint for viewing band events"""
-
-    serializer_class = EventSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        """Return events ordered with upcoming events first, then past events"""
-        from django.db.models import Case, IntegerField, Value, When
-        from django.utils import timezone
-
-        now = timezone.now()
-
-        # Simple approach: upcoming events (is_upcoming=0) come first, ordered by date ascending
-        # Past events (is_upcoming=1) come second, ordered by date descending
-        return Event.objects.annotate(
-            is_upcoming=Case(
-                When(date__gte=now, then=Value(0)),
-                default=Value(1),
-                output_field=IntegerField(),
-            )
-        ).order_by(
-            "is_upcoming",
-            Case(
-                When(is_upcoming=0, then="date"),  # Upcoming: ascending
-                default="-date",  # Past: descending
-            ),
-        )
-
-
-class BandMemberViewSet(viewsets.ReadOnlyModelViewSet):
-    """API endpoint for viewing band members"""
-
-    queryset = BandMember.objects.all()
-    serializer_class = BandMemberSerializer
-    permission_classes = [AllowAny]
-
-
-class AboutSectionViewSet(viewsets.ReadOnlyModelViewSet):
-    """API endpoint for viewing about sections"""
-
-    queryset = AboutSection.objects.all()
-    serializer_class = AboutSectionSerializer
-    permission_classes = [AllowAny]
-
-
-class ContactInfoViewSet(viewsets.ReadOnlyModelViewSet):
-    """API endpoint for viewing contact information"""
-
-    queryset = ContactInfo.objects.all()
-    serializer_class = ContactInfoSerializer
-    permission_classes = [AllowAny]
-
-
-class MediaItemViewSet(viewsets.ReadOnlyModelViewSet):
-    """API endpoint for viewing media items"""
-
-    queryset = MediaItem.objects.all()
-    serializer_class = MediaItemSerializer
-    permission_classes = [AllowAny]
 
 
 # About Section Editing Views
@@ -742,16 +675,7 @@ def edit_event(request, event_id):
         if needs_full_refresh:
             # Return updated events grid for date/time changes (affects ordering)
             # The JavaScript will handle replacing the entire #events-results content
-            from django.utils import timezone
-
-            now = timezone.now()
-
-            # Get upcoming events (future) and past events separately
-            upcoming_events = Event.objects.filter(date__gte=now).order_by("date")
-            past_events = Event.objects.filter(date__lt=now).order_by("-date")
-
-            # Combine them: upcoming events first, then past events
-            events = list(upcoming_events) + list(past_events)
+            events = ordered_events()
 
             return render(
                 request,
@@ -820,16 +744,7 @@ def add_event(request):
 
     if request.htmx:
         # Return the updated events
-        from django.utils import timezone
-
-        now = timezone.now()
-
-        # Get upcoming events (future) and past events separately
-        upcoming_events = Event.objects.filter(date__gte=now).order_by("date")
-        past_events = Event.objects.filter(date__lt=now).order_by("-date")
-
-        # Combine them: upcoming events first, then past events
-        events = list(upcoming_events) + list(past_events)
+        events = ordered_events()
 
         return render(
             request,
@@ -853,16 +768,7 @@ def delete_event(request, event_id):
 
     if request.htmx:
         # Return the updated events
-        from django.utils import timezone
-
-        now = timezone.now()
-
-        # Get upcoming events (future) and past events separately
-        upcoming_events = Event.objects.filter(date__gte=now).order_by("date")
-        past_events = Event.objects.filter(date__lt=now).order_by("-date")
-
-        # Combine them: upcoming events first, then past events
-        events = list(upcoming_events) + list(past_events)
+        events = ordered_events()
 
         return render(
             request,
@@ -874,30 +780,6 @@ def delete_event(request, event_id):
 
 
 # Footer views
-def footer_contact_partial(request):
-    """HTMX view for loading footer contact info"""
-    try:
-        contact_info = ContactInfo.objects.first()
-    except ContactInfo.DoesNotExist:
-        contact_info = None
-
-    return render(
-        request, "partials/footer_contact.html", {"contact_info": contact_info}
-    )
-
-
-def footer_social_partial(request):
-    """HTMX view for loading footer social links"""
-    try:
-        contact_info = ContactInfo.objects.first()
-    except ContactInfo.DoesNotExist:
-        contact_info = None
-
-    return render(
-        request, "partials/footer_social.html", {"contact_info": contact_info}
-    )
-
-
 def footer_thanks_partial(request):
     """HTMX view for loading footer thanks section"""
 
@@ -915,73 +797,6 @@ def merchandise_partial(request):
     return render(
         request, "partials/merchandise.html", {"merchandise_items": merchandise_items}
     )
-
-
-# Optimized band partial with caching
-
-
-@cache_page(60 * 10)  # Cache for 10 minutes
-def band_partial_optimized(request):
-    """Optimized band partial with caching"""
-    band_members = BandMember.objects.all().order_by("order", "name")
-
-    context = {"band_members": band_members, "is_staff": request.user.is_staff}
-
-    if request.htmx:
-        return render(request, "partials/band_optimized.html", context)
-
-    return render(request, "band.html", context)
-
-
-# Optimized image serving with compression hints
-
-
-def optimized_media_view(request, path):
-    """Serve media files with optimization headers"""
-    import mimetypes
-
-    from django.http import HttpResponse
-    from django.views.static import serve
-
-    # Get the file
-    response = serve(request, path, document_root=settings.MEDIA_ROOT)
-
-    # Add optimization headers for images
-    content_type = mimetypes.guess_type(path)[0]
-    if content_type and content_type.startswith("image/"):
-        # Add cache headers
-        response["Cache-Control"] = "public, max-age=31536000"  # 1 year
-        response["Vary"] = "Accept-Encoding"
-
-        # Add compression hints
-        if "webp" in request.META.get("HTTP_ACCEPT", ""):
-            response["Content-Encoding"] = "webp"
-
-    return response
-
-
-# Add performance monitoring
-
-
-def get_performance_stats():
-    """Get performance statistics for monitoring"""
-    from django.db import connection
-
-    stats = {
-        "db_queries": len(connection.queries),
-        "media_items_count": cache.get_or_set(
-            "media_items_count",
-            lambda: MediaItem.objects.count(),
-            300,  # Cache for 5 minutes
-        ),
-        "band_members_count": cache.get_or_set(
-            "band_members_count",
-            lambda: BandMember.objects.count(),
-            600,  # Cache for 10 minutes
-        ),
-    }
-
-    return stats
 
 
 def media_partial(request):

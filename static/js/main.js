@@ -1,12 +1,18 @@
-// Header scroll effect
-window.addEventListener('scroll', function () {
+// Header scroll effect. rAF-throttled -- this used to run on every scroll frame.
+let headerTicking = false;
+function syncHeaderState() {
     const header = document.getElementById('header');
-    if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-});
+    if (!header) return;
+    header.classList.toggle('scrolled', window.scrollY > 50);
+}
+window.addEventListener('scroll', function () {
+    if (headerTicking) return;
+    headerTicking = true;
+    requestAnimationFrame(function () {
+        syncHeaderState();
+        headerTicking = false;
+    });
+}, { passive: true });
 
 // Mobile menu functionality
 function toggleMobileMenu() {
@@ -41,26 +47,6 @@ document.addEventListener('click', function (event) {
     }
 });
 
-// Smooth scrolling for anchor links
-document.addEventListener('click', function (event) {
-    if (event.target.matches('a[href^="#"]')) {
-        event.preventDefault();
-
-        const targetId = event.target.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
-
-        if (targetElement) {
-            const headerHeight = document.querySelector('.header').offsetHeight;
-            const targetPosition = targetElement.offsetTop - headerHeight;
-
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
-    }
-});
-
 // HTMX event handlers
 document.addEventListener('htmx:beforeRequest', function (event) {
     // Add loading indicator
@@ -72,7 +58,6 @@ document.addEventListener('htmx:beforeRequest', function (event) {
 
 document.addEventListener('htmx:afterRequest', function (event) {
     const target = event.target;
-    console.log('HTMX after request:', event.detail);
 
     // Remove loading indicator
     if (target.classList.contains('search-input')) {
@@ -88,17 +73,9 @@ document.addEventListener('htmx:responseError', function (event) {
 
 // Initialize any necessary components when DOM is loaded
 document.addEventListener('DOMContentLoaded', function () {
-    // Set initial header state
-    const header = document.getElementById('header');
-    if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-    }
-
-    // Initialize media functionality
+    syncHeaderState();
     initializeMediaFunctionality();
-
-    // Add any other initialization code here
-    console.log('Creek Crosby website loaded');
+    initializeBandSorting();
 });
 
 // CONSOLIDATED MEDIA FUNCTIONALITY
@@ -117,9 +94,10 @@ function initializeLightbox() {
     // Create lightbox modal if it doesn't exist
     if (!document.getElementById('lightbox-modal')) {
         const lightboxHTML = `
-            <div id="lightbox-modal" class="lightbox-modal" style="display: none;">
+            <div id="lightbox-modal" class="lightbox-modal" style="display: none;"
+                 tabindex="-1" role="dialog" aria-modal="true" aria-label="Image viewer">
                 <div class="lightbox-content" onclick="event.stopPropagation()">
-                    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+                    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
                     <img id="lightbox-image" src="" alt="" class="lightbox-image">
                     <div class="lightbox-title"></div>
                 </div>
@@ -128,22 +106,23 @@ function initializeLightbox() {
         document.body.insertAdjacentHTML('beforeend', lightboxHTML);
     }
 
-    // Add click handlers to lightbox triggers
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('lightbox-trigger')) {
-            event.preventDefault();
-            event.stopPropagation();
-            openLightbox(event.target);
-        }
-    });
-
-    // Add click handler to modal background for closing
-    document.addEventListener('click', function (event) {
-        if (event.target.id === 'lightbox-modal') {
-            closeLightbox();
-        }
-    });
 }
+
+// Registered once at module scope. initializeLightbox() runs again after every
+// HTMX media swap, so registering these inside it stacked duplicate listeners.
+document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('lightbox-trigger')) {
+        event.preventDefault();
+        event.stopPropagation();
+        openLightbox(event.target);
+    }
+});
+
+document.addEventListener('click', function (event) {
+    if (event.target.id === 'lightbox-modal') {
+        closeLightbox();
+    }
+});
 
 // Global lightbox functions (fixed)
 window.openLightbox = function (imgElement) {
@@ -172,9 +151,15 @@ window.openLightbox = function (imgElement) {
     modal.classList.add('show');
     document.body.classList.add('lightbox-open');
 
-    // Focus on modal for keyboard accessibility
-    modal.focus();
+    // Remember where focus came from so it can be restored on close, and move
+    // focus to the one focusable control inside. modal.focus() used to be a
+    // silent no-op -- the div had no tabindex.
+    lightboxReturnFocus = document.activeElement;
+    const closeBtn = modal.querySelector('.lightbox-close');
+    if (closeBtn) closeBtn.focus();
 };
+
+let lightboxReturnFocus = null;
 
 window.closeLightbox = function () {
     const modal = document.getElementById('lightbox-modal');
@@ -183,7 +168,22 @@ window.closeLightbox = function () {
         modal.classList.remove('show');
         document.body.classList.remove('lightbox-open');
     }
+    if (lightboxReturnFocus && document.contains(lightboxReturnFocus)) {
+        lightboxReturnFocus.focus();
+    }
+    lightboxReturnFocus = null;
 };
+
+// The lightbox holds exactly one focusable control, so trapping Tab is just
+// keeping focus on it while the dialog is open.
+document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Tab') return;
+    const modal = document.getElementById('lightbox-modal');
+    if (!modal || !modal.classList.contains('show')) return;
+    event.preventDefault();
+    const closeBtn = modal.querySelector('.lightbox-close');
+    if (closeBtn) closeBtn.focus();
+});
 
 // VIDEO LOADING FUNCTIONALITY (CONSOLIDATED)
 function initializeVideoLoading() {
@@ -213,7 +213,6 @@ function initializeVideoLoading() {
 
             // Auto-play if possible
             video.play().catch(e => {
-                console.log('Autoplay prevented (normal behavior):', e.message);
             });
         });
 
@@ -276,27 +275,7 @@ function initializeImageOptimization() {
                     });
 
                     img.addEventListener('error', function () {
-                        this.style.background = '#f0f0f0';
                         this.alt = 'Image unavailable';
-                        const container = this.closest('.progressive-image, .lazy-image, .media-image-container');
-                        if (container) {
-                            container.innerHTML = `
-                                <div class="image-error" style="
-                                    display: flex; 
-                                    align-items: center; 
-                                    justify-content: center; 
-                                    height: 200px; 
-                                    background: #f0f0f0; 
-                                    color: #999; 
-                                    border-radius: 8px;
-                                    flex-direction: column;
-                                    gap: 0.5rem;
-                                ">
-                                    <div style="font-size: 2rem;">🖼️</div>
-                                    <div>Image unavailable</div>
-                                </div>
-                            `;
-                        }
                     });
 
                     imageObserver.unobserve(img);
@@ -317,7 +296,6 @@ function initializeImageOptimization() {
 
 // HTMX INTEGRATION - Reinitialize after content swaps
 document.addEventListener('htmx:afterSwap', function (event) {
-    console.log('HTMX after swap:', event.detail);
 
     // Reset any upload states after successful swap
     const uploadingElements = document.querySelectorAll('[data-original-text]');
@@ -342,7 +320,6 @@ document.addEventListener('htmx:afterSwap', function (event) {
         (event.detail.target.querySelector('.media-subsection') ||
             event.detail.target.classList.contains('media-subsection') ||
             event.detail.target.querySelector('.no-media'))) {
-        console.log('Media content swapped, reinitializing...');
         setTimeout(() => {
             initializeMediaFunctionality();
         }, 100);
@@ -352,7 +329,6 @@ document.addEventListener('htmx:afterSwap', function (event) {
     if (event.detail.target.querySelector &&
         (event.detail.target.querySelector('.band-grid') ||
             event.detail.target.classList.contains('band-grid'))) {
-        console.log('Band content swapped, reinitializing sorting...');
         setTimeout(initializeBandSorting, 100);
     }
 
@@ -421,37 +397,19 @@ document.addEventListener('click', function (event) {
     }
 });
 
-// HOVER EFFECTS FOR MEDIA
-document.addEventListener('mouseover', function (event) {
-    if (event.target.closest('.video-thumbnail')) {
-        const playButton = event.target.closest('.video-thumbnail').querySelector('.play-button');
-        if (playButton) {
-            playButton.style.transform = 'translate(-50%, -50%) scale(1.1)';
-            playButton.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-        }
-    }
-});
-
-document.addEventListener('mouseout', function (event) {
-    if (event.target.closest('.video-thumbnail')) {
-        const playButton = event.target.closest('.video-thumbnail').querySelector('.play-button');
-        if (playButton) {
-            playButton.style.transform = 'translate(-50%, -50%) scale(1)';
-            playButton.style.boxShadow = 'none';
-        }
-    }
-});
-
-// Inline editing functionality - ENHANCED VERSION with Rich Text Support
-function makeEditable(element, inputType = 'text') {
+function makeEditable(element, inputType = 'text', evt = window.event) {
     // Prevent double-editing
     if (element.classList.contains('editing')) {
         return;
     }
 
-    // Prevent default HTMX behavior
-    event.preventDefault();
-    event.stopPropagation();
+    // Was calling preventDefault() on the bare global `event`, which only
+    // exists in Chromium. The default parameter keeps every inline
+    // onclick="makeEditable(this)" call site working untouched.
+    if (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+    }
 
     const field = element.getAttribute('data-field');
     const currentValue = element.getAttribute('data-value') || element.textContent.trim();
@@ -588,18 +546,15 @@ function makeEditable(element, inputType = 'text') {
 
     // Cancel function
     function cancelEdit() {
-        console.log('Cancel edit called for field:', field);
 
         // Check if element still exists and is in editing mode
         if (!element || !element.classList.contains('editing')) {
-            console.log('Element not in editing mode or does not exist');
             return;
         }
 
         try {
             element.innerHTML = originalContent;
             element.classList.remove('editing');
-            console.log('Cancel edit completed successfully');
         } catch (error) {
             console.error('Error during cancel edit:', error);
         }
@@ -613,7 +568,6 @@ function makeEditable(element, inputType = 'text') {
     });
 
     cancelBtn.addEventListener('click', function (e) {
-        console.log('Cancel button clicked');
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -654,7 +608,7 @@ function createFormattingToolbar(textarea) {
         { text: 'B', title: 'Bold', action: () => wrapSelection(textarea, '**', '**') },
         { text: 'I', title: 'Italic', action: () => wrapSelection(textarea, '*', '*') },
         { text: '¶', title: 'New Paragraph', action: () => insertText(textarea, '\n\n') },
-        { text: '•', title: 'Bullet Point', action: () => insertText(textarea, '\n• ') },
+        { text: 'List', title: 'Bullet Point', action: () => insertText(textarea, '\n- ') },
         { text: 'Link', title: 'Insert Link', action: () => insertLink(textarea) }
     ];
 
@@ -752,7 +706,6 @@ document.addEventListener('change', function (event) {
         const form = input.closest('form');
 
         if (!file) {
-            console.log('No file selected');
             return;
         }
 
@@ -773,13 +726,12 @@ document.addEventListener('change', function (event) {
         }
 
         // Show preview if possible
-        console.log('Image selected:', file.name, 'Size:', Math.round(file.size / 1024) + 'KB', 'Type:', file.type);
 
         // Find the label and show uploading state
         const label = input.nextElementSibling || input.previousElementSibling;
         if (label && label.tagName === 'LABEL') {
             const originalText = label.textContent;
-            label.textContent = '📤 Uploading...';
+            label.textContent = 'Uploading…';
             label.style.pointerEvents = 'none';
             label.style.opacity = '0.6';
 
@@ -800,7 +752,6 @@ document.addEventListener('change', function (event) {
 
 // Handle upload errors
 document.addEventListener('htmx:responseError', function (event) {
-    console.log('HTMX response error:', event.detail);
 
     // Reset upload states on error
     const uploadingElements = document.querySelectorAll('[data-original-text]');
@@ -840,7 +791,6 @@ document.addEventListener('htmx:xhr:progress', function (event) {
     if (!event.detail.loaded || !event.detail.total) return;
 
     const progress = (event.detail.loaded / event.detail.total) * 100;
-    console.log('Upload progress:', Math.round(progress) + '%');
 
     // Find any progress indicators and update them
     const progressBars = document.querySelectorAll('.upload-progress');
@@ -852,7 +802,7 @@ document.addEventListener('htmx:xhr:progress', function (event) {
     const uploadingLabels = document.querySelectorAll('[data-original-text]');
     uploadingLabels.forEach(label => {
         if (progress < 100) {
-            label.textContent = `📤 Uploading... ${Math.round(progress)}%`;
+            label.textContent = `Uploading… ${Math.round(progress)}%`;
         }
     });
 });
@@ -860,7 +810,6 @@ document.addEventListener('htmx:xhr:progress', function (event) {
 // Enhanced HTMX request handlers
 document.addEventListener('htmx:beforeRequest', function (event) {
     const target = event.target;
-    console.log('HTMX before request:', event.detail);
 
     // Handle image upload forms
     if (target.matches('form[hx-encoding="multipart/form-data"]')) {
@@ -868,7 +817,7 @@ document.addEventListener('htmx:beforeRequest', function (event) {
         if (label && !label.hasAttribute('data-original-text')) {
             const originalText = label.textContent;
             label.setAttribute('data-original-text', originalText);
-            label.textContent = '📤 Preparing upload...';
+            label.textContent = 'Preparing upload…';
             label.style.pointerEvents = 'none';
             label.style.opacity = '0.6';
         }
@@ -887,18 +836,14 @@ let draggedIndex = null;
 
 function initializeBandSorting() {
     const bandGrid = document.querySelector('.band-grid.sortable');
-    console.log('Initializing band sorting, found grid:', bandGrid);
 
     if (!bandGrid) {
-        console.log('No sortable band grid found');
         return;
     }
 
     const bandMembers = bandGrid.querySelectorAll('.band-member.draggable');
-    console.log('Found draggable band members:', bandMembers.length);
 
     bandMembers.forEach((member, index) => {
-        console.log(`Setting up member ${index}:`, member.getAttribute('data-member-id'));
 
         // Only make draggable when drag handle is used
         const dragHandle = member.querySelector('.drag-handle');
@@ -931,7 +876,6 @@ function initializeBandSorting() {
     bandGrid.addEventListener('dragover', handleGridDragOver);
     bandGrid.addEventListener('drop', handleGridDrop);
 
-    console.log('Band sorting initialized successfully');
 }
 
 function handleDragStart(e) {
@@ -952,7 +896,6 @@ function handleDragStart(e) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.outerHTML);
 
-    console.log('Drag started for member:', this.getAttribute('data-member-id'));
 }
 
 function handleDragEnd(e) {
@@ -973,7 +916,6 @@ function handleDragEnd(e) {
     draggedElement = null;
     draggedIndex = null;
 
-    console.log('Drag ended');
 }
 
 function handleDragOver(e) {
@@ -1016,7 +958,6 @@ function handleGridDrop(e) {
 
     // Only handle if we're dropping on the grid itself (empty space)
     if ((e.target === this || e.target.classList.contains('band-grid')) && draggedElement) {
-        console.log('Dropping on grid (end position)');
 
         const bandGrid = document.querySelector('.band-grid.sortable');
         const allMembers = Array.from(bandGrid.querySelectorAll('.band-member.draggable'));
@@ -1033,8 +974,6 @@ function handleGridDrop(e) {
         // Add to the end
         currentOrder.push(draggedMemberId);
 
-        console.log('New order (moved to end):', currentOrder);
-
         // Send reorder request
         sendReorderRequest(currentOrder);
     }
@@ -1046,7 +985,6 @@ function handleGridDrop(e) {
 function handleDragEnter(e) {
     if (this !== draggedElement) {
         this.classList.add('drag-over');
-        console.log('Drag enter on member:', this.getAttribute('data-member-id'));
     }
 }
 
@@ -1065,7 +1003,6 @@ function handleDragLeave(e) {
     }
 
     this.classList.remove('drag-over');
-    console.log('Drag leave from member:', this.getAttribute('data-member-id'));
 }
 
 function handleDrop(e) {
@@ -1074,7 +1011,6 @@ function handleDrop(e) {
     }
 
     if (draggedElement && draggedElement !== this) {
-        console.log('Dropping on member:', this.getAttribute('data-member-id'));
 
         const bandGrid = document.querySelector('.band-grid.sortable');
         const allMembers = Array.from(bandGrid.querySelectorAll('.band-member.draggable'));
@@ -1112,8 +1048,6 @@ function handleDrop(e) {
         } else {
             currentOrder.splice(targetIdx, 0, draggedMemberId);
         }
-
-        console.log('New order (inserted):', currentOrder);
 
         // Send reorder request
         sendReorderRequest(currentOrder);
@@ -1169,16 +1103,3 @@ function sendReorderRequest(memberIds) {
             }
         });
 }
-
-// Memory management - Clean up observers when leaving page
-window.addEventListener('beforeunload', function () {
-    // Clean up observers to prevent memory leaks
-    if (window.lazyImageObserver) {
-        window.lazyImageObserver.disconnect();
-    }
-    if (window.videoObserver) {
-        window.videoObserver.disconnect();
-    }
-});
-
-console.log('🎵 Creek Crosby main.js loaded with consolidated media functionality');

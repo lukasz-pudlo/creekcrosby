@@ -6,9 +6,9 @@
               hx-indicator="#add-loading">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary btn-sm">
-                ➕ Add Band Member
+                Add band member
             </button>
-            <div id="add-loading" class="htmx-indicator">Adding...</div>
+            <div id="add-loading" class="htmx-indicator">Adding…</div>
         </form>
     </div>
 {% endif %}
@@ -19,9 +19,9 @@
     {% empty %}
         <div class="no-band">
             {% if is_staff %}
-                <p>No band members yet. Click "Add Band Member" to get started!</p>
+                <p>No band members yet.</p>
             {% else %}
-                <p>Band member information coming soon!</p>
+                <p>Band line-up coming soon.</p>
             {% endif %}
         </div>
     {% endfor %}

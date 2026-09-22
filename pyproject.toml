@@ -30,3 +30,8 @@ exclude = [
 ]
 extend-ignore = ["E203", "W503"]
 max-line-length = 88
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.development"
+python_files = ["test_*.py"]
+testpaths = ["core", "creek_crosby"]

@@ -35,7 +35,7 @@
                 <div class="video-thumbnail" data-video-url="{{ item.video_file.url }}" onclick="loadAndPlayVideo(this)">
                     <div class="video-placeholder">
                         <span class="video-placeholder-hint">Click to play</span>
-                        <button class="play-button" type="button" aria-label="Play {{ item.title }}">&#9654;</button>
+                        <button class="play-button" type="button" aria-label="Play {{ item.title }}"><svg viewBox="0 0 12 14" aria-hidden="true" focusable="false"><path d="M0 0l12 7-12 7z"/></svg></button>
                     </div>
                 </div>
                 {% else %}{% with embed_url=item.get_video_embed_url %}
@@ -43,7 +43,7 @@
                 <div class="video-thumbnail" data-embed-url="{{ embed_url }}" onclick="loadAndPlayEmbed(this)">
                     <div class="video-placeholder video-placeholder--embed">
                         <span class="video-placeholder-hint">Click to play</span>
-                        <button class="play-button" type="button" aria-label="Play {{ item.title }}">&#9654;</button>
+                        <button class="play-button" type="button" aria-label="Play {{ item.title }}"><svg viewBox="0 0 12 14" aria-hidden="true" focusable="false"><path d="M0 0l12 7-12 7z"/></svg></button>
                     </div>
                 </div>
                 {% else %}
@@ -87,10 +87,6 @@
 
 {% if not audio_items and not video_items and not image_items %}
 <div class="no-media">
-    <div class="no-media-content">
-        <span class="no-media-icon" aria-hidden="true">&#9835;</span>
-        <h3>No Media Available</h3>
-        <p>Check back later for albums, videos, and more content from Creek Crosby!</p>
-    </div>
+    <p>No music, video or photos up yet. Check back soon.</p>
 </div>
 {% endif %}

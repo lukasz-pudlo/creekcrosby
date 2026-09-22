@@ -5,35 +5,41 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <meta name="theme-color" content="#6B1D2A" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <meta name="description" content="Creek Crosby - Rock and Roll, Rockabilly, Country, Blues band from Greenock and Gourock, Scotland." />
+    <meta name="theme-color" content="#3F1113" />
 
-    <title>{% block title %}Creek Crosby - Rock and Roll Band{% endblock %}</title>
+    <title>{% block title %}Creek Crosby — Rock and Roll Band, Greenock{% endblock %}</title>
+    <meta name="description" content="Creek Crosby — rock and roll, rockabilly, country and blues out of Greenock and Gourock, Scotland." />
+    <link rel="canonical" href="https://creekcrosby.co.uk/" />
 
-    <!-- HTMX -->
-    <script src="{% static 'js/htmx.min.js' %}"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Creek Crosby" />
+    <meta property="og:description" content="Rock and roll, rockabilly, country and blues out of Greenock and Gourock, Scotland." />
+    <meta property="og:image" content="{% static 'images/JM DSC_2067 BW.jpg' %}" />
+    <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- CSS -->
+    <link rel="icon" href="{% static 'favicon.ico' %}" sizes="any">
+
+    {# Self-hosted: no cross-origin request, no dependency on the portfolio host's CSP when embedded. #}
+    <link rel="preload" href="{% static 'fonts/archivo-var.woff2' %}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{% static 'fonts/newsreader-var.woff2' %}" as="font" type="font/woff2" crossorigin>
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
+    <script src="{% static 'js/htmx.min.js' %}" defer></script>
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body{% if is_staff %} class="is-staff"{% endif %}>
     <a href="#main" class="skip-link">Skip to main content</a>
 
-    {% if user.is_staff %}
+    {% if is_staff %}
         <div class="staff-controls">
             <div class="edit-mode-indicator">
-                <span class="edit-icon">✏️</span>
-                <span>EDIT MODE ACTIVE</span>
+                <span>Edit mode</span>
                 <div class="staff-buttons">
-                    <a href="/admin/" class="btn btn-outline" target="_blank">Admin Panel</a>
-                    <form method="post" action="{% url 'admin:logout' %}" style="display: inline;">
+                    <a href="/admin/" class="btn btn-outline btn-sm" target="_blank" rel="noopener">Admin</a>
+                    <form method="post" action="{% url 'admin:logout' %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-outline">Logout</button>
+                        <button type="submit" class="btn btn-outline btn-sm">Log out</button>
                     </form>
                 </div>
             </div>
@@ -42,19 +48,17 @@
 
     <header class="header" id="header">
         <div class="container header-container">
-            <div class="logo">
-                <a href="/">Creek Crosby</a>
-            </div>
-            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-expanded="false" aria-label="Toggle navigation menu">
+            <p class="logo"><a href="/">Creek Crosby</a></p>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-expanded="false" aria-controls="nav" aria-label="Menu">
                 <span class="hamburger"></span>
             </button>
-            <nav class="nav" id="nav">
+            <nav class="nav" id="nav" aria-label="Main">
                 <ul class="nav-list">
-                    <li><a href="#about" onclick="closeMobileMenu()">About</a></li>
-                    <li><a href="#events" onclick="closeMobileMenu()">Events</a></li>
+                    <li><a href="#about" onclick="closeMobileMenu()">Story</a></li>
+                    <li><a href="#events" onclick="closeMobileMenu()">Live</a></li>
                     <li><a href="#band" onclick="closeMobileMenu()">Band</a></li>
                     <li><a href="#media" onclick="closeMobileMenu()">Media</a></li>
-                    <li><a href="#merchandise" onclick="closeMobileMenu()">Shop</a></li>
+                    <li><a href="#merchandise" onclick="closeMobileMenu()">Merch</a></li>
                     <li><a href="#contact" onclick="closeMobileMenu()">Contact</a></li>
                 </ul>
             </nav>
@@ -67,14 +71,14 @@
 
     <footer class="footer">
         <div class="container">
-            <div class="footer-thanks">
-                <h4>With Thanks</h4>
+            <div class="footer-inner">
+                <h2>With thanks</h2>
                 <div class="thanks" hx-get="{% url 'footer_thanks_partial' %}" hx-trigger="load" hx-target="this" hx-swap="innerHTML" id="footer-thanks"></div>
             </div>
         </div>
     </footer>
 
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/main.js' %}" defer></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

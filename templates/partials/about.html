@@ -5,7 +5,7 @@
                     hx-post="{% url 'add_about_section' %}"
                     hx-target=".about-sections"
                     hx-swap="outerHTML">
-                + Add New Section
+                Add section
             </button>
         </div>
     {% endif %}
@@ -16,9 +16,9 @@
         <div class="about-item">
             <div class="about-text">
                 {% if is_staff %}
-                    <p>No about sections yet. Click "Add New Section" to get started!</p>
+                    <p>No sections yet.</p>
                 {% else %}
-                    <p>About information coming soon!</p>
+                    <p>The story is on its way.</p>
                 {% endif %}
             </div>
         </div>
