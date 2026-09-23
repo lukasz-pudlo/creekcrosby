@@ -456,7 +456,7 @@
     .hero-photo img {
         width: 100%;
         height: auto;
-        filter: grayscale(1) contrast(1.06);
+        filter: grayscale(1);
     }
 
     .hero-actions {
@@ -702,15 +702,17 @@
 
     .event-figure {
         margin-top: var(--space-s);
-        max-width: 22rem;
     }
 
+    /* Gig posters are artwork in their own right -- the hot-rod flyer, the
+       sunburst pin-up. They keep their colour and are never cropped; the
+       uploads are portrait (~0.66) and a fixed ratio cut most of them away.
+       Bounded on both axes so a tall poster can't run away with the row. */
     .event-figure img {
-        width: 100%;
+        max-width: min(100%, 22rem);
+        max-height: 26rem;
+        width: auto;
         height: auto;
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-        filter: grayscale(1) contrast(1.05);
     }
 
     /* The next upcoming show is the only thing on the page that earns red. */
@@ -765,24 +767,18 @@
     .member-image {
         position: relative;
         aspect-ratio: 3 / 4;
-        background: var(--oxblood);
-        isolation: isolate;
+        background: var(--paper-shade);
         overflow: hidden;
     }
 
-    /* Duotone. `screen` over flat oxblood maps shadows to the ink and
-       highlights to paper — the EP sleeve treatment. isolation:isolate stops
-       the blend reaching the page ground or the sticky header's stacking
-       context. Without mix-blend-mode support the opaque img just covers the
-       ink layer and you get clean black and white, which is a fine fallback.
-       Done in CSS rather than pre-processing because these are staff uploads
-       at runtime and the originals must stay intact for the lightbox. */
+    /* Straight black and white -- no ink, no blend. Done in CSS rather than
+       pre-processing because these are staff uploads at runtime and the
+       originals must stay intact for the lightbox. */
     .member-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        filter: grayscale(1) contrast(1.2);
-        mix-blend-mode: screen;
+        filter: grayscale(1);
     }
 
     .member-placeholder {
@@ -1009,20 +1005,16 @@
         margin: 0;
     }
 
-    /* Gallery reads straight in black and white — no ink. The photography is
-       good and the grid is where it should be seen plainly. */
+    /* Sleeve and poster artwork, shown as it was printed. `contain` keeps
+       the grid square without cutting into the artwork -- the matte is the
+       letterbox, which is how a print would be mounted anyway. */
     .gallery-item img {
         width: 100%;
         height: 100%;
         aspect-ratio: 1;
-        object-fit: cover;
+        object-fit: contain;
+        background: var(--paper-shade);
         cursor: zoom-in;
-        filter: grayscale(1) contrast(1.08);
-        transition: filter var(--t-base);
-    }
-
-    .gallery-item img:hover {
-        filter: grayscale(0) contrast(1);
     }
 
     .gallery-item-caption {
@@ -1093,7 +1085,7 @@
     .merchandise-item-image img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         mix-blend-mode: multiply;
     }
 
@@ -1332,9 +1324,15 @@
         overflow: auto;
     }
 
+    /* JS toggles only the .show class -- it must not write an inline
+       `display`, or that beats this rule and the flex fallback pins the
+       image to the left (place-items sets justify-items, which flex
+       ignores). justify-content is here so both layouts centre. */
     .lightbox-modal.show {
         display: grid;
         place-items: center;
+        justify-content: center;
+        align-content: center;
     }
 
     .lightbox-content {

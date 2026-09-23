@@ -94,7 +94,7 @@ function initializeLightbox() {
     // Create lightbox modal if it doesn't exist
     if (!document.getElementById('lightbox-modal')) {
         const lightboxHTML = `
-            <div id="lightbox-modal" class="lightbox-modal" style="display: none;"
+            <div id="lightbox-modal" class="lightbox-modal"
                  tabindex="-1" role="dialog" aria-modal="true" aria-label="Image viewer">
                 <div class="lightbox-content" onclick="event.stopPropagation()">
                     <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
@@ -146,8 +146,8 @@ window.openLightbox = function (imgElement) {
         lightboxTitle.textContent = imageTitle;
     }
 
-    // Show modal
-    modal.style.display = 'flex';
+    // Visibility is the .show class only. Writing an inline display here
+    // would override the stylesheet and break the centring.
     modal.classList.add('show');
     document.body.classList.add('lightbox-open');
 
@@ -164,7 +164,6 @@ let lightboxReturnFocus = null;
 window.closeLightbox = function () {
     const modal = document.getElementById('lightbox-modal');
     if (modal) {
-        modal.style.display = 'none';
         modal.classList.remove('show');
         document.body.classList.remove('lightbox-open');
     }
