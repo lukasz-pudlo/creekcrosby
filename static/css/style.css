@@ -35,7 +35,10 @@
 @layer reset, tokens, base, layout, components, staff, utilities;
 
 /* ---------- Fonts: self-hosted, so no cross-origin request and no CSP
-              dependency when the site is embedded in the portfolio. -------- */
+   dependency when the site is embedded in the portfolio. All three faces are
+   preloaded in base.html -- same-origin and preloaded, they arrive before
+   first paint, so `swap` never actually swaps and nothing reflows. The italic
+   carries a lot of the band history, so it is preloaded too. ----------- */
 
 @font-face {
     font-family: 'Archivo';

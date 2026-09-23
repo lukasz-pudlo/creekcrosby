@@ -1,4 +1,4 @@
-{% load markdown_extras %}
+{% load markdown_extras image_extras %}
 {# One row in the gig listing. Also returned alone by the inline editor after a save. #}
 <li class="event-row{% if event.is_next %} event-row--next{% endif %}" data-event-id="{{ event.id }}">
     <p class="event-date{% if is_staff %} editable{% endif %}"
@@ -45,7 +45,8 @@
         {% if event.image %}
             <figure class="event-figure">
                 <img src="{{ event.image.url }}?v={{ event.updated|date:'U' }}"
-                     alt="{{ event.title }}" loading="lazy">
+                     alt="{{ event.title }}"{% img_dims event.image %}
+                     loading="lazy" decoding="async">
             </figure>
         {% endif %}
 
